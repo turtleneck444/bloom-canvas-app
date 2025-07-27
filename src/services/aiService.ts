@@ -157,21 +157,29 @@ interface GeneratedNode {
   importance: number; // 1-10 scale
   connections: string[]; // IDs of nodes this should connect to
   position: { x: number; y: number };
-  metadata: {
-    isFundamental: boolean;
-    complexity: number;
-    parentConcept?: string;
-    suggestedBranches?: string[];
-    aiGenerated?: boolean;
-    fallbackGenerated?: boolean;
-    branchGenerated?: boolean;
-    model?: string;
-    implementationDifficulty?: string;
-    strategicValue?: string;
-    knowledgeDomain?: string;
-    prerequisites?: string[];
-    outcomes?: string[];
-  };
+    metadata: {
+      isFundamental: boolean;
+      complexity: number;
+      parentConcept?: string;
+      suggestedBranches?: string[];
+      aiGenerated?: boolean;
+      fallbackGenerated?: boolean;
+      branchGenerated?: boolean;
+      model?: string;
+      implementationDifficulty?: string;
+      strategicValue?: string;
+      knowledgeDomain?: string;
+      prerequisites?: string[];
+      outcomes?: string[];
+      topicRelevance?: string;
+      generatedAt?: string;
+      realWorldApplication?: string;
+      timeframe?: string;
+      resourceRequirements?: string[];
+      successMetrics?: string[];
+      riskFactors?: string[];
+      industryBenchmarks?: string[];
+    };
 }
 
 interface FundamentalNode {
@@ -200,6 +208,8 @@ class AIService {
     this.apiKey = 'ee05P0TpvlnWXugQjO3ODNRfM6PInBw5';
     this.isConfiguredFlag = !!this.apiKey;
     console.log('🤖 Advanced AI Service initialized with multi-model intelligence');
+    console.log('🔑 API Key configured:', this.apiKey ? 'YES' : 'NO');
+    console.log('📡 Service status:', this.isConfiguredFlag ? 'READY' : 'NOT CONFIGURED');
   }
 
   // Advanced Model Selection Intelligence
@@ -437,207 +447,281 @@ class AIService {
       depth?: number;
     } = {}
   ): Promise<GeneratedNode[]> {
-    console.log(`🧠 Generating intelligent nodes for: "${centralTopic}"`);
+    console.log(`🧠 Generating SPECIFIC intelligent nodes for: "${centralTopic}"`);
     
-    // Check for smart template match first
-    const smartTemplate = SmartTemplateEngine.selectBestTemplate(centralTopic, context);
-    if (smartTemplate) {
-      console.log(`🎯 Using Smart Template: ${smartTemplate.name}`);
-      const templateNodes = SmartTemplateEngine.generateFromTemplate(smartTemplate, centralTopic);
-      
-      // Quality assessment for template-generated nodes
-      const qualityMetrics = this.assessQuality(templateNodes, centralTopic);
-      
-      toast.success(`🚀 Generated from ${smartTemplate.name} template`, {
-        description: `${templateNodes.length} expert nodes • Quality: ${(qualityMetrics.overall * 100).toFixed(1)}%`
-      });
-      
-      // Schedule automatic branching for fundamental template nodes
-      const fundamentalNodes = templateNodes.filter((node: any) => node.metadata.isFundamental);
-      if (fundamentalNodes.length > 0) {
-        setTimeout(() => {
-          this.triggerAutomaticBranching(fundamentalNodes);
-        }, 3000);
-      }
-      
-      return templateNodes;
-    }
-    
-    // Advanced model selection based on topic and context
+    // Skip template matching - force AI generation for specificity
     const optimalModel = this.selectOptimalModel(centralTopic, context);
     const domainProfile = DOMAIN_PROFILES.find(p => p.name === this.analyzeDomain(centralTopic));
     
-    console.log(`🎯 Using ${optimalModel.name} for optimal results`);
+    console.log(`🎯 Using ${optimalModel.name} for maximum relevance to "${centralTopic}"`);
     
     try {
-      const systemPrompt = `You are NOV8 AI Pro, the world's most advanced mind mapping intelligence system. Your expertise spans every domain with PhD-level depth in strategy, technology, business, science, and implementation.
+      const systemPrompt = `You are NOV8 AI Pro - the world's most advanced mind mapping specialist. Your CRITICAL MISSION is to analyze the specific topic "${centralTopic}" and generate HIGHLY RELEVANT, TOPIC-SPECIFIC nodes that directly address this exact subject.
 
-MISSION CRITICAL OBJECTIVES:
-🎯 IMMEDIATE VALUE: Every node must deliver immediate, actionable intelligence
-🧠 EXPERT DEPTH: Generate content at the level of industry thought leaders and domain experts
-🌐 COMPREHENSIVE COVERAGE: Create a complete knowledge ecosystem, not scattered thoughts
-⚡ IMPLEMENTATION FOCUS: Prioritize practical, executable insights over theoretical concepts
-🔗 INTELLIGENT CONNECTIONS: Build meaningful relationship networks between concepts
+🎯 ABSOLUTE REQUIREMENT: Every single node MUST be specifically about "${centralTopic}" - NO generic terms allowed!
 
-ADVANCED GENERATION PROTOCOLS:
+TOPIC-SPECIFIC ANALYSIS PROTOCOL:
+1. ANALYZE "${centralTopic}" for its core components, sub-topics, and related concepts
+2. IDENTIFY the specific domain knowledge areas that directly relate to this topic
+3. GENERATE nodes that someone researching "${centralTopic}" would find immediately valuable
+4. CREATE detailed descriptions that demonstrate deep understanding of "${centralTopic}"
+5. ESTABLISH meaningful connections based on how concepts relate within "${centralTopic}"
 
-1. DEPTH REQUIREMENTS:
-   - FUNDAMENTAL NODES (9-10 importance): 150-300 word comprehensive descriptions with specific methodologies, frameworks, metrics, and implementation steps
-   - STRATEGIC NODES (7-8 importance): 100-200 word detailed explanations with specific examples, case studies, and actionable tactics
-   - TACTICAL NODES (5-6 importance): 75-150 word focused insights with concrete methods, tools, and measurable outcomes
-   - SUPPORTING NODES (3-4 importance): 50-100 word specific, implementable advice with clear next steps
+CONTENT REQUIREMENTS:
+- Each node title must include specific terminology related to "${centralTopic}"
+- Descriptions must demonstrate expertise in the subject matter of "${centralTopic}"
+- No generic words like "Overview", "Introduction", "Basics" - be specific to the topic
+- Include real-world applications, methodologies, and frameworks specific to "${centralTopic}"
+- Reference industry standards, tools, and practices relevant to "${centralTopic}"
 
-2. CONTENT INTELLIGENCE STANDARDS:
-   - Include specific methodologies, frameworks, and proven approaches
-   - Reference industry best practices and benchmarks
-   - Provide quantifiable metrics and KPIs where applicable
-   - Include implementation timelines and resource requirements
-   - Mention specific tools, technologies, or platforms when relevant
-   - Add risk factors and mitigation strategies
-   - Include success criteria and measurement approaches
-
-3. DOMAIN EXPERTISE PROTOCOLS:
-   - Technology: Include architecture patterns, security considerations, scalability factors
-   - Business: Include market analysis, competitive advantages, revenue models, ROI calculations
-   - Strategy: Include SWOT analysis, stakeholder considerations, change management
-   - Innovation: Include emerging trends, disruptive technologies, future implications
-   - Operations: Include process optimization, automation opportunities, efficiency metrics
-
-4. INTERCONNECTION INTELLIGENCE:
-   - Create 3-5 meaningful connections per node based on dependencies, synergies, or logical flow
-   - Prioritize connections that represent implementation sequences or strategic relationships
-   - Avoid superficial connections - each must represent real business or operational value
-
-OUTPUT FORMAT: Return ONLY a valid JSON array with no explanations or commentary.`;
+OUTPUT FORMAT: Return ONLY a valid JSON array with no explanations.`;
 
       const existingContext = existingNodes.length > 0 
-        ? `Existing knowledge base: ${existingNodes.map(n => n.data?.label || n.label).slice(0, 8).join(', ')}`
-        : 'Creating foundational knowledge architecture.';
+        ? `Existing knowledge: ${existingNodes.map(n => n.data?.label || n.label).slice(0, 6).join(', ')}`
+        : 'Building comprehensive knowledge base';
 
-      const userPrompt = `DEEP ANALYSIS REQUEST: "${centralTopic}"
+      const userPrompt = `SPECIFIC TOPIC ANALYSIS: "${centralTopic}"
 
-CONTEXT FRAMEWORK:
-• Domain Focus: ${context.domain || 'Multi-disciplinary'}
-• Strategic Purpose: ${context.purpose || 'Comprehensive knowledge mapping'}
-• Target Audience: ${context.audience || 'Expert practitioners'}
-• Analysis Depth: ${context.depth || 'Expert-level comprehensive'}
-• Current State: ${existingContext}
+ANALYSIS REQUIREMENTS:
+Generate 12-16 nodes that are EXCLUSIVELY about "${centralTopic}". Each node must pass this test: "Is this specifically about ${centralTopic} and would an expert in ${centralTopic} find this valuable?"
 
-GENERATION REQUIREMENTS:
+CONTEXT:
+- Domain: ${context.domain || 'Comprehensive coverage'}
+- Purpose: ${context.purpose || 'Expert-level understanding'}
+- Depth Level: ${context.depth || 'Professional expertise'}
+- Current State: ${existingContext}
 
-1. FOUNDATIONAL LAYER (4-5 nodes, importance 8-10):
-   - Core strategic frameworks and comprehensive methodologies that define "${centralTopic}"
-   - Fundamental principles with specific implementation approaches and measurement criteria
-   - Critical success factors including quantifiable KPIs, benchmarks, and strategic dependencies
-   - Essential knowledge domains with detailed prerequisites and learning pathways
+SPECIFIC NODE GENERATION RULES:
 
-2. STRATEGIC LAYER (5-7 nodes, importance 6-8):
-   - Comprehensive implementation approaches with step-by-step methodologies and resource requirements
-   - Key processes and workflows including automation opportunities and optimization strategies
-   - Critical decision frameworks with risk assessment matrices and stakeholder considerations
-   - Performance optimization strategies with specific metrics, tools, and continuous improvement cycles
+FOUNDATIONAL NODES (4-5 nodes, importance 8-10):
+Create nodes about the core principles, methodologies, or frameworks that define "${centralTopic}". Each must be specific to this topic with detailed implementation information.
 
-3. TACTICAL LAYER (5-7 nodes, importance 4-6):
-   - Specific tools, technologies, and proven methods with implementation guides and cost analysis
-   - Practical applications including real-world case studies, best practices, and measurable outcomes
-   - Comprehensive measurement and evaluation frameworks with dashboard metrics and reporting systems
-   - Resource requirement analysis including budget allocation, timeline planning, and skill development
+STRATEGIC NODES (4-6 nodes, importance 6-8): 
+Generate nodes about specific approaches, strategies, or processes within "${centralTopic}". Include practical implementation details and real-world applications.
 
-4. OPERATIONAL LAYER (3-5 nodes, importance 2-4):
-   - Detailed implementation steps with project management frameworks and deliverable tracking
-   - Industry best practices with lessons learned, proven strategies, and efficiency optimization
-   - Risk mitigation strategies including contingency planning and quality assurance protocols
-   - Continuous improvement opportunities with innovation cycles and performance enhancement methods
+TACTICAL NODES (4-5 nodes, importance 4-6):
+Create nodes about specific tools, techniques, or methods used in "${centralTopic}". Include concrete examples and measurable outcomes.
 
-EXPERT-LEVEL JSON STRUCTURE:
+JSON STRUCTURE (generate 12-16 nodes):
 [{
-  "id": "expert-${Date.now()}-[index]",
-  "label": "Strategic [Domain] Implementation Framework - [Specific Focus Area]",
-  "category": "strategic-implementation|tactical-execution|operational-excellence|innovation-catalyst",
-  "color": "hsl(240, 80%, 60%)",
-  "description": "Comprehensive 150-300 word description including: strategic context and business value, specific methodologies and frameworks, implementation roadmap with timelines, required resources and prerequisites, measurable outcomes and KPIs, risk factors and mitigation strategies, success criteria and evaluation methods. Include industry benchmarks, best practices, and concrete examples.",
-  "importance": 9,
-  "connections": ["prerequisite-concept-id", "implementation-dependency-id", "strategic-outcome-id"],
-  "position": {"x": 600, "y": 400},
+  "id": "specific-${centralTopic.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-[index]",
+  "label": "[Specific aspect of ${centralTopic}] - [Detailed focus area]",
+  "category": "[domain-specific-category-for-${centralTopic}]",
+  "color": "hsl([topic-appropriate-hue], 70%, 55%)",
+  "description": "Comprehensive 200-300 word description specifically about this aspect of ${centralTopic}. Include specific methodologies, frameworks, tools, metrics, implementation approaches, industry best practices, measurable outcomes, and real-world applications. Reference actual techniques, standards, or approaches used in ${centralTopic}. Provide actionable insights that demonstrate deep expertise.",
+  "importance": [1-10 based on relevance to ${centralTopic}],
+  "connections": ["[specific-related-aspect-1]", "[specific-related-aspect-2]"],
+  "position": {"x": [calculated], "y": [calculated]},
   "metadata": {
-    "isFundamental": true,
-    "complexity": 8,
+    "isFundamental": [true for core concepts],
+    "complexity": [1-10],
     "parentConcept": "${centralTopic}",
-    "suggestedBranches": ["methodology-deep-dive", "implementation-playbook", "optimization-strategies", "measurement-framework"],
-    "implementationDifficulty": "medium|high|expert",
-    "strategicValue": "high|critical|transformative",
-    "knowledgeDomain": "strategic-planning|technical-implementation|operational-management|innovation-development",
-    "prerequisites": ["specific-knowledge-area-1", "required-skill-2", "foundational-concept-3"],
-    "outcomes": ["measurable-deliverable-1", "quantified-improvement-2", "strategic-milestone-3"],
-    "timeframe": "immediate|3-months|6-months|12-months",
-    "resourceRequirements": ["budget-range", "team-size", "technology-stack"],
-    "successMetrics": ["kpi-1", "benchmark-2", "roi-metric-3"],
-    "riskFactors": ["primary-risk", "mitigation-strategy"],
-    "industryBenchmarks": ["standard-metric", "best-practice-reference"]
+    "suggestedBranches": ["[specific-sub-area-1]", "[specific-sub-area-2]"],
+    "aiGenerated": true,
+    "topicRelevance": "direct",
+    "implementationDifficulty": "[specific to ${centralTopic}]",
+    "strategicValue": "[value within ${centralTopic} context]",
+    "knowledgeDomain": "${centralTopic}",
+    "prerequisites": ["[specific prerequisites for ${centralTopic}]"],
+    "outcomes": ["[specific outcomes in ${centralTopic}]"],
+    "realWorldApplication": "[how this applies in ${centralTopic}]"
   }
 }]
 
-CRITICAL SUCCESS FACTORS:
-- Every node must directly relate to and expand upon "${centralTopic}"
-- Avoid generic terms like "Overview" or "Introduction" - be specific
-- Create natural knowledge hierarchies that build upon each other
-- Ensure descriptions provide genuine insights, not placeholder text
-- Design connections that represent genuine knowledge relationships
-- Generate nodes that an expert practitioner would find valuable and comprehensive
+CRITICAL SUCCESS CRITERIA:
+- Every node title must contain specific terminology related to "${centralTopic}"
+- Every description must demonstrate deep understanding of "${centralTopic}"
+- No generic or placeholder content - everything must be topic-specific
+- Connections must represent real relationships within "${centralTopic}"
+- Generate content that would satisfy an expert asking: "Show me everything specific to ${centralTopic}"`;
 
-Generate nodes that would satisfy someone asking: "Show me everything I need to know about ${centralTopic} to become truly expert in this area."`;
-
+      console.log(`🚀 Making API call with topic-specific prompts for "${centralTopic}"`);
+      
       const response = await this.callOpenRouter([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ], optimalModel.temperature, optimalModel.id);
 
+      console.log(`📥 Received AI response, parsing for "${centralTopic}" content...`);
+
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
-        console.warn('⚠️ No valid JSON from AI, using enhanced fallback');
-        return this.generateEnhancedFallbackNodes(centralTopic, context);
+        console.error('❌ No valid JSON from AI response, forcing specific fallback');
+        return this.generateTopicSpecificFallback(centralTopic, context);
       }
 
-      const generatedNodes: GeneratedNode[] = JSON.parse(jsonMatch[0]);
-      console.log(`✨ Generated ${generatedNodes.length} intelligent nodes`);
+      let generatedNodes: GeneratedNode[];
+      try {
+        generatedNodes = JSON.parse(jsonMatch[0]);
+      } catch (parseError) {
+        console.error('❌ JSON parse error, using specific fallback:', parseError);
+        return this.generateTopicSpecificFallback(centralTopic, context);
+      }
+
+      // Validate content is actually about the topic
+      const validatedNodes = this.validateTopicRelevance(generatedNodes, centralTopic);
       
-      // Enhanced validation and auto-branching setup
-      const validatedNodes = this.validateAndEnhanceNodes(generatedNodes, centralTopic);
+      if (validatedNodes.length < 6) {
+        console.warn('⚠️ Too few topic-specific nodes generated, supplementing...');
+        const supplementalNodes = this.generateTopicSpecificFallback(centralTopic, context);
+        validatedNodes.push(...supplementalNodes.slice(0, 8 - validatedNodes.length));
+      }
+
+      console.log(`✅ Generated ${validatedNodes.length} topic-specific nodes for "${centralTopic}"`);
       
-      // Quality assessment with detailed metrics
-      const qualityMetrics = this.assessQuality(validatedNodes, centralTopic);
+      // Enhanced validation and positioning
+      const finalNodes = this.enhanceTopicSpecificNodes(validatedNodes, centralTopic);
       
-      // Display quality insights
-      toast.success(`🎯 Generated ${validatedNodes.length} nodes`, {
-        description: `Quality Score: ${(qualityMetrics.overall * 100).toFixed(1)}% • Model: ${optimalModel.name}`
+      // Quality assessment
+      const qualityMetrics = this.assessQuality(finalNodes, centralTopic);
+      
+      toast.success(`🎯 Generated ${finalNodes.length} nodes for "${centralTopic}"`, {
+        description: `Topic Relevance: ${(qualityMetrics.relevance * 100).toFixed(1)}% • Quality: ${(qualityMetrics.overall * 100).toFixed(1)}%`
       });
       
       // Set up automatic branching for fundamental nodes
-      const fundamentalNodes = validatedNodes.filter(node => node.metadata.isFundamental);
+      const fundamentalNodes = finalNodes.filter(node => node.metadata.isFundamental);
       if (fundamentalNodes.length > 0) {
-        console.log(`🌿 Scheduling auto-branching for ${fundamentalNodes.length} fundamental nodes`);
-        // Schedule automatic branch generation for fundamental nodes
+        console.log(`🌿 Scheduling topic-specific branching for ${fundamentalNodes.length} nodes`);
         setTimeout(() => {
           this.triggerAutomaticBranching(fundamentalNodes);
         }, 2000);
       }
       
-      return validatedNodes;
+      return finalNodes;
       
     } catch (error) {
-      console.warn('⚠️ AI generation failed, using enhanced fallback:', error);
-      
-      // Show user-friendly message for different error types
-      if (error instanceof Error) {
-        if (error.message.includes('INSUFFICIENT_CREDITS')) {
-          console.info('💳 API credits exhausted - using intelligent fallback system');
-        } else if (error.message.includes('RATE_LIMITED')) {
-          console.info('⏱️ Rate limited - using intelligent fallback system');
-        }
-      }
-      
-      return this.generateEnhancedFallbackNodes(centralTopic, context);
+      console.error('❌ AI generation failed completely:', error);
+      toast.error(`Failed to generate AI content for "${centralTopic}". Using topic-specific fallback.`);
+      return this.generateTopicSpecificFallback(centralTopic, context);
     }
+  }
+
+  // New method to validate topic relevance
+  private validateTopicRelevance(nodes: GeneratedNode[], centralTopic: string): GeneratedNode[] {
+    const topicWords = centralTopic.toLowerCase().split(' ');
+    
+    return nodes.filter(node => {
+      const nodeText = (node.label + ' ' + (node.description || '')).toLowerCase();
+      
+      // Check if node contains topic-specific terminology
+      const hasTopicWords = topicWords.some(word => 
+        word.length > 2 && nodeText.includes(word)
+      );
+      
+      // Check for generic terms that indicate non-specific content
+      const genericTerms = ['overview', 'introduction', 'basics', 'general', 'generic', 'simple'];
+      const hasGenericTerms = genericTerms.some(term => 
+        node.label.toLowerCase().includes(term)
+      );
+      
+      return hasTopicWords && !hasGenericTerms;
+    });
+  }
+
+  // Enhanced topic-specific node enhancement
+  private enhanceTopicSpecificNodes(nodes: GeneratedNode[], centralTopic: string): GeneratedNode[] {
+    return nodes.map((node, index) => ({
+      ...node,
+      id: node.id || `specific-${centralTopic.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${index}`,
+      importance: Math.max(1, Math.min(10, node.importance || 5)),
+      connections: node.connections || [],
+      position: node.position || {
+        x: 800 + (index % 4) * 300 + (Math.random() - 0.5) * 50,
+        y: 300 + Math.floor(index / 4) * 220 + (Math.random() - 0.5) * 40
+      },
+      metadata: {
+        ...node.metadata,
+        isFundamental: node.metadata?.isFundamental || node.importance >= 8,
+        complexity: node.metadata?.complexity || Math.ceil(node.importance / 1.5),
+        parentConcept: centralTopic,
+        aiGenerated: true,
+        topicRelevance: 'direct',
+        generatedAt: new Date().toISOString(),
+        model: this.currentModel.split('/')[1] || 'advanced-ai'
+      }
+    }));
+  }
+
+  // New topic-specific fallback that generates relevant content
+  private generateTopicSpecificFallback(centralTopic: string, context: any): GeneratedNode[] {
+    console.log(`🔧 Generating topic-specific fallback for: "${centralTopic}"`);
+    
+    const nodes: GeneratedNode[] = [];
+    const topicSlug = centralTopic.toLowerCase().replace(/\s+/g, '-');
+    
+    // Analyze topic for specific domain knowledge
+    const topicAnalysis = this.analyzeTopicDomain(centralTopic);
+    
+    // Generate nodes based on topic analysis
+    topicAnalysis.aspects.forEach((aspect, index) => {
+      nodes.push({
+        id: `fallback-${topicSlug}-${Date.now()}-${index}`,
+        label: `${aspect.title} in ${centralTopic}`,
+        category: topicAnalysis.primaryDomain,
+        color: aspect.color,
+        description: `${aspect.description} This is specifically relevant to ${centralTopic} and includes practical implementation approaches, industry best practices, and measurable outcomes. Understanding this aspect is crucial for success in ${centralTopic}.`,
+        importance: aspect.importance,
+        connections: [],
+        position: {
+          x: 800 + (index % 4) * 280,
+          y: 300 + Math.floor(index / 4) * 200
+        },
+        metadata: {
+          isFundamental: aspect.importance >= 8,
+          complexity: Math.ceil(aspect.importance / 1.5),
+          parentConcept: centralTopic,
+          suggestedBranches: aspect.branches,
+          aiGenerated: false,
+          fallbackGenerated: true,
+          topicRelevance: 'direct'
+        }
+      });
+    });
+    
+    return nodes;
+  }
+
+  // Analyze topic to determine specific domain knowledge areas
+  private analyzeTopicDomain(centralTopic: string) {
+    const topicLower = centralTopic.toLowerCase();
+    
+    // Business/Strategy topics
+    if (topicLower.includes('business') || topicLower.includes('strategy') || topicLower.includes('startup')) {
+      return {
+        primaryDomain: 'Business Strategy',
+        aspects: [
+          { title: 'Strategic Framework', description: 'Core strategic planning methodologies', importance: 9, color: 'hsl(220, 70%, 60%)', branches: ['Planning', 'Execution', 'Metrics'] },
+          { title: 'Market Analysis', description: 'Competitive landscape and market positioning', importance: 8, color: 'hsl(200, 70%, 60%)', branches: ['Research', 'Positioning', 'Competitive Analysis'] },
+          { title: 'Revenue Model', description: 'Monetization strategies and revenue streams', importance: 8, color: 'hsl(180, 70%, 60%)', branches: ['Pricing', 'Sales Strategy', 'Growth'] },
+          { title: 'Operational Excellence', description: 'Process optimization and efficiency', importance: 7, color: 'hsl(160, 70%, 60%)', branches: ['Processes', 'Automation', 'Quality'] }
+        ]
+      };
+    }
+    
+    // Technology topics
+    if (topicLower.includes('ai') || topicLower.includes('technology') || topicLower.includes('software') || topicLower.includes('digital')) {
+      return {
+        primaryDomain: 'Technology',
+        aspects: [
+          { title: 'Architecture Design', description: 'System architecture and technical foundations', importance: 9, color: 'hsl(260, 70%, 60%)', branches: ['Design Patterns', 'Scalability', 'Security'] },
+          { title: 'Implementation Strategy', description: 'Development methodologies and implementation', importance: 8, color: 'hsl(240, 70%, 60%)', branches: ['Development', 'Testing', 'Deployment'] },
+          { title: 'Performance Optimization', description: 'Efficiency and performance enhancement', importance: 7, color: 'hsl(220, 70%, 60%)', branches: ['Monitoring', 'Optimization', 'Scaling'] },
+          { title: 'Security Framework', description: 'Security protocols and risk management', importance: 8, color: 'hsl(200, 70%, 60%)', branches: ['Authentication', 'Authorization', 'Compliance'] }
+        ]
+      };
+    }
+    
+    // Default/General topics - still make them specific
+    return {
+      primaryDomain: 'Knowledge Domain',
+      aspects: [
+        { title: 'Core Principles', description: `Fundamental concepts and principles underlying ${centralTopic}`, importance: 9, color: 'hsl(300, 70%, 60%)', branches: ['Fundamentals', 'Best Practices', 'Standards'] },
+        { title: 'Practical Application', description: `Real-world implementation and application of ${centralTopic}`, importance: 8, color: 'hsl(280, 70%, 60%)', branches: ['Implementation', 'Case Studies', 'Examples'] },
+        { title: 'Advanced Techniques', description: `Sophisticated methods and advanced approaches in ${centralTopic}`, importance: 7, color: 'hsl(260, 70%, 60%)', branches: ['Advanced Methods', 'Expert Techniques', 'Innovation'] },
+        { title: 'Measurement & Evaluation', description: `Metrics, KPIs, and evaluation methods for ${centralTopic}`, importance: 7, color: 'hsl(240, 70%, 60%)', branches: ['Metrics', 'Assessment', 'Improvement'] }
+      ]
+    };
   }
 
   private validateAndEnhanceNodes(nodes: GeneratedNode[], centralTopic: string): GeneratedNode[] {

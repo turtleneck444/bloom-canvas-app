@@ -1816,9 +1816,14 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
 
   // AI-powered intelligent node generation with enhanced animations
   const handleGenerateIntelligentNodes = useCallback(async (topic: string, context: any = {}) => {
+    if (!topic.trim()) {
+      toast.error('Please enter a specific topic for AI generation');
+      return;
+    }
+
     setIsAiProcessing(true);
-    toast.loading('🧠 Generating intelligent nodes...', {
-      description: `Using ${aiService.getCurrentModel().split('/')[1]} AI model`
+    toast.loading(`🚀 NOV8 AI Pro analyzing "${topic}"...`, {
+      description: 'Generating expert-level, topic-specific content with strategic intelligence'
     });
     
     try {
