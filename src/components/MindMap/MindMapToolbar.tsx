@@ -15,10 +15,13 @@ import {
   Settings,
   Moon,
   Sun,
-  Brain
+  Brain,
+  Trash2,
+  Undo,
+  Redo,
+  BarChart3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import nov8Logo from '@/assets/nov8-logo.jpg';
 
 interface MindMapToolbarProps {
   onAddNode: () => void;
@@ -34,6 +37,11 @@ interface MindMapToolbarProps {
   currentTheme: string;
   isDarkMode: boolean;
   onToggleDarkMode: () => void;
+  onClearCanvas?: () => void;
+  onUndo?: () => void;
+  onRedo?: () => void;
+  nodeCount?: number;
+  edgeCount?: number;
 }
 
 const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
@@ -50,6 +58,11 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   currentTheme,
   isDarkMode,
   onToggleDarkMode,
+  onClearCanvas,
+  onUndo,
+  onRedo,
+  nodeCount = 0,
+  edgeCount = 0,
 }) => {
   const layouts = [
     { id: 'freeform', icon: Circle, label: 'Freeform' },
@@ -67,11 +80,19 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
 
   return (
     <div className="fixed top-4 left-4 right-4 z-50 flex items-center justify-between">
-      {/* Left Section - Brand */}
+      {/* Left Section - Brand & Stats */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2 nov8-gradient-primary text-white px-4 py-2 rounded-xl font-bold text-lg shadow-lg">
           <Brain size={20} className="animate-pulse-slow" />
           <span>NOV8</span>
+        </div>
+        
+        {/* Stats */}
+        <div className="hidden sm:flex items-center gap-2 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-xl px-3 py-2 shadow-lg border">
+          <BarChart3 size={16} className="text-nov8-primary" />
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            {nodeCount} nodes • {edgeCount} connections
+          </span>
         </div>
       </div>
 
@@ -115,13 +136,36 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
 
         <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
 
+        {/* History Controls */}
+        <Button
+          onClick={onUndo}
+          variant="ghost"
+          size="sm"
+          className="nov8-transition hover:bg-nov8-primary/10"
+          title="Undo"
+        >
+          <Undo size={16} />
+        </Button>
+
+        <Button
+          onClick={onRedo}
+          variant="ghost"
+          size="sm"
+          className="nov8-transition hover:bg-nov8-primary/10"
+          title="Redo"
+        >
+          <Redo size={16} />
+        </Button>
+
+        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+
         {/* Zoom Controls */}
         <Button
           onClick={onZoomIn}
           variant="ghost"
           size="sm"
           className="nov8-transition hover:bg-nov8-primary/10"
-          title="Zoom In"
+          title="Zoom In (Ctrl + =)"
         >
           <ZoomIn size={16} />
         </Button>
@@ -131,7 +175,7 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
           variant="ghost"
           size="sm"
           className="nov8-transition hover:bg-nov8-primary/10"
-          title="Zoom Out"
+          title="Zoom Out (Ctrl + -)"
         >
           <ZoomOut size={16} />
         </Button>
@@ -141,7 +185,7 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
           variant="ghost"
           size="sm"
           className="nov8-transition hover:bg-nov8-primary/10"
-          title="Fit View"
+          title="Fit View (Ctrl + 0)"
         >
           <RotateCcw size={16} />
         </Button>
@@ -175,12 +219,24 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
             variant="ghost"
             size="sm"
             className="nov8-transition hover:bg-nov8-primary/10"
-            title="Import"
+            title="Import JSON"
           >
             <Upload size={16} />
           </Button>
 
           <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
+
+          {onClearCanvas && (
+            <Button
+              onClick={onClearCanvas}
+              variant="ghost"
+              size="sm"
+              className="nov8-transition hover:bg-nov8-error/10 text-nov8-error"
+              title="Clear Canvas"
+            >
+              <Trash2 size={16} />
+            </Button>
+          )}
 
           <Button
             onClick={onToggleDarkMode}
