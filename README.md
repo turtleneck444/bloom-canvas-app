@@ -1,73 +1,171 @@
-# Welcome to your Lovable project
+# NOV8 Mind Mapping App
 
-## Project info
+A powerful, beautiful, and fully functional mind mapping application built with React, TypeScript, and modern web technologies.
 
-**URL**: https://lovable.dev/projects/5ae82b28-9d7a-4cb5-b269-d8167a41258f
+## ✨ Features
 
-## How can I edit this code?
+### 🧠 AI-Powered Node Generation
+- **Smart Content Creation**: When you enter a central idea, the app automatically generates relevant sub-nodes based on the topic
+- **Category Detection**: Automatically detects the category of your central idea (business, technology, education, health, creative, personal, project, research)
+- **Intelligent Suggestions**: Creates perfectly organized and accurate related concepts for your central idea
 
-There are several ways of editing your application.
+### 🎨 Beautiful Aesthetics & Custom Themes
+- **5 Pre-built Themes**: NOV8 Classic, Ocean Blue, Sunset Warm, Forest Green, Midnight Purple
+- **Custom Theme System**: Create and save your own color schemes
+- **Enhanced Visual Design**: 
+  - Gradient backgrounds and node styling
+  - Smooth animations and transitions
+  - Glassmorphism effects with backdrop blur
+  - Pulsing animations for selected nodes
+  - Beautiful hover effects and shadows
 
-**Use Lovable**
+### 🔧 Advanced Layout Algorithms
+- **Radial Layout**: Perfect circular arrangement around central idea
+- **Tree Vertical**: Hierarchical top-down organization
+- **Tree Horizontal**: Left-to-right hierarchical layout
+- **Hierarchical**: Multi-level structured layout
+- **Organic**: Natural, free-flowing arrangement
+- **Freeform**: Manual positioning with snap-to-grid
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/5ae82b28-9d7a-4cb5-b269-d8167a41258f) and start prompting.
+### 🛠️ Full Toolbar Functionality
+- **Node Management**: Add, delete, duplicate, and edit nodes
+- **Layout Controls**: Switch between different layout algorithms
+- **Theme Selection**: Choose from built-in and custom themes
+- **Zoom Controls**: Zoom in/out, fit to view
+- **History Management**: Undo/Redo functionality with keyboard shortcuts
+- **File Operations**: Save, export, import mind maps
+- **Canvas Management**: Clear canvas, toggle dark mode
 
-Changes made via Lovable will be committed automatically to this repo.
+### ⌨️ Keyboard Shortcuts
+- `Enter` / `Tab`: Add new node
+- `Delete` / `Backspace`: Delete selected nodes
+- `Ctrl/Cmd + =`: Zoom in
+- `Ctrl/Cmd + -`: Zoom out
+- `Ctrl/Cmd + 0`: Fit to view
+- `Ctrl/Cmd + Z`: Undo
+- `Ctrl/Cmd + Shift + Z`: Redo
 
-**Use your preferred IDE**
+### 🎯 Enhanced Node Features
+- **Rich Node Data**: Labels, colors, fonts, icons, tags, priorities
+- **Visual Indicators**: Priority levels, completion status
+- **Interactive Tools**: Color picker, quick actions menu
+- **Smart Connections**: Automatic edge creation with themed colors
+- **Node Categories**: Organize nodes by type and purpose
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 💾 Data Management
+- **Auto-save**: Automatically saves your work every 5 seconds
+- **Local Storage**: Persistent data storage
+- **Export/Import**: JSON format for sharing and backup
+- **History Tracking**: Complete undo/redo history
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 🚀 Getting Started
 
-Follow these steps:
+### Prerequisites
+- Node.js 18+ 
+- npm or yarn
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Installation
+```bash
+# Clone the repository
+git clone <repository-url>
+cd bloom-canvas-app-1
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Install dependencies
+npm install
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+### Usage
+1. **Create Your Central Idea**: Double-click the default "Central Idea" node to edit it
+2. **Generate Related Nodes**: When prompted, let the AI generate relevant sub-topics
+3. **Customize Layout**: Use the toolbar to switch between different layout algorithms
+4. **Choose Themes**: Select from built-in themes or create custom ones
+5. **Add More Nodes**: Use the + button or keyboard shortcuts to add new nodes
+6. **Connect Ideas**: Drag from node handles to create connections
+7. **Save Your Work**: Use Ctrl+S or the save button to save your mind map
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 🎨 Customization
 
-**Use GitHub Codespaces**
+### Creating Custom Themes
+The app supports custom themes with the following structure:
+```typescript
+{
+  name: 'Theme Name',
+  colors: {
+    primary: 'hsl(267 85% 66%)',
+    secondary: 'hsl(213 94% 68%)',
+    accent: 'hsl(292 91% 76%)',
+    background: 'hsl(240 10% 98%)',
+    surface: 'hsl(0 0% 100%)',
+    text: 'hsl(222.2 84% 4.9%)',
+  }
+}
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Node Styling
+Nodes support various visual properties:
+- **Colors**: 15+ predefined colors or custom HSL values
+- **Font Sizes**: Adjustable text size
+- **Icons**: Built-in icon support
+- **Tags**: Add hashtags for categorization
+- **Priority**: Low, Medium, High priority indicators
+- **Status**: Mark nodes as completed
 
-## What technologies are used for this project?
+## 🛠️ Technical Stack
 
-This project is built with:
+- **Frontend**: React 18, TypeScript
+- **UI Framework**: Tailwind CSS, shadcn/ui
+- **Flow Engine**: @xyflow/react
+- **Icons**: Lucide React
+- **Build Tool**: Vite
+- **Styling**: CSS with custom properties and animations
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🎯 Use Cases
 
-## How can I deploy this project?
+### Business & Strategy
+- Strategic planning and goal setting
+- Project management and task organization
+- Business model canvas development
+- SWOT analysis and competitive research
 
-Simply open [Lovable](https://lovable.dev/projects/5ae82b28-9d7a-4cb5-b269-d8167a41258f) and click on Share -> Publish.
+### Education & Learning
+- Course planning and curriculum design
+- Study guides and knowledge mapping
+- Research project organization
+- Concept mapping and idea development
 
-## Can I connect a custom domain to my Lovable project?
+### Creative Projects
+- Content planning and storytelling
+- Design thinking and ideation
+- Creative project management
+- Brainstorming and innovation
 
-Yes, you can!
+### Personal Development
+- Goal setting and habit tracking
+- Life planning and decision making
+- Personal knowledge management
+- Mind mapping for productivity
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 🔮 Future Enhancements
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- **Real-time Collaboration**: Multi-user editing
+- **Cloud Storage**: Sync across devices
+- **Advanced AI**: More sophisticated node generation
+- **Templates**: Pre-built mind map templates
+- **Export Options**: PDF, PNG, SVG export
+- **Mobile Support**: Responsive mobile interface
+- **Plugins**: Extensible plugin system
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+---
+
+**Built with ❤️ by NOV8 Team**
