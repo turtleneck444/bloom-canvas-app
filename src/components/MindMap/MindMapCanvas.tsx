@@ -433,7 +433,7 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({ onSave, onExport, onImpor
   }, [addChildNode, duplicateNode, deleteNode, updateNode, handleEnhanceNode]);
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-screen flex flex-col">
       <MindMapToolbar
         onAddNode={onAddNode}
         onSave={onSave}
@@ -451,7 +451,7 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({ onSave, onExport, onImpor
         canRedo={canRedo}
         nodeCount={nodes.length}
       />
-      <div className="react-flow-wrapper w-full h-full flex-1" ref={rfWrapper}>
+      <div className="flex-1 w-full h-full relative">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -462,7 +462,8 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({ onSave, onExport, onImpor
           fitView
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
-          className="bg-gray-100 dark:bg-gray-950"
+          className="w-full h-full"
+          style={{ width: '100%', height: '100%' }}
         >
           <Controls />
           <Background color="#444" />
