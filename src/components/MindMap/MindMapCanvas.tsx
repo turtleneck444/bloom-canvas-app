@@ -20,6 +20,8 @@ import '@xyflow/react/dist/style.css';
 import MindMapNode, { NodeData } from './MindMapNode';
 import MindMapToolbar from './MindMapToolbar';
 import AIToolbar from './AIToolbar';
+import { Button } from '../ui/button';
+import { Brain, Sparkles, Plus, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { aiService, GeneratedNode, FundamentalNode } from '@/services/aiService';
@@ -1621,26 +1623,11 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     let nodeDescription = '';
     let nodeCategory = 'general';
     
-    // Enhanced context-aware node generation
-    if (parentNode) {
-      const parentLabel = parentNode.data.label;
-      const allNodeLabels = nodes.map(n => n.data.label).join(' ');
-      
-      // Analyze parent context to generate intelligent suggestions
-      const suggestions = await generateIntelligentNodeSuggestion(parentLabel, allNodeLabels);
-      nodeLabel = suggestions.label;
-      nodeDescription = suggestions.description;
-      nodeCategory = suggestions.category;
-    } else {
-      // For root nodes, analyze existing context
-      if (nodes.length > 0) {
-        const existingContext = nodes.map(n => n.data.label).join(' ');
-        const suggestions = await generateIntelligentNodeSuggestion('', existingContext);
-        nodeLabel = suggestions.label;
-        nodeDescription = suggestions.description;
-        nodeCategory = suggestions.category;
-      }
-    }
+    // Simple node creation without automatic AI generation
+    // AI generation should only happen when explicitly requested
+    nodeLabel = 'New Node';
+    nodeDescription = '';
+    nodeCategory = 'general';
     
     const newNode: Node<NodeData> = {
       id: `${Date.now()}`,
@@ -2614,11 +2601,31 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
   }, [setNodes, setEdges, addToHistory]);
 
   const handleClearCanvas = useCallback(() => {
+    // Confirm before clearing
+    if (nodes.length > 0) {
+      if (!confirm('Are you sure you want to clear the entire canvas? This cannot be undone.')) {
+        return;
+      }
+    }
+    
+    // Complete cleanup
     setNodes([]);
     setEdges([]);
-    addToHistory([], []);
-    toast.success('Canvas cleared!');
-  }, [setNodes, setEdges, addToHistory]);
+    setFundamentalNodes([]);
+    setHistory([]);
+    setHistoryIndex(-1);
+    
+    // Clear localStorage to prevent reload issues
+    localStorage.removeItem('nov8-mindmap');
+    
+    // Clear any auto-save intervals
+    const data = { nodes: [], edges: [], currentLayout, currentTheme, customTheme };
+    localStorage.setItem('nov8-mindmap', JSON.stringify(data));
+    
+    toast.success('🧹 Canvas completely cleared!', {
+      description: 'Ready for a fresh start'
+    });
+  }, [setNodes, setEdges, setFundamentalNodes, setHistory, setHistoryIndex, nodes.length, currentLayout, currentTheme, customTheme]);
 
   const handleUndo = useCallback(() => {
     if (historyIndex > 0) {
@@ -2699,45 +2706,52 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     }
   };
 
-  // Initialize with a root node
-  useEffect(() => {
-    // Only initialize if no nodes exist
-    if (nodes.length === 0) {
-      const initialNode: Node<NodeData> = {
-        id: '1',
-        type: 'mindMapNode',
-        position: { x: 500, y: 400 },
-        data: { 
-          label: '✨ Start Your Mind Map', 
-          color: customTheme.colors.primary,
-          fontSize: 18,
-          isEditing: true, // Start in edit mode
-          messages: ['Double-click to edit your central idea', 'Click the sparkles icon to generate related topics', 'Use layout buttons to organize your mind map']
-        },
-      };
-      setNodes([initialNode]);
-      addToHistory([initialNode], []);
-      toast.success('Welcome to NOV8 Mind Mapping! 🧠✨');
-    }
-  }, [setNodes, addToHistory, customTheme, nodes.length]);
+  // Force clean start function
+  const forceCleanStart = useCallback(() => {
+    localStorage.removeItem('nov8-mindmap');
+    localStorage.removeItem('nov8-mindmap-welcomed');
+    setNodes([]);
+    setEdges([]);
+    setFundamentalNodes([]);
+    setHistory([]);
+    setHistoryIndex(-1);
+    window.location.reload(); // Force refresh to ensure clean state
+  }, [setNodes, setEdges, setFundamentalNodes, setHistory, setHistoryIndex]);
 
-  // Auto-save functionality
+  // Initialize with completely blank canvas
+  useEffect(() => {
+    // Only show welcome message on first load, no default nodes
+    if (nodes.length === 0 && !localStorage.getItem('nov8-mindmap-welcomed')) {
+      localStorage.setItem('nov8-mindmap-welcomed', 'true');
+      toast.success('Welcome to NOV8 AI Mind Mapping! 🧠✨', {
+        description: 'Start by adding a node or generating an AI mind map'
+      });
+    }
+  }, [nodes.length]);
+
+  // Auto-save functionality - but only save if there are nodes
   useEffect(() => {
     const saveData = () => {
       const data = { nodes, edges, currentLayout, currentTheme, customTheme };
-      localStorage.setItem('nov8-mindmap', JSON.stringify(data));
+      if (nodes.length > 0) {
+        localStorage.setItem('nov8-mindmap', JSON.stringify(data));
+      } else {
+        // If no nodes, ensure localStorage is clean
+        localStorage.removeItem('nov8-mindmap');
+      }
     };
 
     const interval = setInterval(saveData, 5000); // Auto-save every 5 seconds
     return () => clearInterval(interval);
   }, [nodes, edges, currentLayout, currentTheme, customTheme]);
 
-  // Load saved data on mount
+  // Load saved data on mount - but start fresh if no nodes exist
   useEffect(() => {
     const savedData = localStorage.getItem('nov8-mindmap');
     if (savedData) {
       try {
         const { nodes: savedNodes, edges: savedEdges, currentLayout: savedLayout, currentTheme: savedTheme, customTheme: savedCustomTheme } = JSON.parse(savedData);
+        // Only load if there are actual saved nodes, otherwise start fresh
         if (savedNodes?.length > 0) {
           setNodes(savedNodes);
           setEdges(savedEdges || []);
@@ -2746,9 +2760,18 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           if (savedCustomTheme) {
             setCustomTheme(savedCustomTheme);
           }
+        } else {
+          // Ensure we start with empty canvas
+          setNodes([]);
+          setEdges([]);
+          localStorage.removeItem('nov8-mindmap'); // Clear corrupted data
         }
       } catch (error) {
         console.error('Failed to load saved mind map:', error);
+        // Clear corrupted localStorage and start fresh
+        localStorage.removeItem('nov8-mindmap');
+        setNodes([]);
+        setEdges([]);
       }
     }
   }, [setNodes, setEdges]);
@@ -2777,17 +2800,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
       setNodes(updatedNodes);
       addToHistory(updatedNodes, edges);
       
-      // Offer to generate related nodes for any node that's been updated
-      if (updates.label && updates.label !== 'Central Idea') {
-        const updatedNode = updatedNodes.find(n => n.id === id);
-        if (updatedNode) {
-          setTimeout(() => {
-            if (confirm(`Would you like to generate related nodes for "${updates.label}"?`)) {
-              handleGenerateRelatedNodes(updates.label, id);
-            }
-          }, 100);
-        }
-      }
+      // Removed automatic generation prompt - AI generation should only be explicit
     };
 
     const handleDeleteNode = (event: any) => {
@@ -2908,8 +2921,120 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [zoomIn, zoomOut, fitView, setNodes, setEdges, handleAddNode, handleUndo, handleRedo, nodes, edges, addToHistory]);
 
+  // Automatic branch generation event listener
+  useEffect(() => {
+    const handleAutomaticBranches = (event: CustomEvent) => {
+      const { parentNodeId, branches } = event.detail;
+      
+      if (!branches || branches.length === 0) return;
+      
+      console.log(`🌿 Adding ${branches.length} automatic branches for node ${parentNodeId}`);
+      
+      // Find parent node position for relative positioning
+      const parentNode = nodes.find(n => n.id === parentNodeId);
+      if (!parentNode) return;
+      
+      const newNodes = [...nodes];
+      const newEdges = [...edges];
+      
+      branches.forEach((branch: any, index: number) => {
+        // Position branches around the parent node in a circular pattern
+        const angle = (2 * Math.PI * index) / branches.length;
+        const radius = 250;
+        const branchX = parentNode.position.x + Math.cos(angle) * radius;
+        const branchY = parentNode.position.y + Math.sin(angle) * radius;
+        
+        const branchNode: Node<NodeData> = {
+          id: branch.id,
+          type: 'mindMapNode',
+          position: { x: branchX, y: branchY },
+          data: {
+            label: branch.label,
+            color: branch.color,
+            fontSize: 12,
+            category: branch.category,
+            messages: branch.description ? [branch.description] : [],
+            opacity: 0, // Start invisible for animation
+            scale: 0.3,
+            parentId: parentNodeId,
+            importance: branch.importance,
+            ...branch.metadata
+          }
+        };
+        
+        newNodes.push(branchNode);
+        
+        // Create edge from parent to branch
+        const branchEdge: Edge = {
+          id: `edge-${parentNodeId}-${branch.id}`,
+          source: parentNodeId,
+          target: branch.id,
+          type: 'smoothstep',
+          animated: false,
+          style: { 
+            stroke: branch.color,
+            strokeWidth: 2,
+            opacity: 0
+          }
+        };
+        
+        newEdges.push(branchEdge);
+      });
+      
+      setNodes(newNodes);
+      setEdges(newEdges);
+      addToHistory(newNodes, newEdges);
+      
+      // Animate branches in
+      setTimeout(() => {
+        setNodes(current => 
+          current.map(node => {
+            if (branches.some((b: any) => b.id === node.id)) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  opacity: 1,
+                  scale: 1
+                }
+              };
+            }
+            return node;
+          })
+        );
+        
+        setEdges(current =>
+          current.map(edge => {
+            if (branches.some((b: any) => edge.target === b.id)) {
+              return {
+                ...edge,
+                style: {
+                  ...edge.style,
+                  opacity: 1
+                }
+              };
+            }
+            return edge;
+          })
+        );
+      }, 100);
+      
+      toast.success(`🌿 Generated ${branches.length} expansion branches`, {
+        description: 'Automatic knowledge expansion complete'
+      });
+    };
+    
+    // Type assertion for the custom event
+    const typedHandler = handleAutomaticBranches as EventListener;
+    window.addEventListener('addAutomaticBranches', typedHandler);
+    
+    return () => {
+      window.removeEventListener('addAutomaticBranches', typedHandler);
+    };
+  }, [nodes, edges, setNodes, setEdges, addToHistory]);
+
   return (
-    <div className={cn("w-full h-screen relative", className)}>
+    <div className={cn("w-full h-screen relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20", className)}>
       {/* AI Toolbar - Left Sidebar */}
       <AIToolbar
         onGenerateIntelligentNodes={handleGenerateIntelligentNodes}
@@ -2922,7 +3047,8 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
       />
 
       {/* Main Toolbar - Top */}
-      <MindMapToolbar
+      <div className="absolute top-0 left-96 right-0 h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 z-30">
+        <MindMapToolbar
         onAddNode={handleAddNode}
         onSave={handleSave}
         onExport={handleExport}
@@ -2939,9 +3065,58 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
         canRedo={false}
         nodeCount={nodes.length}
       />
+      </div>
 
       {/* ReactFlow Canvas - Main area with perfect positioning */}
-      <div className="absolute top-[49px] left-96 right-3 bottom-0">
+      <div className="absolute top-[49px] left-96 right-0 bottom-0">
+        {/* Beautiful Empty State */}
+        {nodes.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center z-10 bg-gradient-to-br from-white/90 to-purple-50/60 dark:from-gray-900/90 dark:to-purple-900/60 backdrop-blur-sm">
+            <div className="text-center space-y-6 p-8 max-w-md">
+              <div className="relative">
+                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                  <Brain className="w-12 h-12 text-white" />
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
+                  <Sparkles className="w-4 h-4 text-yellow-900" />
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+                  Welcome to NOV8 AI Mind Mapping
+                </h2>
+                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Create powerful mind maps with revolutionary AI assistance. Start by adding a node or generating an intelligent mind map.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  onClick={() => handleAddNode()}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add First Node
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const aiToolbar = document.querySelector('.ai-toolbar-topic-input') as HTMLInputElement;
+                    if (aiToolbar) {
+                      aiToolbar.focus();
+                    }
+                  }}
+                  className="border-purple-200 text-purple-700 hover:bg-purple-50 px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+                >
+                  <Wand2 className="w-4 h-4 mr-2" />
+                  Generate AI Map
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <ReactFlow
           nodes={nodes}
           edges={edges}

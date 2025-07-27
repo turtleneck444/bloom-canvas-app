@@ -1,3 +1,134 @@
+import { toast } from 'sonner';
+import SmartTemplateEngine, { SMART_TEMPLATES } from './smartTemplates';
+
+// Advanced AI Model Configuration
+interface AIModel {
+  id: string;
+  name: string;
+  provider: string;
+  strengths: string[];
+  costPerToken: number;
+  maxTokens: number;
+  temperature: number;
+  useCase: 'general' | 'creative' | 'analytical' | 'technical' | 'strategic';
+}
+
+const AI_MODELS: AIModel[] = [
+  {
+    id: 'anthropic/claude-3.5-sonnet',
+    name: 'Claude 3.5 Sonnet',
+    provider: 'Anthropic',
+    strengths: ['reasoning', 'analysis', 'structured-thinking'],
+    costPerToken: 0.000003,
+    maxTokens: 200000,
+    temperature: 0.7,
+    useCase: 'analytical'
+  },
+  {
+    id: 'openai/gpt-4o',
+    name: 'GPT-4o',
+    provider: 'OpenAI',
+    strengths: ['creativity', 'diverse-knowledge', 'problem-solving'],
+    costPerToken: 0.000005,
+    maxTokens: 128000,
+    temperature: 0.8,
+    useCase: 'creative'
+  },
+  {
+    id: 'meta-llama/llama-3.1-405b-instruct',
+    name: 'Llama 3.1 405B',
+    provider: 'Meta',
+    strengths: ['logical-reasoning', 'technical-depth', 'systematic-analysis'],
+    costPerToken: 0.000003,
+    maxTokens: 128000,
+    temperature: 0.6,
+    useCase: 'technical'
+  },
+  {
+    id: 'mistralai/mixtral-8x7b-instruct',
+    name: 'Mixtral 8x7B',
+    provider: 'Mistral',
+    strengths: ['efficiency', 'multilingual', 'business-analysis'],
+    costPerToken: 0.0000007,
+    maxTokens: 32000,
+    temperature: 0.7,
+    useCase: 'general'
+  },
+  {
+    id: 'google/gemini-pro-1.5',
+    name: 'Gemini Pro 1.5',
+    provider: 'Google',
+    strengths: ['strategic-thinking', 'data-analysis', 'innovation'],
+    costPerToken: 0.000002,
+    maxTokens: 128000,
+    temperature: 0.8,
+    useCase: 'strategic'
+  }
+];
+
+// Advanced Domain Analysis
+interface DomainProfile {
+  name: string;
+  keywords: string[];
+  aiModel: string;
+  specialPrompts: boolean;
+  complexityMultiplier: number;
+  focusAreas: string[];
+}
+
+const DOMAIN_PROFILES: DomainProfile[] = [
+  {
+    name: 'business-strategy',
+    keywords: ['business', 'strategy', 'market', 'revenue', 'growth', 'competitive', 'startup', 'enterprise'],
+    aiModel: 'google/gemini-pro-1.5',
+    specialPrompts: true,
+    complexityMultiplier: 1.4,
+    focusAreas: ['market-analysis', 'strategic-planning', 'competitive-advantage', 'revenue-optimization']
+  },
+  {
+    name: 'technology-innovation',
+    keywords: ['ai', 'technology', 'software', 'innovation', 'digital', 'platform', 'development', 'tech'],
+    aiModel: 'meta-llama/llama-3.1-405b-instruct',
+    specialPrompts: true,
+    complexityMultiplier: 1.6,
+    focusAreas: ['architecture', 'implementation', 'scalability', 'security', 'performance']
+  },
+  {
+    name: 'creative-design',
+    keywords: ['design', 'creative', 'brand', 'visual', 'aesthetic', 'user experience', 'marketing', 'content'],
+    aiModel: 'openai/gpt-4o',
+    specialPrompts: true,
+    complexityMultiplier: 1.2,
+    focusAreas: ['user-experience', 'visual-design', 'brand-identity', 'creative-process']
+  },
+  {
+    name: 'analytical-research',
+    keywords: ['research', 'analysis', 'data', 'science', 'methodology', 'framework', 'systematic', 'evidence'],
+    aiModel: 'anthropic/claude-3.5-sonnet',
+    specialPrompts: true,
+    complexityMultiplier: 1.5,
+    focusAreas: ['methodology', 'data-analysis', 'systematic-approach', 'evidence-based']
+  },
+  {
+    name: 'project-management',
+    keywords: ['project', 'management', 'planning', 'execution', 'team', 'delivery', 'process', 'workflow'],
+    aiModel: 'mistralai/mixtral-8x7b-instruct',
+    specialPrompts: true,
+    complexityMultiplier: 1.3,
+    focusAreas: ['planning', 'execution', 'team-coordination', 'risk-management']
+  }
+];
+
+// Advanced Quality Scoring
+interface QualityMetrics {
+  relevance: number;
+  depth: number;
+  actionability: number;
+  interconnectedness: number;
+  innovation: number;
+  overall: number;
+}
+
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -35,6 +166,11 @@ interface GeneratedNode {
     fallbackGenerated?: boolean;
     branchGenerated?: boolean;
     model?: string;
+    implementationDifficulty?: string;
+    strategicValue?: string;
+    knowledgeDomain?: string;
+    prerequisites?: string[];
+    outcomes?: string[];
   };
 }
 
@@ -48,54 +184,188 @@ interface FundamentalNode {
 }
 
 class AIService {
-  private apiKey: string;
-  private baseUrl: string;
-  private models = {
-    mixtral: 'mistralai/mixtral-8x7b-instruct',
-    claude: 'anthropic/claude-3.5-sonnet',
-    gpt4: 'openai/gpt-4o',
-    gemini: 'google/gemini-pro'
-  };
-  private currentModel: string;
+  private currentModel: string = 'anthropic/claude-3.5-sonnet';
+  private apiKey: string = '';
+  private baseUrl: string = 'https://openrouter.ai/api/v1';
+  private isConfiguredFlag: boolean = false;
+  private requestCount: number = 0;
+  private lastRequestTime: number = 0;
+  private qualityHistory: QualityMetrics[] = [];
 
   constructor() {
-    // Use the new API key provided
-    this.apiKey = 'ee05P0TpvlnWXugQjO3ODNRfM6PInBw5';
-    this.baseUrl = 'https://openrouter.ai/api/v1';
-    this.currentModel = this.models.mixtral; // Default to Mixtral
-    
-    console.log('🤖 AI Service initialized with Mixtral model');
+    this.loadConfiguration();
   }
 
-  // Method to switch models dynamically
-  setModel(modelName: 'mixtral' | 'claude' | 'gpt4' | 'gemini') {
-    if (this.models[modelName]) {
-      this.currentModel = this.models[modelName];
-      console.log(`🔄 Switched to ${modelName} model`);
+  private loadConfiguration() {
+    this.apiKey = 'ee05P0TpvlnWXugQjO3ODNRfM6PInBw5';
+    this.isConfiguredFlag = !!this.apiKey;
+    console.log('🤖 Advanced AI Service initialized with multi-model intelligence');
+  }
+
+  // Advanced Model Selection Intelligence
+  private selectOptimalModel(topic: string, context: any = {}): AIModel {
+    const detectedDomain = this.analyzeDomain(topic);
+    
+    // Get recommended model for domain
+    const domainProfile = DOMAIN_PROFILES.find(p => p.name === detectedDomain);
+    if (domainProfile) {
+      const model = AI_MODELS.find(m => m.id === domainProfile.aiModel);
+      if (model) {
+        console.log(`🎯 Selected ${model.name} for ${detectedDomain} domain`);
+        return model;
+      }
+    }
+    
+    // Fallback to context-based selection
+    const complexity = this.assessComplexity(topic, context);
+    
+    if (complexity > 0.8) {
+      return AI_MODELS.find(m => m.id === 'anthropic/claude-3.5-sonnet') || AI_MODELS[0];
+    } else if (complexity > 0.6) {
+      return AI_MODELS.find(m => m.id === 'openai/gpt-4o') || AI_MODELS[1];
+    } else {
+      return AI_MODELS.find(m => m.id === 'mistralai/mixtral-8x7b-instruct') || AI_MODELS[3];
     }
   }
 
-  private async callOpenRouter(messages: OpenRouterMessage[], temperature: number = 0.7): Promise<string> {
+  private analyzeDomain(topic: string): string {
+    const topicLower = topic.toLowerCase();
+    let bestMatch = 'general';
+    let bestScore = 0;
+    
+    for (const profile of DOMAIN_PROFILES) {
+      const score = profile.keywords.reduce((acc, keyword) => {
+        return acc + (topicLower.includes(keyword) ? 1 : 0);
+      }, 0) / profile.keywords.length;
+      
+      if (score > bestScore) {
+        bestScore = score;
+        bestMatch = profile.name;
+      }
+    }
+    
+    console.log(`🔍 Domain analysis: ${bestMatch} (confidence: ${(bestScore * 100).toFixed(1)}%)`);
+    return bestMatch;
+  }
+
+  private assessComplexity(topic: string, context: any): number {
+    const factors = [
+      topic.length > 50 ? 0.2 : 0,
+      (topic.match(/\band\b|\bor\b|\bwith\b/g) || []).length * 0.1,
+      context.depth === 'comprehensive' ? 0.3 : 0,
+      context.audience === 'expert' ? 0.2 : 0,
+      (topic.match(/\b(strategy|framework|methodology|architecture|optimization)\b/g) || []).length * 0.1
+    ];
+    
+    return Math.min(factors.reduce((a, b) => a + b, 0), 1);
+  }
+
+  // Enhanced Quality Assessment
+  private assessQuality(nodes: GeneratedNode[], centralTopic: string): QualityMetrics {
+    const relevance = this.calculateRelevance(nodes, centralTopic);
+    const depth = this.calculateDepth(nodes);
+    const actionability = this.calculateActionability(nodes);
+    const interconnectedness = this.calculateInterconnectedness(nodes);
+    const innovation = this.calculateInnovation(nodes);
+    
+    const overall = (relevance + depth + actionability + interconnectedness + innovation) / 5;
+    
+    const metrics: QualityMetrics = {
+      relevance,
+      depth,
+      actionability,
+      interconnectedness,
+      innovation,
+      overall
+    };
+    
+    this.qualityHistory.push(metrics);
+    console.log(`📊 Quality Assessment: ${(overall * 100).toFixed(1)}% overall`);
+    
+    return metrics;
+  }
+
+  private calculateRelevance(nodes: GeneratedNode[], centralTopic: string): number {
+    const topicWords = centralTopic.toLowerCase().split(' ');
+    let relevanceSum = 0;
+    
+    nodes.forEach(node => {
+      const nodeText = (node.label + ' ' + (node.description || '')).toLowerCase();
+      const matches = topicWords.filter(word => nodeText.includes(word));
+      relevanceSum += matches.length / topicWords.length;
+    });
+    
+    return Math.min(relevanceSum / nodes.length, 1);
+  }
+
+  private calculateDepth(nodes: GeneratedNode[]): number {
+    const avgDescriptionLength = nodes.reduce((sum, node) => 
+      sum + (node.description?.length || 0), 0) / nodes.length;
+    const avgComplexity = nodes.reduce((sum, node) => 
+      sum + (node.metadata.complexity || 5), 0) / nodes.length;
+    
+    return Math.min((avgDescriptionLength / 100 + avgComplexity / 10) / 2, 1);
+  }
+
+  private calculateActionability(nodes: GeneratedNode[]): number {
+    const actionWords = ['implement', 'execute', 'develop', 'create', 'build', 'analyze', 'optimize', 'strategy', 'framework'];
+    let actionableCount = 0;
+    
+    nodes.forEach(node => {
+      const text = (node.label + ' ' + (node.description || '')).toLowerCase();
+      if (actionWords.some(word => text.includes(word))) {
+        actionableCount++;
+      }
+    });
+    
+    return actionableCount / nodes.length;
+  }
+
+  private calculateInterconnectedness(nodes: GeneratedNode[]): number {
+    const totalConnections = nodes.reduce((sum, node) => sum + node.connections.length, 0);
+    const maxPossibleConnections = nodes.length * (nodes.length - 1);
+    return maxPossibleConnections > 0 ? totalConnections / maxPossibleConnections : 0;
+  }
+
+  private calculateInnovation(nodes: GeneratedNode[]): number {
+    const innovationWords = ['innovative', 'creative', 'novel', 'advanced', 'cutting-edge', 'breakthrough', 'disruptive'];
+    let innovativeCount = 0;
+    
+    nodes.forEach(node => {
+      const text = (node.label + ' ' + (node.description || '')).toLowerCase();
+      if (innovationWords.some(word => text.includes(word))) {
+        innovativeCount++;
+      }
+    });
+    
+    return innovativeCount / nodes.length;
+  }
+
+  private async callOpenRouter(messages: OpenRouterMessage[], temperature: number = 0.7, model?: string): Promise<string> {
     if (!this.apiKey) {
       throw new Error('OpenRouter API key not configured');
     }
 
+    this.requestCount++;
+    this.lastRequestTime = Date.now();
+
     try {
-      console.log(`🚀 Making API call to ${this.currentModel}`);
+      const selectedModel = model || this.currentModel;
+      console.log(`🚀 Making API call to ${selectedModel}`);
       
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.apiKey}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'NOV8 Mind Mapping App - Enhanced AI'
+          'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://mindmap.ai',
+          'X-Title': 'NOV8 Mind Mapping AI Pro'
         },
         body: JSON.stringify({
-          model: this.currentModel,
+          model: selectedModel,
           messages,
           temperature,
-          max_tokens: this.currentModel.includes('mixtral') ? 2000 : 1500, // Mixtral can handle more tokens
+          max_tokens: 4000,
           stream: false,
           top_p: 0.9,
           frequency_penalty: 0.1,
@@ -107,34 +377,54 @@ class AIService {
         const errorData = await response.text();
         console.warn(`❌ API Error: ${response.status} - ${errorData}`);
         
-        // Handle specific error cases
         if (response.status === 402) {
           throw new Error('INSUFFICIENT_CREDITS');
         } else if (response.status === 429) {
           throw new Error('RATE_LIMITED');
         }
         
-        throw new Error(`OpenRouter API error: ${response.status} - ${errorData}`);
+        throw new Error(`API request failed: ${response.status}`);
       }
 
-      const data: OpenRouterResponse = await response.json();
-      
-      if (!data.choices || data.choices.length === 0) {
-        throw new Error('No response from OpenRouter API');
-      }
-
-      console.log(`✅ Successful API response from ${this.currentModel}`);
-      return data.choices[0].message.content;
+      const data = await response.json();
+      return data.choices[0]?.message?.content || '';
     } catch (error) {
-      console.warn('⚠️ OpenRouter API error:', error);
-      
-      // If it's a credit or rate limit error, throw specific error for better handling
-      if (error instanceof Error && (error.message.includes('INSUFFICIENT_CREDITS') || error.message.includes('RATE_LIMITED'))) {
-        throw error;
-      }
-      
+      console.error('OpenRouter request failed:', error);
       throw error;
     }
+  }
+
+  // Public methods
+  isConfigured(): boolean {
+    return this.isConfiguredFlag;
+  }
+
+  getCurrentModel(): string {
+    return this.currentModel;
+  }
+
+  setModel(model: string): void {
+    this.currentModel = model;
+    console.log(`🔄 Switched to ${model}`);
+  }
+
+  getAvailableModels(): AIModel[] {
+    return AI_MODELS;
+  }
+
+  getQualityMetrics(): QualityMetrics[] {
+    return this.qualityHistory;
+  }
+
+  getStatus() {
+    return {
+      configured: this.isConfiguredFlag,
+      model: this.currentModel,
+      requestCount: this.requestCount,
+      available: true,
+      qualityScore: this.qualityHistory.length > 0 ? 
+        this.qualityHistory[this.qualityHistory.length - 1].overall : 0
+    };
   }
 
   async generateIntelligentNodes(
@@ -147,63 +437,141 @@ class AIService {
       depth?: number;
     } = {}
   ): Promise<GeneratedNode[]> {
-    console.log(`🧠 Generating intelligent nodes for: "${centralTopic}" using ${this.currentModel}`);
+    console.log(`🧠 Generating intelligent nodes for: "${centralTopic}"`);
     
-    // Enhanced system prompt for better results
+    // Check for smart template match first
+    const smartTemplate = SmartTemplateEngine.selectBestTemplate(centralTopic, context);
+    if (smartTemplate) {
+      console.log(`🎯 Using Smart Template: ${smartTemplate.name}`);
+      const templateNodes = SmartTemplateEngine.generateFromTemplate(smartTemplate, centralTopic);
+      
+      // Quality assessment for template-generated nodes
+      const qualityMetrics = this.assessQuality(templateNodes, centralTopic);
+      
+      toast.success(`🚀 Generated from ${smartTemplate.name} template`, {
+        description: `${templateNodes.length} expert nodes • Quality: ${(qualityMetrics.overall * 100).toFixed(1)}%`
+      });
+      
+      // Schedule automatic branching for fundamental template nodes
+      const fundamentalNodes = templateNodes.filter((node: any) => node.metadata.isFundamental);
+      if (fundamentalNodes.length > 0) {
+        setTimeout(() => {
+          this.triggerAutomaticBranching(fundamentalNodes);
+        }, 3000);
+      }
+      
+      return templateNodes;
+    }
+    
+    // Advanced model selection based on topic and context
+    const optimalModel = this.selectOptimalModel(centralTopic, context);
+    const domainProfile = DOMAIN_PROFILES.find(p => p.name === this.analyzeDomain(centralTopic));
+    
+    console.log(`🎯 Using ${optimalModel.name} for optimal results`);
+    
     try {
-      const systemPrompt = `You are an advanced AI mind mapping expert powered by Mixtral. Create comprehensive, interconnected node structures for professional mind maps.
+      const systemPrompt = `You are an advanced AI mind mapping expert specializing in deep knowledge extraction and hierarchical thinking. Your role is to create comprehensive, highly detailed mind maps that go far beyond surface-level topics.
 
-CAPABILITIES:
-- Generate 10-16 highly relevant nodes with strategic importance levels (1-10)
-- Identify 3-4 fundamental concepts (importance 8-10) as connection hubs
-- Create logical hierarchies with meaningful relationships  
-- Assign domain-appropriate categories and aesthetic colors
-- Include detailed metadata for professional presentations
+CORE MISSION:
+- Analyze the central topic at multiple levels of depth (strategic, tactical, operational)
+- Generate 12-20 nodes that represent a complete knowledge ecosystem around the topic
+- Create meaningful hierarchies where fundamental concepts naturally branch into detailed sub-areas
+- Ensure every node provides actionable insights and specific value
+- Build interconnected knowledge networks, not isolated concepts
 
-OUTPUT: Return ONLY a valid JSON array. No explanations.`;
+ADVANCED CAPABILITIES:
+- Deep domain analysis with expert-level insights
+- Multi-dimensional perspective taking (technical, business, user, implementation)
+- Hierarchical information architecture
+- Strategic importance weighting (1-10 scale)
+- Automated connection mapping between related concepts
+- Professional categorization with domain expertise
+
+QUALITY STANDARDS:
+- Each node must be specific, actionable, and valuable
+- Fundamental nodes (importance 8-10) should be comprehensive knowledge hubs
+- Secondary nodes (importance 5-7) should provide detailed implementation insights
+- Supporting nodes (importance 3-4) should offer specific tactics and methods
+- All connections must represent meaningful relationships, not arbitrary links
+
+OUTPUT FORMAT: Return ONLY a valid JSON array with no explanations or commentary.`;
 
       const existingContext = existingNodes.length > 0 
-        ? `Existing nodes: ${existingNodes.map(n => n.data?.label || n.label).slice(0, 5).join(', ')}`
-        : 'Fresh mind map creation.';
+        ? `Existing knowledge base: ${existingNodes.map(n => n.data?.label || n.label).slice(0, 8).join(', ')}`
+        : 'Creating foundational knowledge architecture.';
 
-      const userPrompt = `Create a professional mind map for: "${centralTopic}"
+      const userPrompt = `DEEP ANALYSIS REQUEST: "${centralTopic}"
 
-CONTEXT:
-• Domain: ${context.domain || 'General'}
-• Purpose: ${context.purpose || 'Strategic exploration'}
-• Audience: ${context.audience || 'Professional'}
-• Depth: ${context.depth || 'Comprehensive'}
-• ${existingContext}
+CONTEXT FRAMEWORK:
+• Domain Focus: ${context.domain || 'Multi-disciplinary'}
+• Strategic Purpose: ${context.purpose || 'Comprehensive knowledge mapping'}
+• Target Audience: ${context.audience || 'Expert practitioners'}
+• Analysis Depth: ${context.depth || 'Expert-level comprehensive'}
+• Current State: ${existingContext}
 
-REQUIREMENTS:
-1. Generate 10-16 nodes with varying importance (1-10)
-2. Mark 3-4 as fundamental (isFundamental: true, importance 8-10)
-3. Create meaningful connections between related concepts
-4. Use professional color schemes (HSL format)
-5. Position nodes for optimal layout
+GENERATION REQUIREMENTS:
 
-JSON STRUCTURE:
+1. FOUNDATIONAL LAYER (3-4 nodes, importance 8-10):
+   - Core principles and fundamental concepts that define "${centralTopic}"
+   - Strategic frameworks and methodologies
+   - Critical success factors and dependencies
+   - Essential knowledge domains
+
+2. STRATEGIC LAYER (4-6 nodes, importance 6-8):
+   - Implementation approaches and methodologies
+   - Key processes and workflows
+   - Critical decision points and trade-offs
+   - Performance optimization strategies
+
+3. TACTICAL LAYER (4-6 nodes, importance 4-6):
+   - Specific tools, techniques, and methods
+   - Practical applications and use cases
+   - Measurement and evaluation frameworks
+   - Resource requirements and constraints
+
+4. OPERATIONAL LAYER (3-4 nodes, importance 2-4):
+   - Detailed implementation steps
+   - Best practices and lessons learned
+   - Common pitfalls and mitigation strategies
+   - Continuous improvement opportunities
+
+ENHANCED JSON STRUCTURE:
 [{
-  "id": "unique-id-${Date.now()}",
-  "label": "Professional Node Title",
-  "category": "strategic-category",
+     "id": "fundamental-${Date.now()}-[index]",
+  "label": "Comprehensive Professional Title (specific, not generic)",
+  "category": "domain-specific-category",
   "color": "hsl(240, 80%, 60%)",
-  "description": "Clear, actionable description",
-  "importance": 8,
-  "connections": ["related-node-ids"],
-  "position": {"x": 500, "y": 300},
+  "description": "Detailed, actionable description with strategic insights (2-3 sentences minimum)",
+  "importance": 9,
+  "connections": ["strategically-related-node-ids"],
+  "position": {"x": 600, "y": 400},
   "metadata": {
     "isFundamental": true,
-    "complexity": 7,
+    "complexity": 8,
     "parentConcept": "${centralTopic}",
-    "suggestedBranches": ["expansion-1", "expansion-2"]
+    "suggestedBranches": ["specific-expansion-area-1", "specific-expansion-area-2", "specific-expansion-area-3"],
+    "implementationDifficulty": "medium",
+    "strategicValue": "high",
+    "knowledgeDomain": "specific-domain",
+    "prerequisites": ["prerequisite-knowledge-areas"],
+    "outcomes": ["expected-deliverables-and-results"]
   }
-}]`;
+}]
+
+CRITICAL SUCCESS FACTORS:
+- Every node must directly relate to and expand upon "${centralTopic}"
+- Avoid generic terms like "Overview" or "Introduction" - be specific
+- Create natural knowledge hierarchies that build upon each other
+- Ensure descriptions provide genuine insights, not placeholder text
+- Design connections that represent genuine knowledge relationships
+- Generate nodes that an expert practitioner would find valuable and comprehensive
+
+Generate nodes that would satisfy someone asking: "Show me everything I need to know about ${centralTopic} to become truly expert in this area."`;
 
       const response = await this.callOpenRouter([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
-      ], 0.8);
+      ], optimalModel.temperature, optimalModel.id);
 
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
@@ -213,7 +581,29 @@ JSON STRUCTURE:
 
       const generatedNodes: GeneratedNode[] = JSON.parse(jsonMatch[0]);
       console.log(`✨ Generated ${generatedNodes.length} intelligent nodes`);
-      return this.validateAndEnhanceNodes(generatedNodes, centralTopic);
+      
+      // Enhanced validation and auto-branching setup
+      const validatedNodes = this.validateAndEnhanceNodes(generatedNodes, centralTopic);
+      
+      // Quality assessment with detailed metrics
+      const qualityMetrics = this.assessQuality(validatedNodes, centralTopic);
+      
+      // Display quality insights
+      toast.success(`🎯 Generated ${validatedNodes.length} nodes`, {
+        description: `Quality Score: ${(qualityMetrics.overall * 100).toFixed(1)}% • Model: ${optimalModel.name}`
+      });
+      
+      // Set up automatic branching for fundamental nodes
+      const fundamentalNodes = validatedNodes.filter(node => node.metadata.isFundamental);
+      if (fundamentalNodes.length > 0) {
+        console.log(`🌿 Scheduling auto-branching for ${fundamentalNodes.length} fundamental nodes`);
+        // Schedule automatic branch generation for fundamental nodes
+        setTimeout(() => {
+          this.triggerAutomaticBranching(fundamentalNodes);
+        }, 2000);
+      }
+      
+      return validatedNodes;
       
     } catch (error) {
       console.warn('⚠️ AI generation failed, using enhanced fallback:', error);
@@ -361,28 +751,6 @@ JSON STRUCTURE:
     }));
   }
 
-  getCurrentModel(): string {
-    return this.currentModel;
-  }
-
-  getAvailableModels(): Record<string, string> {
-    return this.models;
-  }
-
-  isConfigured(): boolean {
-    return !!this.apiKey;
-  }
-
-  getStatus(): { configured: boolean; model: string; baseUrl: string; provider: string } {
-    return {
-      configured: this.isConfigured(),
-      model: this.currentModel,
-      baseUrl: this.baseUrl,
-      provider: this.currentModel.split('/')[0] || 'mixtral'
-    };
-  }
-
-  // Rest of the methods remain the same but with enhanced error handling
   async identifyFundamentalNodes(nodes: any[], edges: any[]): Promise<FundamentalNode[]> {
     if (nodes.length === 0) return [];
 
@@ -474,39 +842,129 @@ JSON: [{"id":"node-id","label":"Node Label","importance":9,"centralityScore":8.5
       .slice(0, 5);
   }
 
-  // Enhanced branch generation
+  // Automatic branching system for fundamental nodes
+  private async triggerAutomaticBranching(fundamentalNodes: GeneratedNode[]): Promise<void> {
+    console.log(`🌿 Triggering automatic branching for ${fundamentalNodes.length} fundamental nodes`);
+    
+    for (const fundamentalNode of fundamentalNodes) {
+      try {
+        // Convert GeneratedNode to FundamentalNode format
+        const fundamentalNodeData: FundamentalNode = {
+          id: fundamentalNode.id,
+          label: fundamentalNode.label,
+          centralityScore: fundamentalNode.importance / 10,
+          connectionCount: fundamentalNode.connections.length,
+          conceptualWeight: fundamentalNode.metadata.complexity || 7,
+          importance: fundamentalNode.importance
+        };
+        
+        const branches = await this.generateAutomaticBranches(fundamentalNodeData, [], 6);
+        
+        // Emit event to canvas to add these branches
+        if (typeof window !== 'undefined' && window.dispatchEvent) {
+          const event = new CustomEvent('addAutomaticBranches', {
+            detail: {
+              parentNodeId: fundamentalNode.id,
+              branches: branches
+            }
+          });
+          window.dispatchEvent(event);
+        }
+      } catch (error) {
+        console.warn(`Failed to generate branches for ${fundamentalNode.label}:`, error);
+      }
+    }
+  }
+
+  // Enhanced branch generation with deep analysis
   async generateAutomaticBranches(
     fundamentalNode: FundamentalNode,
     existingNodes: any[],
-    maxBranches: number = 10
+    maxBranches: number = 6
   ): Promise<GeneratedNode[]> {
     try {
-      const systemPrompt = `You are an advanced AI using Mixtral to generate intelligent branch nodes. Create detailed, actionable branches that expand from fundamental concepts with professional depth.
+      const systemPrompt = `You are an expert knowledge architect specializing in hierarchical information design. Your mission is to create comprehensive, actionable branch nodes that provide deep exploration of fundamental concepts.
 
-BRANCH REQUIREMENTS:
-- Directly related to the fundamental concept
-- Actionable and specific (not generic)
-- Varying importance levels (4-8 for branches)
-- Professional categorization
-- Strategic positioning for optimal layout`;
+BRANCH GENERATION EXCELLENCE:
+- Create specific, implementable sub-concepts that directly elaborate on the fundamental concept
+- Each branch should answer "How?" "What?" or "Why?" about the fundamental concept
+- Generate branches that practitioners would need to master the fundamental concept
+- Ensure each branch provides concrete value and actionable insights
+- Avoid generic terms - be specific and detailed
+- Create natural learning progression from fundamental to detailed implementation
+
+QUALITY FRAMEWORK:
+- Branch importance: 4-7 (supporting the fundamental concept)
+- Each branch must have clear, actionable descriptions
+- Strategic connections to related branches
+- Professional categorization based on function/purpose
+- Implementation-focused metadata
+
+OUTPUT: Return ONLY a valid JSON array with detailed, specific branch nodes.`;
 
       const existingLabels = existingNodes.map(n => n.data?.label || n.label).slice(0, 8).join(', ');
 
-      const userPrompt = `FUNDAMENTAL CONCEPT: "${fundamentalNode.label}"
-EXISTING NODES: ${existingLabels}
+      const userPrompt = `FUNDAMENTAL CONCEPT EXPANSION: "${fundamentalNode.label}"
 
-Generate ${maxBranches} professional branch nodes that:
-- Explore actionable aspects of "${fundamentalNode.label}"
-- Provide specific, implementable sub-concepts  
-- Have strategic importance levels (4-8)
-- Include expansion metadata
+CONTEXT:
+• Existing Knowledge Base: ${existingLabels || 'Initial fundamental concept'}
+• Target Branches: ${maxBranches} detailed expansion nodes
+• Focus: Deep, actionable elaboration of the fundamental concept
 
-JSON STRUCTURE: Same as previous, but branches (isFundamental: false)`;
+GENERATION MISSION:
+Create ${maxBranches} branch nodes that comprehensively expand "${fundamentalNode.label}" by addressing:
+
+1. IMPLEMENTATION BRANCHES (2-3 nodes):
+   - How to practically apply "${fundamentalNode.label}"
+   - Specific methodologies and approaches
+   - Step-by-step implementation frameworks
+
+2. STRATEGIC BRANCHES (2-3 nodes):
+   - Why "${fundamentalNode.label}" matters strategically
+   - Decision-making frameworks and considerations
+   - Success factors and optimization strategies
+
+3. TACTICAL BRANCHES (1-2 nodes):
+   - Specific tools, techniques, and methods for "${fundamentalNode.label}"
+   - Measurement and evaluation approaches
+   - Common challenges and solutions
+
+ENHANCED BRANCH JSON STRUCTURE:
+[{
+  "id": "branch-${fundamentalNode.id}-[unique-id]",
+  "label": "Specific, Actionable Branch Title",
+  "category": "implementation|strategic|tactical",
+  "color": "hsl(240, 80%, 60%)",
+  "description": "Detailed description explaining how this branch specifically elaborates on ${fundamentalNode.label}. Include actionable insights and practical value.",
+  "importance": 6,
+  "connections": ["${fundamentalNode.id}"],
+  "position": {"x": 800, "y": 400},
+  "metadata": {
+    "isFundamental": false,
+    "complexity": 5,
+    "parentConcept": "${fundamentalNode.label}",
+    "branchType": "implementation|strategic|tactical",
+    "implementationDifficulty": "low|medium|high",
+    "strategicValue": "medium|high",
+    "learningPrerequisites": ["specific-knowledge-areas"],
+    "practicalOutcomes": ["specific-deliverables"],
+    "branchGenerated": true
+  }
+}]
+
+CRITICAL REQUIREMENTS:
+- Every branch must specifically elaborate on "${fundamentalNode.label}"
+- Avoid generic labels like "Overview", "Introduction", "Basics"
+- Each branch should be something a practitioner needs to master "${fundamentalNode.label}"
+- Descriptions must provide genuine insights about the branch's relationship to the fundamental concept
+- Create branches that answer: "To master ${fundamentalNode.label}, I need to understand..."
+
+Generate branches that would satisfy an expert asking: "Show me the key areas I need to understand to fully implement and leverage ${fundamentalNode.label}."`;
 
       const response = await this.callOpenRouter([
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
-      ], 0.8);
+      ], 0.7);
 
       const jsonMatch = response.match(/\[[\s\S]*\]/);
       if (!jsonMatch) {
@@ -514,7 +972,22 @@ JSON STRUCTURE: Same as previous, but branches (isFundamental: false)`;
       }
 
       const branches: GeneratedNode[] = JSON.parse(jsonMatch[0]);
-      return this.validateAndEnhanceNodes(branches, fundamentalNode.label);
+      
+      // Enhanced validation with parent connection
+      const validatedBranches = branches.map((branch, index) => ({
+        ...branch,
+        id: `branch-${fundamentalNode.id}-${Date.now()}-${index}`,
+        connections: [fundamentalNode.id, ...branch.connections],
+        metadata: {
+          ...branch.metadata,
+          parentConcept: fundamentalNode.label,
+          branchGenerated: true,
+          aiGenerated: true,
+          model: this.currentModel.split('/')[1] || 'mixtral'
+        }
+      }));
+      
+      return this.validateAndEnhanceNodes(validatedBranches, fundamentalNode.label);
     } catch (error) {
       console.error('⚠️ Error generating automatic branches:', error);
       return this.generateFallbackBranches(fundamentalNode, maxBranches);
@@ -561,19 +1034,73 @@ JSON STRUCTURE: Same as previous, but branches (isFundamental: false)`;
     category: string;
     suggestedConnections: string[];
   }> {
-    const systemPrompt = `You are an advanced AI assistant using Mixtral to enhance mind map nodes with professional, actionable content.`;
+    const systemPrompt = `You are an expert knowledge architect specializing in creating actionable, detailed mind map nodes. Your mission is to transform basic concepts into comprehensive, implementable knowledge components that provide genuine strategic value.
 
-    const userPrompt = `ENHANCE NODE: "${nodeLabel}"
-CONTEXT: ${context}
+ENHANCEMENT EXCELLENCE:
+- Transform generic labels into specific, actionable titles
+- Create descriptions that provide genuine strategic insights and implementation guidance
+- Generate tags that reflect actual categorization and functional purpose
+- Suggest connections that represent meaningful knowledge relationships
+- Ensure every enhancement provides practical value for knowledge workers
 
-Create professional enhancement with:
-- Improved, action-oriented title
-- Clear, strategic description  
-- Relevant tags for categorization
-- Appropriate category classification
-- Strategic connection suggestions
+QUALITY STANDARDS:
+- Enhanced labels should be specific and action-oriented, not generic
+- Descriptions must include strategic context and practical implications
+- Tags should reflect functional categorization and domain expertise
+- Connections should represent genuine knowledge dependencies and relationships
+- All enhancements should be immediately useful for decision-making and implementation
 
-JSON: {"enhancedLabel":"Professional Title","description":"Strategic description","tags":["tag1","tag2"],"category":"category","suggestedConnections":["concept1","concept2"]}`;
+OUTPUT: Return ONLY valid JSON with enhanced, professional content.`;
+
+    const userPrompt = `NODE ENHANCEMENT REQUEST: "${nodeLabel}"
+
+CONTEXT ANALYSIS:
+• Knowledge Context: ${context.slice(0, 300)}...
+• Current Node: "${nodeLabel}"
+• Enhancement Goal: Transform into comprehensive, actionable knowledge component
+
+ENHANCEMENT REQUIREMENTS:
+
+1. ENHANCED LABEL:
+   - Make specific and implementation-focused
+   - Avoid generic terms like "Overview", "Introduction", "Basic"
+   - Include action orientation where appropriate
+   - Ensure professional terminology
+
+2. STRATEGIC DESCRIPTION:
+   - Provide 2-3 sentences of genuine strategic insight
+   - Explain practical implications and value
+   - Include implementation considerations
+   - Connect to broader knowledge context
+
+3. FUNCTIONAL CATEGORIZATION:
+   - Classify based on primary function and domain
+   - Use professional taxonomy
+   - Reflect actual usage and purpose
+
+4. STRATEGIC CONNECTIONS:
+   - Suggest 3-5 meaningful related concepts
+   - Focus on genuine knowledge dependencies
+   - Include both upstream and downstream relationships
+   - Ensure connections add strategic value
+
+JSON STRUCTURE:
+{
+  "enhancedLabel": "Specific, Action-Oriented Professional Title",
+  "description": "Comprehensive description providing strategic insights, practical implications, and implementation guidance. Should explain why this matters and how it connects to broader objectives.",
+  "tags": ["functional-category", "domain-area", "implementation-type"],
+  "category": "professional-category",
+  "suggestedConnections": ["related-concept-1", "prerequisite-knowledge", "implementation-method", "strategic-outcome", "evaluation-framework"]
+}
+
+CRITICAL SUCCESS FACTORS:
+- Enhanced label must be more specific and valuable than original
+- Description must provide genuine insights, not placeholder text
+- Tags should reflect actual functional categorization
+- Connections should represent meaningful knowledge relationships
+- All content should be immediately useful for strategic decision-making
+
+Transform "${nodeLabel}" into a knowledge component that would satisfy an expert asking: "What do I need to know about this to make informed decisions and take effective action?"`;
 
     try {
       const response = await this.callOpenRouter([
@@ -590,11 +1117,11 @@ JSON: {"enhancedLabel":"Professional Title","description":"Strategic description
     } catch (error) {
       console.error('⚠️ Error enhancing node:', error);
       return {
-        enhancedLabel: `Enhanced: ${nodeLabel}`,
-        description: `Strategic analysis and implementation approach for ${nodeLabel}`,
-        tags: ['ai-enhanced', 'strategic'],
-        category: 'enhanced',
-        suggestedConnections: ['implementation', 'strategy', 'optimization']
+        enhancedLabel: `Strategic ${nodeLabel} Framework`,
+        description: `Comprehensive analysis and implementation approach for ${nodeLabel}, including strategic considerations, practical implications, and actionable next steps for effective execution.`,
+        tags: ['strategic-framework', 'implementation', 'analysis'],
+        category: 'strategic-analysis',
+        suggestedConnections: ['implementation-strategy', 'success-metrics', 'resource-requirements', 'risk-assessment', 'optimization-opportunities']
       };
     }
   }

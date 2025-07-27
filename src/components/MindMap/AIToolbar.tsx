@@ -1,10 +1,24 @@
 import React, { useState, useCallback } from 'react';
-import { Brain, Sparkles, Target, Zap, Settings, Lightbulb, Cpu, Network, ChevronRight, ChevronLeft, X, Star, Layers, Wand2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { aiService } from '@/services/aiService';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import { Badge } from '../ui/badge';
+import { Separator } from '../ui/separator';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs';
+import { Progress } from '../ui/progress';
+import { 
+  Brain, Sparkles, Zap, Target, Layers, Download, 
+  Settings, Rocket, Lightbulb, Network, BarChart3,
+  FileText, Image, Share, Wand2, Bot, Crown,
+  TrendingUp, Cpu, Database, Eye, CheckCircle
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { cn } from '../../lib/utils';
+import { aiService } from '../../services/aiService';
+import SmartTemplateEngine, { SMART_TEMPLATES } from '../../services/smartTemplates';
+import AdvancedExportService, { ExportOptions } from '../../services/exportService';
 
 interface AIToolbarProps {
   onGenerateIntelligentNodes: (topic: string, context: any) => Promise<void>;
@@ -26,17 +40,42 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
   fundamentalNodesCount
 }) => {
   const [isExpanded, setIsExpanded] = useState(true);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [activeTab, setActiveTab] = useState('create');
   const [aiTopic, setAiTopic] = useState('');
-  const [selectedModel, setSelectedModel] = useState('mixtral');
+  const [selectedModel, setSelectedModel] = useState('auto');
+  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [exportFormat, setExportFormat] = useState('pdf');
+  const [isMinimized, setIsMinimized] = useState(false);
+  
   const [aiContext, setAiContext] = useState({
     domain: '',
-    purpose: 'Strategic exploration',
-    audience: 'Professional',
-    depth: 'Comprehensive'
+    purpose: 'Comprehensive knowledge mapping',
+    audience: 'Expert practitioners',
+    depth: 'Expert-level comprehensive'
   });
 
   const aiStatus = aiService.getStatus();
+  const availableModels = aiService.getAvailableModels();
+  const qualityMetrics = aiService.getQualityMetrics();
+  const lastQuality = qualityMetrics.length > 0 ? qualityMetrics[qualityMetrics.length - 1] : null;
+
+  // Smart Template Detection
+  const detectSmartTemplate = useCallback((topic: string) => {
+    const template = SmartTemplateEngine.selectBestTemplate(topic, aiContext);
+    if (template) {
+      setSelectedTemplate(template.id);
+      toast.success(`🎯 Smart Template Detected: ${template.name}`, {
+        description: `${template.estimatedNodeCount} expert nodes ready`
+      });
+    }
+  }, [aiContext]);
+
+  const handleTopicChange = useCallback((value: string) => {
+    setAiTopic(value);
+    if (value.length > 3) {
+      detectSmartTemplate(value);
+    }
+  }, [detectSmartTemplate]);
 
   const handleGenerateFromTopic = useCallback(async () => {
     if (!aiTopic.trim()) {
@@ -45,16 +84,15 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
     }
 
     try {
+      toast.loading('🧠 Activating advanced AI systems...', { duration: 2000 });
       await onGenerateIntelligentNodes(aiTopic.trim(), aiContext);
       setAiTopic('');
-      toast.success('🧠 Mind map generated successfully!');
+      toast.success('🚀 Revolutionary mind map generated!', {
+        description: 'Multi-model AI with automatic branching activated'
+      });
     } catch (error) {
       console.error('Generation failed:', error);
-      if (error instanceof Error && error.message.includes('INSUFFICIENT_CREDITS')) {
-        toast.info('💡 AI credits low - using intelligent fallback system');
-      } else {
-        toast.error('Using smart fallback generation');
-      }
+      toast.error('AI generation failed - please try again');
     }
   }, [aiTopic, aiContext, onGenerateIntelligentNodes]);
 
@@ -63,329 +101,477 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
       await onGenerateIntelligentNodes(topic, { ...aiContext, ...context });
       toast.success(`🚀 Generated mind map for "${topic}"`);
     } catch (error) {
-      if (error instanceof Error && error.message.includes('INSUFFICIENT_CREDITS')) {
-        toast.info('💡 Using intelligent fallback for generation');
-      } else {
-        toast.error(`Using smart fallback for ${topic}`);
-      }
+      toast.error(`Failed to generate mind map for ${topic}`);
     }
   }, [aiContext, onGenerateIntelligentNodes]);
 
-  const handleModelChange = useCallback((model: string) => {
-    setSelectedModel(model);
-    aiService.setModel(model as any);
-    toast.success(`Switched to ${model.toUpperCase()} model`);
-  }, []);
+  const handleTemplateGenerate = useCallback(async () => {
+    if (!selectedTemplate || !aiTopic) {
+      toast.error('Please select a template and enter a topic');
+      return;
+    }
 
-  if (!aiStatus.configured) {
-    return (
-      <div className="fixed left-0 top-0 bottom-0 w-96 z-50">
-        <Card className="h-full border-orange-300 bg-gradient-to-br from-orange-50/98 via-yellow-50/95 to-orange-100/98 dark:from-orange-900/95 dark:via-yellow-900/90 dark:to-orange-800/95 backdrop-blur-xl shadow-2xl border-2 border-r-2 border-l-0">
-          <CardContent className="p-6 h-full flex flex-col justify-center">
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center gap-3 text-orange-700 dark:text-orange-300">
-                <div className="p-3 bg-orange-200 dark:bg-orange-800 rounded-xl">
-                  <Settings className="w-6 h-6" />
-                </div>
-                <span className="font-bold text-lg">AI Features Limited</span>
-              </div>
-              <p className="text-sm text-orange-600 dark:text-orange-400 leading-relaxed">
-                Using intelligent fallback system for mind map generation.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+    const template = SMART_TEMPLATES.find(t => t.id === selectedTemplate);
+    if (!template) return;
+
+    try {
+      toast.loading(`🎯 Applying ${template.name} template...`, { duration: 2000 });
+      await handleQuickGenerate(aiTopic, { 
+        template: template.name,
+        domain: template.domain 
+      });
+    } catch (error) {
+      toast.error('Template generation failed');
+    }
+  }, [selectedTemplate, aiTopic, handleQuickGenerate]);
+
+  const handleAdvancedExport = useCallback(async (format: string) => {
+    const canvasElement = document.querySelector('.react-flow') as HTMLElement;
+    if (!canvasElement) {
+      toast.error('No mind map to export');
+      return;
+    }
+
+    const exportOptions: ExportOptions = {
+      format: format as any,
+      quality: 'high',
+      includeMetadata: true,
+      includeConnections: true,
+      theme: 'professional'
+    };
+
+    const exportData = {
+      title: aiTopic || 'Mind Map',
+      nodes: [], // This would be populated from the actual mind map data
+      edges: [],
+      metadata: {
+        created: new Date().toISOString(),
+        nodeCount: nodeCount,
+        qualityScore: lastQuality?.overall,
+        aiModel: aiStatus.model
+      }
+    };
+
+    try {
+      switch (format) {
+        case 'pdf':
+          const pdfBlob = await AdvancedExportService.exportToPDF(canvasElement, exportOptions, exportData);
+          AdvancedExportService.downloadFile(pdfBlob, `mindmap-${Date.now()}.pdf`);
+          break;
+        case 'png':
+          const pngBlob = await AdvancedExportService.exportToPNG(canvasElement, exportOptions, exportData);
+          AdvancedExportService.downloadFile(pngBlob, `mindmap-${Date.now()}.png`);
+          break;
+        case 'markdown':
+          const markdown = await AdvancedExportService.exportToMarkdown(exportData, exportOptions);
+          AdvancedExportService.downloadText(markdown, `mindmap-${Date.now()}.md`, 'text/markdown');
+          break;
+        case 'json':
+          const json = await AdvancedExportService.exportToJSON(exportData, exportOptions);
+          AdvancedExportService.downloadText(json, `mindmap-${Date.now()}.json`, 'application/json');
+          break;
+        case 'csv':
+          const csv = await AdvancedExportService.exportToCSV(exportData, exportOptions);
+          AdvancedExportService.downloadText(csv, `mindmap-${Date.now()}.csv`, 'text/csv');
+          break;
+      }
+    } catch (error) {
+      toast.error(`Export to ${format.toUpperCase()} failed`);
+    }
+  }, [aiTopic, nodeCount, lastQuality, aiStatus]);
 
   if (isMinimized) {
     return (
-      <div className="fixed left-0 top-0 z-50">
+      <div className="fixed left-0 top-4 z-50">
         <Button
           onClick={() => setIsMinimized(false)}
-          className="h-16 w-16 bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-800 shadow-2xl border-2 border-white/30 backdrop-blur-sm rounded-br-2xl transition-all duration-500 hover:scale-110"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg rounded-l-none"
           size="sm"
         >
-          <Brain className="w-7 h-7 text-white drop-shadow-lg" />
+          <Crown className="w-4 h-4 mr-2" />
+          AI Pro
         </Button>
       </div>
     );
   }
 
   return (
-    <div className="fixed left-0 top-0 bottom-0 w-96 z-50">
-      <Card className="h-full bg-gradient-to-br from-white/98 via-purple-50/95 to-blue-50/98 dark:from-gray-900/98 dark:via-purple-900/95 dark:to-blue-900/98 backdrop-blur-xl border-2 border-purple-200/50 dark:border-purple-700/50 shadow-2xl overflow-hidden border-l-0 rounded-l-none">
-        <CardContent className="p-0 h-full flex flex-col">
-          {/* Enhanced Header */}
-          <div className="relative p-6 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 text-white overflow-hidden">
-            {/* Background Pattern */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/90 via-blue-600/90 to-indigo-600/90"></div>
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_50%)]"></div>
-            
-            <div className="relative z-10 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm border border-white/30">
-                  <Brain className="w-6 h-6 drop-shadow-lg" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-xl drop-shadow-lg">AI Assistant</h3>
-                  <p className="text-xs text-white/90 font-medium">Enhanced with Mixtral</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsExpanded(!isExpanded)}
-                  className="h-8 w-8 p-0 text-white hover:bg-white/20 rounded-lg transition-all duration-300"
-                >
-                  {isExpanded ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setIsMinimized(true)}
-                  className="h-8 w-8 p-0 text-white hover:bg-white/20 rounded-lg transition-all duration-300"
-                >
-                  <X size={16} />
-                </Button>
-              </div>
+    <div className={cn(
+      "fixed left-0 top-0 bottom-0 w-96 bg-white/98 dark:bg-gray-900/98 backdrop-blur-md border-r border-purple-200 dark:border-purple-800 shadow-2xl overflow-hidden z-40",
+      !isExpanded && "w-16"
+    )}>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white p-4 relative overflow-hidden">
+        {/* Animated background pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_50%)] animate-pulse"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-transparent to-blue-600/30"></div>
+        <div className="flex items-center justify-between relative z-10">
+          <div className="flex items-center space-x-2">
+            <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
+              <Crown className="w-5 h-5" />
             </div>
-            
-            {/* Enhanced Stats */}
-            <div className="relative z-10 flex items-center gap-3 mt-4">
-              <Badge className="text-xs px-3 py-1.5 bg-white/25 text-white border-white/40 backdrop-blur-sm font-medium">
-                <Cpu className="w-3 h-3 mr-1" />
-                {aiStatus.provider.toUpperCase()}
-              </Badge>
-              {fundamentalNodesCount > 0 && (
-                <Badge className="text-xs px-3 py-1.5 bg-gradient-to-r from-yellow-400 to-orange-400 text-yellow-900 border-yellow-300 font-medium">
-                  <Target className="w-3 h-3 mr-1" />
-                  {fundamentalNodesCount} Core
-                </Badge>
-              )}
-              <Badge className="text-xs px-3 py-1.5 bg-gradient-to-r from-blue-400 to-cyan-400 text-blue-900 border-blue-300 font-medium">
-                <Network className="w-3 h-3 mr-1" />
-                {nodeCount} Nodes
-              </Badge>
-            </div>
+            <span className="font-bold text-lg">NOV8 AI Pro</span>
+            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold">
+              v2.0
+            </Badge>
           </div>
-
-          {/* Enhanced Content */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {/* Model Selection */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <Star className="w-4 h-4 text-purple-600" />
-                AI Model
-              </h4>
-              <div className="grid grid-cols-2 gap-2">
-                {Object.entries(aiService.getAvailableModels()).map(([key, value]) => (
-                  <Button
-                    key={key}
-                    onClick={() => handleModelChange(key)}
-                    variant={selectedModel === key ? "default" : "outline"}
-                    size="sm"
-                    className={`h-8 text-xs transition-all duration-300 ${
-                      selectedModel === key 
-                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg scale-105' 
-                        : 'hover:bg-purple-50 dark:hover:bg-purple-900/30'
-                    }`}
-                  >
-                    {key.charAt(0).toUpperCase() + key.slice(1)}
-                  </Button>
-                ))}
+          <div className="flex space-x-1">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-white hover:bg-white/20"
+            >
+              <Layers className="w-4 h-4" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsMinimized(true)}
+              className="text-white hover:bg-white/20"
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+        
+        {/* AI Status Dashboard */}
+        <div className="mt-3 space-y-2 relative z-10">
+          <div className="flex items-center justify-between text-sm">
+            <span>AI Status</span>
+            <Badge variant="secondary" className="bg-green-500/20 text-green-200">
+              {aiStatus.configured ? 'Active' : 'Inactive'}
+            </Badge>
+          </div>
+          
+          {lastQuality && (
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs">
+                <span>Quality Score</span>
+                <span>{(lastQuality.overall * 100).toFixed(1)}%</span>
               </div>
+              <Progress 
+                value={lastQuality.overall * 100} 
+                className="h-1 bg-white/20"
+              />
             </div>
+          )}
+          
+          <div className="flex justify-between text-xs">
+            <span>Nodes: {nodeCount}</span>
+            <span>Fundamentals: {fundamentalNodesCount}</span>
+          </div>
+        </div>
+      </div>
 
-            {/* Enhanced Quick Actions */}
-            <div className="space-y-3">
-              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <Wand2 className="w-4 h-4 text-purple-600" />
-                Quick Actions
-              </h4>
-              
-              <div className="space-y-3">
-                <Button
-                  onClick={onIdentifyFundamentals}
-                  disabled={isProcessing || nodeCount < 2}
-                  className="w-full justify-start h-12 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-102"
-                  size="sm"
-                >
-                  <Target className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="text-sm font-medium">Find Core Concepts</div>
-                    <div className="text-xs opacity-90">Identify fundamental nodes</div>
-                  </div>
-                </Button>
-                
-                <Button
-                  onClick={onAutoGenerateBranches}
-                  disabled={isProcessing || fundamentalNodesCount === 0}
-                  className="w-full justify-start h-12 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 disabled:opacity-50 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-102"
-                  size="sm"
-                >
-                  <Sparkles className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="text-sm font-medium">Auto Generate Branches</div>
-                    <div className="text-xs opacity-90">Expand from core concepts</div>
-                  </div>
-                </Button>
-                
-                <Button
-                  onClick={onEnhanceAllNodes}
-                  disabled={isProcessing || nodeCount === 0}
-                  variant="secondary"
-                  className="w-full justify-start h-12 bg-gradient-to-r from-indigo-100 to-purple-100 hover:from-indigo-200 hover:to-purple-200 text-indigo-700 border-indigo-200 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-102"
-                  size="sm"
-                >
-                  <Lightbulb className="w-5 h-5 mr-3" />
-                  <div className="text-left">
-                    <div className="text-sm font-medium">Enhance All Nodes</div>
-                    <div className="text-xs opacity-80">Add AI descriptions & tags</div>
-                  </div>
-                </Button>
-              </div>
-            </div>
+      {/* Main Content */}
+      {isExpanded && (
+        <div className="p-4 space-y-4 max-h-[calc(100vh-200px)] overflow-y-auto">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="create" className="text-xs">
+                <Brain className="w-3 h-3 mr-1" />
+                Create
+              </TabsTrigger>
+              <TabsTrigger value="enhance" className="text-xs">
+                <Sparkles className="w-3 h-3 mr-1" />
+                Enhance
+              </TabsTrigger>
+              <TabsTrigger value="export" className="text-xs">
+                <Download className="w-3 h-3 mr-1" />
+                Export
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="text-xs">
+                <BarChart3 className="w-3 h-3 mr-1" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Enhanced Status Indicator */}
-            {isProcessing && (
-              <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border-2 border-blue-200 dark:border-blue-700 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="relative">
-                    <div className="animate-spin w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                    <div className="absolute inset-0 animate-ping w-5 h-5 border border-blue-400 rounded-full opacity-20"></div>
-                  </div>
+            {/* CREATE TAB */}
+            <TabsContent value="create" className="space-y-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center">
+                    <Rocket className="w-4 h-4 mr-2" />
+                    AI Generation Engine
+                  </CardTitle>
+                  <CardDescription className="text-xs">
+                    Advanced multi-model AI with smart templates
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
                   <div>
-                    <span className="text-sm text-blue-700 dark:text-blue-300 font-semibold">AI Processing...</span>
-                    <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                      Using {aiStatus.provider.toUpperCase()} to create intelligent nodes
-                    </p>
+                    <Label htmlFor="ai-topic" className="text-xs">Topic/Subject</Label>
+                    <Input
+                      id="ai-topic"
+                      value={aiTopic}
+                      onChange={(e) => handleTopicChange(e.target.value)}
+                      placeholder="e.g., AI Implementation Strategy"
+                      className="mt-1 ai-toolbar-topic-input"
+                    />
                   </div>
-                </div>
-              </div>
-            )}
 
-            {/* Enhanced Topic Generation */}
-            <div className="space-y-4">
-              <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-purple-600" />
-                Generate Mind Map
-              </h4>
-              
-              <div className="space-y-3">
-                <div className="relative">
-                  <textarea
-                    value={aiTopic}
-                    onChange={(e) => setAiTopic(e.target.value)}
-                    placeholder="Describe what you want to explore in detail..."
-                    className="w-full px-4 py-3 text-sm border-2 border-purple-200 dark:border-purple-600 rounded-xl bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-300 resize-none placeholder:text-gray-500"
-                    rows={4}
-                    disabled={isProcessing}
-                  />
-                  <div className="absolute bottom-3 right-3 text-xs text-gray-400">
-                    {aiTopic.length}/200
+                  <div>
+                    <Label className="text-xs">AI Model</Label>
+                    <Select value={selectedModel} onValueChange={setSelectedModel}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="auto">🎯 Auto-Select (Recommended)</SelectItem>
+                        {availableModels.map(model => (
+                          <SelectItem key={model.id} value={model.id}>
+                            {model.name} • {model.useCase}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
-                </div>
-                <Button
-                  onClick={handleGenerateFromTopic}
-                  disabled={isProcessing || !aiTopic.trim()}
-                  className="w-full h-12 bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 hover:from-purple-700 hover:via-blue-700 hover:to-indigo-700 shadow-xl disabled:opacity-50 transition-all duration-300 hover:scale-105"
-                >
-                  <Zap className="w-5 h-5 mr-3" />
-                  <span className="text-sm font-semibold">Generate Intelligent Mind Map</span>
-                </Button>
-              </div>
-            </div>
 
-            {/* Enhanced Quick Start Topics */}
-            {isExpanded && (
-              <div className="space-y-4">
-                <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">Quick Start Templates</h4>
-                <div className="grid grid-cols-1 gap-2">
-                  {[
-                    { topic: 'AI & Machine Learning Strategy', context: { domain: 'Technology' }, color: 'from-blue-500 to-cyan-500' },
-                    { topic: 'Business Growth Strategy', context: { domain: 'Business' }, color: 'from-green-500 to-emerald-500' },
-                    { topic: 'Personal Development Plan', context: { domain: 'Personal Growth' }, color: 'from-orange-500 to-red-500' },
-                    { topic: 'Digital Marketing Campaign', context: { domain: 'Marketing' }, color: 'from-pink-500 to-purple-500' },
-                    { topic: 'Project Management Framework', context: { domain: 'Management' }, color: 'from-indigo-500 to-blue-500' }
-                  ].map(({ topic, context, color }) => (
+                  {selectedTemplate && (
+                    <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-medium text-purple-700">Smart Template Detected</p>
+                          <p className="text-xs text-purple-600">
+                            {SMART_TEMPLATES.find(t => t.id === selectedTemplate)?.name}
+                          </p>
+                        </div>
+                        <Button
+                          size="sm"
+                          onClick={handleTemplateGenerate}
+                          disabled={isProcessing}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          <Target className="w-3 h-3 mr-1" />
+                          Use Template
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <Label className="text-xs">Purpose</Label>
+                      <Select 
+                        value={aiContext.purpose} 
+                        onValueChange={(value) => setAiContext(prev => ({ ...prev, purpose: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Strategic exploration">Strategic</SelectItem>
+                          <SelectItem value="Implementation planning">Implementation</SelectItem>
+                          <SelectItem value="Learning and education">Learning</SelectItem>
+                          <SelectItem value="Problem solving">Problem Solving</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label className="text-xs">Depth</Label>
+                      <Select 
+                        value={aiContext.depth} 
+                        onValueChange={(value) => setAiContext(prev => ({ ...prev, depth: value }))}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Overview">Overview</SelectItem>
+                          <SelectItem value="Comprehensive">Comprehensive</SelectItem>
+                          <SelectItem value="Expert-level comprehensive">Expert Level</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <Button
+                    onClick={handleGenerateFromTopic}
+                    disabled={isProcessing || !aiTopic.trim()}
+                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  >
+                    {isProcessing ? (
+                      <>
+                        <Cpu className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-4 h-4 mr-2" />
+                        Generate Mind Map
+                      </>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Quick Templates */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center">
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Quick Templates
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 gap-2">
+                    {SMART_TEMPLATES.slice(0, 3).map(template => (
+                      <Button
+                        key={template.id}
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setAiTopic(template.name.replace(' Mastery', '').replace(' Blueprint', '').replace(' Engine', '').replace(' Accelerator', ''));
+                          setSelectedTemplate(template.id);
+                        }}
+                        className="justify-start text-xs"
+                      >
+                        <Crown className="w-3 h-3 mr-2" />
+                        {template.name}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* ENHANCE TAB */}
+            <TabsContent value="enhance" className="space-y-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center">
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    AI Enhancement Tools
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Button
+                    onClick={onIdentifyFundamentals}
+                    disabled={isProcessing || nodeCount === 0}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Target className="w-4 h-4 mr-2" />
+                    Identify Fundamental Concepts
+                  </Button>
+
+                  <Button
+                    onClick={onAutoGenerateBranches}
+                    disabled={isProcessing || fundamentalNodesCount === 0}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Network className="w-4 h-4 mr-2" />
+                    Auto-Generate Branches
+                  </Button>
+
+                  <Button
+                    onClick={onEnhanceAllNodes}
+                    disabled={isProcessing || nodeCount === 0}
+                    variant="outline"
+                    className="w-full justify-start"
+                  >
+                    <Lightbulb className="w-4 h-4 mr-2" />
+                    Enhance All Nodes
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            {/* EXPORT TAB */}
+            <TabsContent value="export" className="space-y-4">
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm flex items-center">
+                    <Download className="w-4 h-4 mr-2" />
+                    Professional Export
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
                     <Button
-                      key={topic}
+                      onClick={() => handleAdvancedExport('pdf')}
+                      disabled={nodeCount === 0}
                       variant="outline"
                       size="sm"
-                      onClick={() => handleQuickGenerate(topic, context)}
-                      disabled={isProcessing}
-                      className={`w-full justify-start h-10 text-xs bg-gradient-to-r ${color} text-white border-0 hover:shadow-lg transition-all duration-300 hover:scale-102`}
                     >
-                      <div className="w-2 h-2 rounded-full bg-white/80 mr-2"></div>
-                      {topic}
+                      <FileText className="w-3 h-3 mr-1" />
+                      PDF
                     </Button>
-                  ))}
-                </div>
-              </div>
-            )}
+                    <Button
+                      onClick={() => handleAdvancedExport('png')}
+                      disabled={nodeCount === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Image className="w-3 h-3 mr-1" />
+                      PNG
+                    </Button>
+                    <Button
+                      onClick={() => handleAdvancedExport('markdown')}
+                      disabled={nodeCount === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <FileText className="w-3 h-3 mr-1" />
+                      Markdown
+                    </Button>
+                    <Button
+                      onClick={() => handleAdvancedExport('json')}
+                      disabled={nodeCount === 0}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <Database className="w-3 h-3 mr-1" />
+                      JSON
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-            {/* Enhanced Settings */}
-            {isExpanded && (
-              <div className="space-y-4">
-                <h4 className="text-sm font-bold text-gray-700 dark:text-gray-300">Advanced Settings</h4>
-                <div className="grid grid-cols-1 gap-4">
-                  <div>
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 block mb-2">Domain Focus</label>
-                    <select
-                      value={aiContext.domain}
-                      onChange={(e) => setAiContext({ ...aiContext, domain: e.target.value })}
-                      className="w-full px-3 py-2 text-xs border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
-                    >
-                      <option value="">General</option>
-                      <option value="Technology">Technology</option>
-                      <option value="Business">Business</option>
-                      <option value="Education">Education</option>
-                      <option value="Healthcare">Healthcare</option>
-                      <option value="Marketing">Marketing</option>
-                      <option value="Design">Design</option>
-                      <option value="Science">Science</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 block mb-2">Purpose</label>
-                    <select
-                      value={aiContext.purpose}
-                      onChange={(e) => setAiContext({ ...aiContext, purpose: e.target.value })}
-                      className="w-full px-3 py-2 text-xs border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
-                    >
-                      <option value="Strategic exploration">Strategic Exploration</option>
-                      <option value="Learning and education">Learning & Education</option>
-                      <option value="Project planning">Project Planning</option>
-                      <option value="Problem solving">Problem Solving</option>
-                      <option value="Creative brainstorming">Creative Brainstorming</option>
-                      <option value="Business analysis">Business Analysis</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-xs font-semibold text-gray-600 dark:text-gray-400 block mb-2">Depth Level</label>
-                    <select
-                      value={aiContext.depth}
-                      onChange={(e) => setAiContext({ ...aiContext, depth: e.target.value })}
-                      className="w-full px-3 py-2 text-xs border-2 border-gray-200 dark:border-gray-600 rounded-lg bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all duration-300"
-                    >
-                      <option value="Overview">Overview</option>
-                      <option value="Comprehensive">Comprehensive</option>
-                      <option value="Deep dive">Deep Dive</option>
-                      <option value="Expert level">Expert Level</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            {/* ANALYTICS TAB */}
+            <TabsContent value="analytics" className="space-y-4">
+              {lastQuality ? (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center">
+                      <BarChart3 className="w-4 h-4 mr-2" />
+                      Quality Metrics
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="space-y-2">
+                      {[
+                        { label: 'Relevance', value: lastQuality.relevance },
+                        { label: 'Depth', value: lastQuality.depth },
+                        { label: 'Actionability', value: lastQuality.actionability },
+                        { label: 'Innovation', value: lastQuality.innovation }
+                      ].map(metric => (
+                        <div key={metric.label} className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span>{metric.label}</span>
+                            <span>{(metric.value * 100).toFixed(1)}%</span>
+                          </div>
+                          <Progress value={metric.value * 100} className="h-1" />
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="p-6 text-center">
+                    <p className="text-sm text-gray-500">Generate a mind map to see analytics</p>
+                  </CardContent>
+                </Card>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+      )}
     </div>
   );
 };
