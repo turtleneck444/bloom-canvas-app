@@ -19,8 +19,10 @@ import '@xyflow/react/dist/style.css';
 
 import MindMapNode, { NodeData } from './MindMapNode';
 import MindMapToolbar from './MindMapToolbar';
+import AIToolbar from './AIToolbar';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { aiService, GeneratedNode, FundamentalNode } from '@/services/aiService';
 
 const nodeTypes = {
   mindMapNode: MindMapNode,
@@ -282,7 +284,8 @@ const getColorForCategory = (category: string): string => {
 // Collision detection and avoidance utilities
 const NODE_WIDTH = 200;
 const NODE_HEIGHT = 120;
-const MIN_DISTANCE = 250; // Minimum distance between node centers
+const MIN_DISTANCE = 200; // Reduced from 250 for tighter spacing
+const VIEWPORT_PADDING = 100; // Ensure nodes stay within viewport
 
 const calculateDistance = (pos1: { x: number; y: number }, pos2: { x: number; y: number }): number => {
   return Math.sqrt(Math.pow(pos1.x - pos2.x, 2) + Math.pow(pos1.y - pos2.y, 2));
@@ -293,13 +296,22 @@ const checkCollision = (pos1: { x: number; y: number }, pos2: { x: number; y: nu
   return distance < MIN_DISTANCE;
 };
 
+// Improved positioning that keeps nodes in reasonable bounds
 const findSafePosition = (
   desiredPosition: { x: number; y: number },
   existingNodes: Array<Node<NodeData>>,
-  maxAttempts: number = 50
+  maxAttempts: number = 36
 ): { x: number; y: number } => {
   let currentPosition = { ...desiredPosition };
   let attempts = 0;
+  
+  // Define reasonable viewport bounds
+  const bounds = {
+    minX: VIEWPORT_PADDING,
+    maxX: 1600 - VIEWPORT_PADDING,
+    minY: VIEWPORT_PADDING,
+    maxY: 1200 - VIEWPORT_PADDING
+  };
   
   while (attempts < maxAttempts) {
     let hasCollision = false;
@@ -312,26 +324,32 @@ const findSafePosition = (
       }
     }
     
-    if (!hasCollision) {
+    // Check if position is within reasonable bounds
+    const withinBounds = currentPosition.x >= bounds.minX && 
+                        currentPosition.x <= bounds.maxX && 
+                        currentPosition.y >= bounds.minY && 
+                        currentPosition.y <= bounds.maxY;
+    
+    if (!hasCollision && withinBounds) {
       return currentPosition;
     }
     
-    // Try to find a new position by expanding in a spiral pattern
-    const angle = (attempts * 0.5) * Math.PI;
-    const radius = MIN_DISTANCE + (attempts * 10);
+    // Try to find a new position in a spiral pattern with smaller increments
+    const angle = (attempts * 0.6) * Math.PI;
+    const radius = MIN_DISTANCE * 0.8 + (attempts * 15);
     
     currentPosition = {
-      x: desiredPosition.x + Math.cos(angle) * radius,
-      y: desiredPosition.y + Math.sin(angle) * radius,
+      x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + Math.cos(angle) * radius)),
+      y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + Math.sin(angle) * radius)),
     };
     
     attempts++;
   }
   
-  // If we can't find a safe position, return the original with some offset
+  // If we can't find a safe position, return a position with slight offset that's guaranteed to be in bounds
   return {
-    x: desiredPosition.x + (Math.random() - 0.5) * MIN_DISTANCE * 2,
-    y: desiredPosition.y + (Math.random() - 0.5) * MIN_DISTANCE * 2,
+    x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + (Math.random() - 0.5) * MIN_DISTANCE)),
+    y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + (Math.random() - 0.5) * MIN_DISTANCE)),
   };
 };
 
@@ -715,15 +733,15 @@ const applyLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], layout: string
 };
 
 const applyRadialLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  // Responsive center positioning with more space
+  // Improved center positioning that's more conservative
   const centerX = 800;
-  const centerY = 600;
-  const baseRadius = 300; // Increased for better spacing
-  const childRadius = 150; // Increased for grandchildren
+  const centerY = 500;
+  const baseRadius = 220; // Reduced for better organization
+  const childRadius = 180; // Increased for better child spacing
   
   console.log('Applying radial layout, root node:', rootNode.id);
   
-  // Position root node at center and ensure it's visible
+  // Position root node at center
   rootNode.position = { x: centerX, y: centerY };
   
   // Get all children of root and group by category
@@ -745,23 +763,36 @@ const applyRadialLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode
   // Track positioned nodes for collision detection
   const positionedNodes: Node<NodeData>[] = [rootNode];
   
-  // Position children by category in organized sectors with collision avoidance
+  // Position children by category in organized sectors with improved spacing
   let currentAngle = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    const sectorAngle = (2 * Math.PI) / Object.keys(categoryGroups).length;
-    const nodesPerCategory = categoryNodes.length;
+  const totalCategories = Object.keys(categoryGroups).length;
+  
+  Object.entries(categoryGroups).forEach(([category, categoryNodes], categoryIndex) => {
+    const sectorAngle = (2 * Math.PI) / totalCategories;
+    const categoryCenter = currentAngle + sectorAngle / 2;
     
-    categoryNodes.forEach((node, index) => {
-      const angle = currentAngle + (index / nodesPerCategory) * sectorAngle * 0.7; // 70% of sector for better spacing
-      const radius = baseRadius;
+    categoryNodes.forEach((node, nodeIndex) => {
+      // Calculate position with better distribution
+      const totalNodesInCategory = categoryNodes.length;
+      let nodeAngle;
+      
+      if (totalNodesInCategory === 1) {
+        nodeAngle = categoryCenter;
+      } else {
+        const angleSpread = Math.min(sectorAngle * 0.7, Math.PI / 2); // Limit spread
+        const startAngle = categoryCenter - angleSpread / 2;
+        nodeAngle = startAngle + (nodeIndex / (totalNodesInCategory - 1)) * angleSpread;
+      }
+      
+      const radius = baseRadius + (nodeIndex % 2) * 40; // Slight radius variation
       
       const desiredPosition = {
-        x: centerX + Math.cos(angle) * radius,
-        y: centerY + Math.sin(angle) * radius,
+        x: centerX + Math.cos(nodeAngle) * radius,
+        y: centerY + Math.sin(nodeAngle) * radius,
       };
       
-      // Use collision detection to find safe position
-      positionNodeSafely(node, desiredPosition, positionedNodes);
+      // Use improved collision detection
+      node.position = findSafePosition(desiredPosition, positionedNodes);
       positionedNodes.push(node);
       
       // Assign category color if not already set
@@ -775,8 +806,8 @@ const applyRadialLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode
     currentAngle += sectorAngle;
   });
   
-  // Position grandchildren in organized clusters with collision avoidance
-  childNodes.forEach((childNode, childIndex) => {
+  // Position grandchildren with improved algorithm
+  childNodes.forEach((childNode) => {
     const grandChildren = edges.filter(e => e.source === childNode.id).map(e => e.target);
     const grandChildNodes = nodes.filter(n => grandChildren.includes(n.id));
     
@@ -786,16 +817,23 @@ const applyRadialLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode
       const childCategory = (childNode.data as NodeData).category || 'default';
       
       grandChildNodes.forEach((grandChild, grandChildIndex) => {
-        const angle = (grandChildIndex / grandChildNodes.length) * 2 * Math.PI;
+        // Calculate angle away from center to avoid overlap
+        const angleToCenter = Math.atan2(childY - centerY, childX - centerX);
+        const baseAngle = angleToCenter + Math.PI; // Opposite direction from center
+        
+        // Distribute grandchildren around the base angle
+        const angleOffset = (grandChildIndex - (grandChildNodes.length - 1) / 2) * (Math.PI / 4);
+        const finalAngle = baseAngle + angleOffset;
+        
         const radius = childRadius;
         
         const desiredPosition = {
-          x: childX + Math.cos(angle) * radius,
-          y: childY + Math.sin(angle) * radius,
+          x: childX + Math.cos(finalAngle) * radius,
+          y: childY + Math.sin(finalAngle) * radius,
         };
         
-        // Use collision detection to find safe position
-        positionNodeSafely(grandChild, desiredPosition, positionedNodes);
+        // Use improved collision detection
+        grandChild.position = findSafePosition(desiredPosition, positionedNodes);
         positionedNodes.push(grandChild);
         
         // Assign category color if not already set
@@ -806,10 +844,7 @@ const applyRadialLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode
     }
   });
   
-  // Final check to ensure root node visibility
-  ensureRootNodeVisibility(rootNode, nodes);
-  
-  console.log('Radial layout completed with collision avoidance');
+  console.log('Radial layout completed with improved collision avoidance');
   return nodes;
 };
 
@@ -1535,6 +1570,8 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
   const [history, setHistory] = useState<Array<{ nodes: Node<NodeData>[]; edges: Edge[] }>>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isLayoutLoading, setIsLayoutLoading] = useState(false);
+  const [isAiProcessing, setIsAiProcessing] = useState(false);
+  const [fundamentalNodes, setFundamentalNodes] = useState<FundamentalNode[]>([]);
   const { fitView, zoomIn, zoomOut } = useReactFlow();
 
   // Core functions
@@ -1550,23 +1587,75 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     setHistoryIndex(newHistory.length - 1);
   }, [history, historyIndex]);
 
-  const handleAddNode = useCallback((parentId?: string) => {
+  const handleAddNode = useCallback(async (parentId?: string) => {
     const parentNode = parentId ? nodes.find(n => n.id === parentId) : null;
+    
+    let newPosition;
+    if (parentNode) {
+      // Improved child positioning logic
+      const existingChildren = edges.filter(e => e.source === parentId).map(e => e.target);
+      const childCount = existingChildren.length;
+      
+      // Position new child in a more organized way
+      const angle = (childCount * (Math.PI / 3)) + (Math.random() - 0.5) * 0.3; // Add slight randomness
+      const distance = 180 + (childCount * 20); // Increase distance with more children
+      
+      const desiredPosition = {
+        x: parentNode.position.x + Math.cos(angle) * distance,
+        y: parentNode.position.y + Math.sin(angle) * distance,
+      };
+      
+      newPosition = findSafePosition(desiredPosition, nodes);
+    } else {
+      // For root nodes, position near center
+      newPosition = findSafePosition(
+        {
+          x: 600 + (Math.random() - 0.5) * 200,
+          y: 400 + (Math.random() - 0.5) * 200,
+        },
+        nodes
+      );
+    }
+
+    let nodeLabel = 'New Idea';
+    let nodeDescription = '';
+    let nodeCategory = 'general';
+    
+    // Enhanced context-aware node generation
+    if (parentNode) {
+      const parentLabel = parentNode.data.label;
+      const allNodeLabels = nodes.map(n => n.data.label).join(' ');
+      
+      // Analyze parent context to generate intelligent suggestions
+      const suggestions = await generateIntelligentNodeSuggestion(parentLabel, allNodeLabels);
+      nodeLabel = suggestions.label;
+      nodeDescription = suggestions.description;
+      nodeCategory = suggestions.category;
+    } else {
+      // For root nodes, analyze existing context
+      if (nodes.length > 0) {
+        const existingContext = nodes.map(n => n.data.label).join(' ');
+        const suggestions = await generateIntelligentNodeSuggestion('', existingContext);
+        nodeLabel = suggestions.label;
+        nodeDescription = suggestions.description;
+        nodeCategory = suggestions.category;
+      }
+    }
+    
     const newNode: Node<NodeData> = {
       id: `${Date.now()}`,
       type: 'mindMapNode',
-      position: parentNode ? {
-        x: parentNode.position.x + (Math.random() - 0.5) * 200,
-        y: parentNode.position.y + 150 + (Math.random() - 0.5) * 100,
-      } : {
-        x: Math.random() * 400 + 200,
-        y: Math.random() * 400 + 200,
-      },
+      position: newPosition,
       data: { 
-        label: 'New Idea', 
-        color: customTheme.colors.primary,
-        fontSize: 14,
-        parentId: parentId
+        label: nodeLabel, 
+        color: getContextualColor(nodeCategory),
+        fontSize: parentNode ? 13 : 14,
+        parentId: parentId,
+        category: nodeCategory,
+        messages: nodeDescription ? [nodeDescription] : [],
+        opacity: 1,
+        aiGenerated: false,
+        importance: parentNode ? 5 : 7
       },
     };
     
@@ -1581,7 +1670,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
         target: newNode.id,
         type: 'smoothstep',
         animated: false,
-        style: { stroke: customTheme.colors.secondary, strokeWidth: 2 }
+        style: { stroke: getContextualColor(nodeCategory), strokeWidth: 2 }
       };
       const newEdges = [...edges, newEdge];
       setEdges(newEdges);
@@ -1589,101 +1678,842 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     } else {
       addToHistory(newNodes, edges);
     }
-  }, [setNodes, setEdges, nodes, edges, customTheme, addToHistory]);
+    
+    // Auto-fit view to ensure new node is visible
+    setTimeout(() => {
+      if (reactFlowInstance) {
+        reactFlowInstance.fitView({ padding: 0.1, duration: 500 });
+      }
+    }, 100);
+  }, [setNodes, setEdges, nodes, edges, customTheme, addToHistory, reactFlowInstance]);
 
-  // AI-powered node generation with animated appearance
-  const handleGenerateRelatedNodes = useCallback((topic: string, parentNodeId?: string) => {
-    const parentNode = parentNodeId ? nodes.find(n => n.id === parentNodeId) : nodes.find(n => n.data.label === topic);
+  // Enhanced intelligent node suggestion function
+  const generateIntelligentNodeSuggestion = async (parentLabel: string, context: string) => {
+    // First try AI if available
+    if (aiService.isConfigured()) {
+      try {
+        const enhancement = await aiService.enhanceNodeWithAI(
+          parentLabel || 'new concept', 
+          `Context: ${context.slice(0, 200)}...`
+        );
+        return {
+          label: enhancement.enhancedLabel,
+          description: enhancement.description,
+          category: enhancement.category
+        };
+      } catch (error) {
+        console.log('AI enhancement failed, using intelligent fallback');
+      }
+    }
     
-    if (!parentNode) return;
+    // Enhanced intelligent fallback system
+    return generateContextualSuggestion(parentLabel, context);
+  };
+
+  // Advanced contextual suggestion generator
+  const generateContextualSuggestion = (parentLabel: string, context: string) => {
+    const contextLower = context.toLowerCase();
+    const parentLower = parentLabel.toLowerCase();
     
-    const category = determineCategory(topic);
-    const relatedTopics = generateRelatedNodes(topic, category).map(node => node.label);
+    // Analyze context for domain and generate relevant suggestions
+    const domains = {
+      business: ['strategy', 'business', 'company', 'revenue', 'market', 'customer', 'growth', 'profit'],
+      technology: ['ai', 'software', 'development', 'tech', 'digital', 'platform', 'app', 'system'],
+      marketing: ['marketing', 'brand', 'campaign', 'social', 'content', 'advertising', 'promotion'],
+      design: ['design', 'ui', 'ux', 'creative', 'visual', 'interface', 'aesthetic', 'layout'],
+      education: ['learning', 'education', 'course', 'training', 'skill', 'knowledge', 'teach'],
+      health: ['health', 'medical', 'fitness', 'wellness', 'care', 'treatment', 'therapy'],
+      finance: ['finance', 'money', 'investment', 'budget', 'cost', 'price', 'financial'],
+      project: ['project', 'plan', 'task', 'goal', 'timeline', 'milestone', 'deliverable']
+    };
     
-    // Generate more nodes based on topic complexity - up to 35 nodes for comprehensive mind maps
-    const baseNodes = Math.min(relatedTopics.length, 20);
-    const complexityBonus = topic.length > 20 ? 15 : 10; // More complex topics get more nodes
-    const numNodes = Math.min(relatedTopics.length, baseNodes + complexityBonus);
-    const selectedTopics = relatedTopics.slice(0, numNodes);
+    let detectedDomain = 'general';
+    let domainScore = 0;
     
-    const newNodes = [...nodes];
-    const newEdges = [...edges];
+    for (const [domain, keywords] of Object.entries(domains)) {
+      const score = keywords.reduce((acc, keyword) => {
+        return acc + (contextLower.includes(keyword) ? 1 : 0) + (parentLower.includes(keyword) ? 2 : 0);
+      }, 0);
+      if (score > domainScore) {
+        domainScore = score;
+        detectedDomain = domain;
+      }
+    }
     
-    // Create all nodes first but with opacity 0 for animation
-    const nodesToAnimate: Node<NodeData>[] = [];
-    const edgesToAnimate: Edge[] = [];
+    // Generate suggestions based on detected domain and parent context
+    const suggestions = {
+      business: [
+        { label: 'Strategic Planning', description: 'Long-term strategic direction and planning initiatives', category: 'strategy' },
+        { label: 'Market Analysis', description: 'Comprehensive market research and competitive analysis', category: 'research' },
+        { label: 'Revenue Optimization', description: 'Revenue growth strategies and optimization methods', category: 'finance' },
+        { label: 'Customer Experience', description: 'Customer journey and experience improvement strategies', category: 'customer' },
+        { label: 'Operational Excellence', description: 'Process optimization and operational efficiency improvements', category: 'operations' },
+        { label: 'Innovation Pipeline', description: 'Innovation strategies and new opportunity development', category: 'innovation' }
+      ],
+      technology: [
+        { label: 'System Architecture', description: 'Technical architecture and system design considerations', category: 'architecture' },
+        { label: 'Performance Optimization', description: 'System performance and efficiency improvements', category: 'performance' },
+        { label: 'Security Framework', description: 'Security protocols and protection mechanisms', category: 'security' },
+        { label: 'User Interface Design', description: 'Interface design and user experience optimization', category: 'design' },
+        { label: 'Data Management', description: 'Data storage, processing, and analytics strategies', category: 'data' },
+        { label: 'Integration Strategy', description: 'System integration and API development approaches', category: 'integration' }
+      ],
+      marketing: [
+        { label: 'Content Strategy', description: 'Content creation and distribution strategy', category: 'content' },
+        { label: 'Audience Targeting', description: 'Target audience identification and segmentation', category: 'audience' },
+        { label: 'Brand Positioning', description: 'Brand identity and market positioning strategy', category: 'brand' },
+        { label: 'Campaign Analytics', description: 'Performance tracking and campaign optimization', category: 'analytics' },
+        { label: 'Channel Strategy', description: 'Multi-channel marketing approach and optimization', category: 'channels' },
+        { label: 'Customer Acquisition', description: 'Customer acquisition and retention strategies', category: 'acquisition' }
+      ],
+      design: [
+        { label: 'Visual Hierarchy', description: 'Information architecture and visual organization', category: 'visual' },
+        { label: 'User Experience Flow', description: 'User journey and interaction design optimization', category: 'ux' },
+        { label: 'Design System', description: 'Consistent design patterns and component library', category: 'system' },
+        { label: 'Accessibility Standards', description: 'Inclusive design and accessibility considerations', category: 'accessibility' },
+        { label: 'Responsive Design', description: 'Multi-device and responsive design strategies', category: 'responsive' },
+        { label: 'Creative Direction', description: 'Creative vision and artistic direction', category: 'creative' }
+      ],
+      general: [
+        { label: 'Strategic Framework', description: 'Comprehensive strategic approach and methodology', category: 'strategy' },
+        { label: 'Implementation Plan', description: 'Detailed execution strategy and action items', category: 'implementation' },
+        { label: 'Success Metrics', description: 'Key performance indicators and measurement criteria', category: 'metrics' },
+        { label: 'Risk Assessment', description: 'Risk analysis and mitigation strategies', category: 'risk' },
+        { label: 'Resource Planning', description: 'Resource allocation and capacity planning', category: 'resources' },
+        { label: 'Future Considerations', description: 'Long-term planning and future opportunities', category: 'future' }
+      ]
+    };
     
-    selectedTopics.forEach((topic, index) => {
-      const nodeId = `${parentNode.id}-${Date.now()}-${index}`;
-      const angle = (index / selectedTopics.length) * 2 * Math.PI;
-      const distance = 200 + Math.random() * 150; // Increased distance for better spacing
+    // Select contextually relevant suggestion
+    const domainSuggestions = suggestions[detectedDomain] || suggestions.general;
+    
+    // If parent label exists, try to find related suggestions
+    if (parentLabel && parentLabel !== 'New Idea') {
+      const relatedSuggestion = domainSuggestions.find(s => 
+        s.label.toLowerCase().includes(parentLower.split(' ')[0]) ||
+        parentLower.includes(s.label.toLowerCase().split(' ')[0])
+      );
       
-      const newNode: Node<NodeData> = {
-        id: nodeId,
-        type: 'mindMapNode',
-        position: {
-          x: parentNode.position.x + Math.cos(angle) * distance,
-          y: parentNode.position.y + Math.sin(angle) * distance,
-        },
-        data: {
-          label: topic,
-          color: getColorForCategory(category),
-          fontSize: 14,
-          category,
-          messages: [`Generated from: ${parentNode.data.label}`], // Add context message
-          opacity: 0, // Start invisible for animation
-        },
-      };
-      
-      nodesToAnimate.push(newNode);
-      
-      const newEdge: Edge = {
-        id: `${parentNode.id}-${nodeId}`,
-        source: parentNode.id,
-        target: nodeId,
-        type: 'smoothstep',
-        style: { 
-          stroke: getColorForCategory(category), 
-          strokeWidth: 2,
-          strokeDasharray: index % 3 === 0 ? '5,5' : undefined, // Varied edge styles
-          opacity: 0, // Start invisible for animation
-        },
-      };
-      
-      edgesToAnimate.push(newEdge);
+      if (relatedSuggestion) return relatedSuggestion;
+    }
+    
+    // Return a contextually appropriate suggestion
+    const randomIndex = Math.floor(Math.random() * domainSuggestions.length);
+    return domainSuggestions[randomIndex];
+  };
+
+  // Helper function to get contextual colors
+  const getContextualColor = (category: string) => {
+    const categoryColors = {
+      strategy: 'hsl(267, 85%, 66%)',
+      research: 'hsl(213, 94%, 68%)',
+      finance: 'hsl(142, 76%, 50%)',
+      customer: 'hsl(35, 91%, 65%)',
+      operations: 'hsl(280, 100%, 70%)',
+      innovation: 'hsl(292, 91%, 76%)',
+      architecture: 'hsl(200, 100%, 70%)',
+      performance: 'hsl(45, 100%, 60%)',
+      security: 'hsl(0, 84%, 60%)',
+      design: 'hsl(300, 100%, 70%)',
+      data: 'hsl(180, 70%, 60%)',
+      integration: 'hsl(260, 80%, 65%)',
+      content: 'hsl(120, 70%, 55%)',
+      audience: 'hsl(340, 70%, 65%)',
+      brand: 'hsl(220, 80%, 60%)',
+      analytics: 'hsl(160, 70%, 60%)',
+      general: customTheme.colors.primary
+    };
+    
+    return categoryColors[category] || customTheme.colors.primary;
+  };
+
+  // AI-powered intelligent node generation with enhanced animations
+  const handleGenerateIntelligentNodes = useCallback(async (topic: string, context: any = {}) => {
+    setIsAiProcessing(true);
+    toast.loading('🧠 Generating intelligent nodes...', {
+      description: `Using ${aiService.getCurrentModel().split('/')[1]} AI model`
     });
     
-    // Add all nodes and edges at once
-    newNodes.push(...nodesToAnimate);
-    newEdges.push(...edgesToAnimate);
-    
-    setNodes(newNodes);
-    setEdges(newEdges);
-    addToHistory(newNodes, newEdges);
-    
-    // Animate nodes appearing one by one
-    nodesToAnimate.forEach((node, index) => {
-      setTimeout(() => {
-        setNodes(currentNodes => 
-          currentNodes.map(n => 
-            n.id === node.id 
-              ? { ...n, data: { ...n.data, opacity: 1 } }
-              : n
-          )
-        );
+    try {
+      const generatedNodes = await aiService.generateIntelligentNodes(topic, nodes, context);
+      
+      const newNodes = [...nodes];
+      const newEdges = [...edges];
+      
+      // Convert generated nodes to ReactFlow nodes with enhanced positioning
+      const nodesToAnimate: Node<NodeData>[] = [];
+      const edgesToAnimate: Edge[] = [];
+      
+      // Enhanced positioning algorithm for better visual layout
+      const centerX = 800;
+      const centerY = 500;
+      const gridCols = Math.ceil(Math.sqrt(generatedNodes.length));
+      const gridSpacing = 300;
+      const startX = centerX - ((gridCols - 1) * gridSpacing) / 2;
+      const startY = centerY - ((Math.ceil(generatedNodes.length / gridCols) - 1) * gridSpacing) / 2;
+      
+      generatedNodes.forEach((genNode, index) => {
+        // Enhanced grid positioning with slight randomization for organic feel
+        const col = index % gridCols;
+        const row = Math.floor(index / gridCols);
+        const baseX = startX + (col * gridSpacing);
+        const baseY = startY + (row * gridSpacing);
         
-        setEdges(currentEdges => 
-          currentEdges.map(e => 
-            e.id === edgesToAnimate[index].id 
-              ? { ...e, style: { ...e.style, opacity: 1 } }
-              : e
-          )
-        );
-      }, index * 150); // 150ms delay between each node
+        // Add slight randomization for natural look
+        const offsetX = (Math.random() - 0.5) * 80;
+        const offsetY = (Math.random() - 0.5) * 80;
+        
+        const newNode: Node<NodeData> = {
+          id: genNode.id,
+          type: 'mindMapNode',
+          position: {
+            x: baseX + offsetX,
+            y: baseY + offsetY
+          },
+          data: {
+            label: genNode.label,
+            color: genNode.color,
+            fontSize: genNode.metadata.isFundamental ? 16 : 14,
+            category: genNode.category,
+            messages: genNode.description ? [genNode.description] : [],
+            opacity: 0, // Start invisible for animation
+            scale: 0.3, // Start small for scale animation
+            ...genNode.metadata
+          },
+        };
+        
+        nodesToAnimate.push(newNode);
+        
+        // Create connections based on AI suggestions with enhanced edge styling
+        genNode.connections.forEach(targetId => {
+          if (nodes.find(n => n.id === targetId) || nodesToAnimate.find(n => n.id === targetId)) {
+            const edgeId = `${genNode.id}-${targetId}`;
+            const newEdge: Edge = {
+              id: edgeId,
+              source: genNode.id,
+              target: targetId,
+              type: 'smoothstep',
+              animated: genNode.metadata.isFundamental,
+              style: { 
+                stroke: genNode.color, 
+                strokeWidth: genNode.metadata.isFundamental ? 4 : 2,
+                strokeDasharray: genNode.metadata.isFundamental ? 'none' : '5,5',
+                opacity: 0
+              },
+            };
+            edgesToAnimate.push(newEdge);
+          }
+        });
+      });
+      
+      // Add all nodes and edges
+      newNodes.push(...nodesToAnimate);
+      newEdges.push(...edgesToAnimate);
+      
+      setNodes(newNodes);
+      setEdges(newEdges);
+      addToHistory(newNodes, newEdges);
+      
+      // Enhanced staggered animation sequence
+      toast.dismiss();
+      toast.success('✨ Starting node animation sequence...', { duration: 1000 });
+      
+      // Phase 1: Animate fundamental nodes first (importance 8+)
+      const fundamentalNodes = nodesToAnimate.filter(node => node.data.isFundamental);
+      const regularNodes = nodesToAnimate.filter(node => !node.data.isFundamental);
+      
+      // Animate fundamental nodes with special effects
+      fundamentalNodes.forEach((node, index) => {
+        setTimeout(() => {
+          setNodes(currentNodes => 
+            currentNodes.map(n => 
+              n.id === node.id 
+                ? { 
+                    ...n, 
+                    data: { 
+                      ...n.data, 
+                      opacity: 1,
+                      scale: 1.1 // Slightly larger for fundamental nodes
+                    }
+                  }
+                : n
+            )
+          );
+          
+          // Add pulsing effect for fundamental nodes
+          setTimeout(() => {
+            setNodes(currentNodes => 
+              currentNodes.map(n => 
+                n.id === node.id 
+                  ? { ...n, data: { ...n.data, scale: 1.0 } }
+                  : n
+              )
+            );
+          }, 200);
+          
+        }, index * 150); // Faster stagger for fundamentals
+      });
+      
+      // Phase 2: Animate regular nodes with wave effect
+      regularNodes.forEach((node, index) => {
+        setTimeout(() => {
+          setNodes(currentNodes => 
+            currentNodes.map(n => 
+              n.id === node.id 
+                ? { 
+                    ...n, 
+                    data: { 
+                      ...n.data, 
+                      opacity: 1,
+                      scale: 1.05
+                    }
+                  }
+                : n
+            )
+          );
+          
+          // Smooth scale back to normal
+          setTimeout(() => {
+            setNodes(currentNodes => 
+              currentNodes.map(n => 
+                n.id === node.id 
+                  ? { ...n, data: { ...n.data, scale: 1.0 } }
+                  : n
+              )
+            );
+          }, 150);
+          
+        }, fundamentalNodes.length * 150 + index * 80); // Start after fundamentals
+      });
+      
+      // Phase 3: Animate edges with flowing effect
+      edgesToAnimate.forEach((edge, index) => {
+        setTimeout(() => {
+          setEdges(currentEdges => 
+            currentEdges.map(e => 
+              e.id === edge.id 
+                ? { 
+                    ...e, 
+                    style: { 
+                      ...e.style, 
+                      opacity: 1,
+                      strokeWidth: (e.style?.strokeWidth || 2) * 1.5 // Thicker during animation
+                    }
+                  }
+                : e
+            )
+          );
+          
+          // Return to normal thickness
+          setTimeout(() => {
+            setEdges(currentEdges => 
+              currentEdges.map(e => 
+                e.id === edge.id 
+                  ? { 
+                      ...e, 
+                      style: { 
+                        ...e.style, 
+                        strokeWidth: edge.style?.strokeWidth || 2
+                      }
+                    }
+                  : e
+              )
+            );
+          }, 300);
+          
+        }, (fundamentalNodes.length + regularNodes.length) * 100 + index * 50);
+      });
+      
+      // Phase 4: Final celebration and auto-identify fundamentals
+      const totalAnimationTime = (fundamentalNodes.length * 150) + (regularNodes.length * 80) + (edgesToAnimate.length * 50) + 1000;
+      
+      setTimeout(() => {
+        // Check if this was a fallback generation
+        const isFallback = generatedNodes.some(node => node.id.includes('fallback'));
+        
+        if (isFallback) {
+          toast.success(`🧠 Generated ${generatedNodes.length} intelligent nodes using enhanced fallback system`, {
+            description: 'Fallback algorithms created contextually relevant nodes'
+          });
+        } else {
+          toast.success(`🎯 AI generated ${generatedNodes.length} intelligent nodes for "${topic}"`, {
+            description: `Using ${aiService.getCurrentModel().split('/')[1]} model`
+          });
+          
+          // Auto-identify fundamentals for AI-generated content
+          setTimeout(() => handleIdentifyFundamentals(), 500);
+        }
+        
+        // Auto-fit view to show all new nodes
+        if (reactFlowInstance) {
+          reactFlowInstance.fitView({ 
+            padding: 0.15, 
+            duration: 1000,
+            maxZoom: 1.2
+          });
+        }
+        
+      }, totalAnimationTime);
+      
+    } catch (error) {
+      console.error('Error generating intelligent nodes:', error);
+      toast.dismiss();
+      
+      // Enhanced error feedback
+      if (error instanceof Error && error.message.includes('INSUFFICIENT_CREDITS')) {
+        toast.info('💡 AI credits exhausted - Enhanced fallback system activated', {
+          description: 'Generated intelligent nodes using domain-specific algorithms'
+        });
+      } else if (error instanceof Error && error.message.includes('RATE_LIMITED')) {
+        toast.warning('⏱️ Rate limited - Using intelligent fallback system', {
+          description: 'Please wait a moment before trying again'
+        });
+      } else {
+        toast.error('AI generation failed - using intelligent fallback system');
+      }
+    } finally {
+      setIsAiProcessing(false);
+    }
+  }, [nodes, edges, setNodes, setEdges, addToHistory, reactFlowInstance]);
+
+  // Enhanced fundamental node identification with better visual feedback
+  const handleIdentifyFundamentals = useCallback(async () => {
+    if (nodes.length < 2) {
+      toast.error('Need at least 2 nodes to identify fundamentals');
+      return;
+    }
+    
+    setIsAiProcessing(true);
+    toast.loading('🔍 Analyzing fundamental concepts...', {
+      description: 'AI is evaluating node importance and connections'
     });
     
-    toast.success(`Generated ${selectedTopics.length} advanced topics for "${topic}" 🧠✨`);
-  }, [nodes, edges, setNodes, setEdges, addToHistory]);
+    try {
+      const identifiedFundamentals = await aiService.identifyFundamentalNodes(nodes, edges);
+      setFundamentalNodes(identifiedFundamentals);
+      
+      // Enhanced visual feedback for fundamental identification
+      const updatedNodes = nodes.map(node => {
+        const fundamental = identifiedFundamentals.find(f => f.id === node.id);
+        if (fundamental) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              isFundamental: true,
+              importance: fundamental.importance,
+              centralityScore: fundamental.centralityScore,
+              messages: [
+                ...(node.data.messages || []),
+                `🎯 Fundamental concept (Score: ${fundamental.conceptualWeight.toFixed(1)})`
+              ],
+              pulseEffect: true // Trigger pulsing animation
+            }
+          };
+        }
+        return node;
+      });
+      
+      setNodes(updatedNodes);
+      addToHistory(updatedNodes, edges);
+      
+      // Animate fundamental node highlighting
+      identifiedFundamentals.forEach((fundamental, index) => {
+        setTimeout(() => {
+          setNodes(currentNodes => 
+            currentNodes.map(n => 
+              n.id === fundamental.id 
+                ? { 
+                    ...n, 
+                    data: { 
+                      ...n.data, 
+                      scale: 1.2,
+                      highlightEffect: true
+                    }
+                  }
+                : n
+            )
+          );
+          
+          // Return to normal size after highlight
+          setTimeout(() => {
+            setNodes(currentNodes => 
+              currentNodes.map(n => 
+                n.id === fundamental.id 
+                  ? { 
+                      ...n, 
+                      data: { 
+                        ...n.data, 
+                        scale: 1.0,
+                        highlightEffect: false
+                      }
+                    }
+                  : n
+              )
+            );
+          }, 600);
+          
+        }, index * 200);
+      });
+      
+      toast.dismiss();
+      
+      if (identifiedFundamentals.length === 0) {
+        toast.info('No clear fundamental nodes identified in current structure', {
+          description: 'Try adding more connected nodes for better analysis'
+        });
+      } else {
+        toast.success(`🎯 Identified ${identifiedFundamentals.length} fundamental nodes`, {
+          description: 'Core concepts highlighted with enhanced visual indicators'
+        });
+      }
+      
+    } catch (error) {
+      console.error('Error identifying fundamentals:', error);
+      toast.dismiss();
+      
+      if (error instanceof Error && error.message.includes('INSUFFICIENT_CREDITS')) {
+        toast.info('💡 Used local analysis to identify fundamental concepts', {
+          description: 'Enhanced algorithms analyzed node relationships'
+        });
+      } else {
+        toast.error('Using local analysis for fundamental identification');
+      }
+    } finally {
+      setIsAiProcessing(false);
+    }
+  }, [nodes, edges, setNodes, addToHistory]);
+
+  // Enhanced automatic branch generation with better animations
+  const handleAutoGenerateBranches = useCallback(async () => {
+    // Auto-identify fundamentals if none exist
+    if (fundamentalNodes.length === 0) {
+      if (nodes.length < 2) {
+        toast.error('Need at least 2 nodes to generate branches. Create some nodes first!');
+        return;
+      }
+      
+      toast.info('🔍 Auto-identifying fundamental nodes first...');
+      
+      try {
+        // Run fundamental identification first
+        const identifiedFundamentals = await aiService.identifyFundamentalNodes(nodes, edges);
+        setFundamentalNodes(identifiedFundamentals);
+        
+        let fundamentalsToUse = identifiedFundamentals;
+        
+        if (identifiedFundamentals.length === 0) {
+          // If no fundamentals identified, use the most connected nodes
+          const nodeConnections = new Map<string, number>();
+          edges.forEach(edge => {
+            nodeConnections.set(edge.source, (nodeConnections.get(edge.source) || 0) + 1);
+            nodeConnections.set(edge.target, (nodeConnections.get(edge.target) || 0) + 1);
+          });
+          
+          const sortedNodes = nodes
+            .map(node => ({
+              id: node.id,
+              label: node.data.label,
+              importance: (nodeConnections.get(node.id) || 0) + (node.data.importance || 5),
+              centralityScore: nodeConnections.get(node.id) || 0,
+              connectionCount: nodeConnections.get(node.id) || 0,
+              conceptualWeight: (nodeConnections.get(node.id) || 0) * 2 + (node.data.importance || 5)
+            }))
+            .sort((a, b) => b.conceptualWeight - a.conceptualWeight)
+            .slice(0, Math.min(3, nodes.length));
+          
+          if (sortedNodes.length > 0) {
+            setFundamentalNodes(sortedNodes);
+            fundamentalsToUse = sortedNodes;
+            toast.success(`🎯 Auto-identified ${sortedNodes.length} nodes as fundamental concepts`);
+          } else {
+            toast.error('Could not identify fundamental nodes for branch generation');
+            return;
+          }
+        } else {
+          toast.success(`🎯 Auto-identified ${identifiedFundamentals.length} fundamental nodes`);
+        }
+        
+        // Use the newly identified fundamentals
+        await generateBranchesFromFundamentals(fundamentalsToUse);
+        
+      } catch (error) {
+        console.error('Error in auto-identification:', error);
+        toast.error('Auto-identification failed, but you can still generate branches manually');
+        return;
+      }
+    } else {
+      // Use existing fundamental nodes
+      await generateBranchesFromFundamentals(fundamentalNodes);
+    }
+  }, [fundamentalNodes, nodes, edges, setFundamentalNodes]);
+
+  // Separate function for actual branch generation
+  const generateBranchesFromFundamentals = useCallback(async (fundamentalsToUse: FundamentalNode[]) => {
+    setIsAiProcessing(true);
+    toast.loading('🌳 Generating intelligent branches...', {
+      description: `Creating branches from ${fundamentalsToUse.length} fundamental concepts`
+    });
+    
+    try {
+      const allNewNodes: Node<NodeData>[] = [];
+      const allNewEdges: Edge[] = [];
+      
+      // Generate branches for each fundamental node with enhanced positioning
+      for (const [fundamentalIndex, fundamentalNode] of fundamentalsToUse.entries()) {
+        let branches;
+        
+        try {
+          // Try AI generation first
+          branches = await aiService.generateAutomaticBranches(fundamentalNode, nodes, 5);
+        } catch (error) {
+          console.log('AI branch generation failed, using intelligent fallback');
+          // Generate intelligent fallback branches
+          branches = generateFallbackBranches(fundamentalNode, 5);
+        }
+        
+        // Position branches in a radial pattern around the fundamental node
+        const fundamentalNodePosition = nodes.find(n => n.id === fundamentalNode.id)?.position || { x: 500, y: 500 };
+        const branchRadius = 220;
+        const angleOffset = (fundamentalIndex * Math.PI) / fundamentalsToUse.length;
+        
+        branches.forEach((branch, branchIndex) => {
+          const angle = (branchIndex / branches.length) * 2 * Math.PI + angleOffset;
+          const radiusVariation = branchRadius + (Math.random() - 0.5) * 50;
+          
+          const newNode: Node<NodeData> = {
+            id: branch.id,
+            type: 'mindMapNode',
+            position: {
+              x: fundamentalNodePosition.x + Math.cos(angle) * radiusVariation,
+              y: fundamentalNodePosition.y + Math.sin(angle) * radiusVariation
+            },
+            data: {
+              label: branch.label,
+              color: branch.color,
+              fontSize: 12,
+              category: branch.category,
+              messages: branch.description ? [branch.description] : [],
+              opacity: 0,
+              scale: 0.5,
+              parentId: fundamentalNode.id,
+              branchGenerated: true,
+              importance: branch.importance || 4
+            },
+          };
+          
+          allNewNodes.push(newNode);
+          
+          // Create edge to fundamental node
+          const edge: Edge = {
+            id: `${fundamentalNode.id}-${branch.id}`,
+            source: fundamentalNode.id,
+            target: branch.id,
+            type: 'smoothstep',
+            animated: true,
+            style: { 
+              stroke: branch.color, 
+              strokeWidth: 2,
+              strokeDasharray: '3,3',
+              opacity: 0
+            },
+          };
+          
+          allNewEdges.push(edge);
+        });
+      }
+      
+      // Add all new nodes and edges
+      const updatedNodes = [...nodes, ...allNewNodes];
+      const updatedEdges = [...edges, ...allNewEdges];
+      
+      setNodes(updatedNodes);
+      setEdges(updatedEdges);
+      addToHistory(updatedNodes, updatedEdges);
+      
+      // Enhanced branch animation with ripple effect from each fundamental
+      toast.dismiss();
+      toast.success('🌊 Starting branch animation ripple...', { duration: 1000 });
+      
+      // Animate branches for each fundamental node with staggered timing
+      for (const [fundamentalIndex, fundamentalNode] of fundamentalsToUse.entries()) {
+        const fundamentalBranches = allNewNodes.filter(node => node.data.parentId === fundamentalNode.id);
+        
+        fundamentalBranches.forEach((branch, branchIndex) => {
+          const totalDelay = (fundamentalIndex * 300) + (branchIndex * 100);
+          
+          setTimeout(() => {
+            // Animate node appearance
+            setNodes(currentNodes => 
+              currentNodes.map(n => 
+                n.id === branch.id 
+                  ? { 
+                      ...n, 
+                      data: { 
+                        ...n.data, 
+                        opacity: 1,
+                        scale: 1.1
+                      }
+                    }
+                  : n
+              )
+            );
+            
+            // Scale to normal size
+            setTimeout(() => {
+              setNodes(currentNodes => 
+                currentNodes.map(n => 
+                  n.id === branch.id 
+                    ? { ...n, data: { ...n.data, scale: 1.0 } }
+                    : n
+                )
+              );
+            }, 200);
+            
+          }, totalDelay);
+        });
+        
+        // Animate edges for this fundamental
+        const fundamentalEdges = allNewEdges.filter(edge => edge.source === fundamentalNode.id);
+        fundamentalEdges.forEach((edge, edgeIndex) => {
+          const totalDelay = (fundamentalIndex * 300) + (edgeIndex * 100) + 400;
+          
+          setTimeout(() => {
+            setEdges(currentEdges => 
+              currentEdges.map(e => 
+                e.id === edge.id 
+                  ? { ...e, style: { ...e.style, opacity: 1 } }
+                  : e
+              )
+            );
+          }, totalDelay);
+        });
+      }
+      
+      // Final success message and view fitting
+      const totalAnimationTime = (fundamentalsToUse.length * 300) + (5 * 100) + 1000;
+      setTimeout(() => {
+        toast.success(`🌳 Generated ${allNewNodes.length} intelligent branches`, {
+          description: `Expanded from ${fundamentalsToUse.length} fundamental concepts`
+        });
+        
+        // Auto-fit view to show all branches
+        if (reactFlowInstance) {
+          reactFlowInstance.fitView({ 
+            padding: 0.1, 
+            duration: 1500,
+            maxZoom: 1.0
+          });
+        }
+      }, totalAnimationTime);
+      
+    } catch (error) {
+      console.error('Error generating branches:', error);
+      toast.dismiss();
+      toast.error('Failed to generate automatic branches. Try running "Find Core Concepts" first.');
+    } finally {
+      setIsAiProcessing(false);
+    }
+  }, [nodes, edges, setNodes, setEdges, addToHistory, reactFlowInstance]);
+
+  // Enhanced fallback branch generator
+  const generateFallbackBranches = (fundamentalNode: FundamentalNode, count: number) => {
+    const branchTypes = [
+      'Strategic Implementation', 'Tactical Execution', 'Resource Planning', 'Performance Metrics',
+      'Risk Management', 'Innovation Opportunities', 'Best Practices', 'Quality Assurance',
+      'Optimization Strategies', 'Future Roadmap'
+    ];
+    
+    const colors = [
+      'hsl(200, 80%, 60%)', 'hsl(120, 70%, 55%)', 'hsl(45, 85%, 60%)', 'hsl(300, 75%, 65%)',
+      'hsl(180, 70%, 60%)', 'hsl(280, 80%, 65%)', 'hsl(60, 80%, 60%)', 'hsl(340, 70%, 65%)'
+    ];
+
+    return branchTypes.slice(0, count).map((type, index) => ({
+      id: `enhanced-branch-${fundamentalNode.id}-${Date.now()}-${index}`,
+      label: `${fundamentalNode.label}: ${type}`,
+      category: type.toLowerCase().replace(' ', '-'),
+      color: colors[index % colors.length],
+      description: `${type} strategies and approaches for ${fundamentalNode.label}`,
+      importance: 4 + Math.floor(Math.random() * 3),
+      connections: [fundamentalNode.id],
+      position: { x: 0, y: 0 }, // Will be overridden
+      metadata: {
+        isFundamental: false,
+        complexity: 3 + Math.floor(Math.random() * 3),
+        parentConcept: fundamentalNode.label,
+        suggestedBranches: [],
+        branchGenerated: true
+      }
+    }));
+  };
+
+  // AI-powered node enhancement
+  const handleEnhanceAllNodes = useCallback(async () => {
+    if (nodes.length === 0) {
+      toast.error('No nodes to enhance');
+      return;
+    }
+    
+    setIsAiProcessing(true);
+    toast.loading('AI is enhancing all nodes...');
+    
+    try {
+      const enhancedNodes = [...nodes];
+      
+      // Enhance nodes in batches to avoid overwhelming the API
+      for (let i = 0; i < nodes.length; i += 3) {
+        const batch = nodes.slice(i, i + 3);
+        
+        await Promise.all(batch.map(async (node) => {
+          try {
+            const context = `Mind map context: ${nodes.map(n => n.data.label).join(', ')}`;
+            const enhancement = await aiService.enhanceNodeWithAI(node.data.label, context);
+            
+            const nodeIndex = enhancedNodes.findIndex(n => n.id === node.id);
+            if (nodeIndex !== -1) {
+              enhancedNodes[nodeIndex] = {
+                ...enhancedNodes[nodeIndex],
+                data: {
+                  ...enhancedNodes[nodeIndex].data,
+                  label: enhancement.enhancedLabel,
+                  tags: enhancement.tags,
+                  category: enhancement.category,
+                  messages: [
+                    ...(enhancedNodes[nodeIndex].data.messages || []),
+                    enhancement.description
+                  ]
+                }
+              };
+            }
+          } catch (error) {
+            console.error(`Failed to enhance node ${node.id}:`, error);
+          }
+        }));
+      }
+      
+      setNodes(enhancedNodes);
+      addToHistory(enhancedNodes, edges);
+      
+      toast.dismiss();
+      toast.success(`✨ Enhanced ${nodes.length} nodes with AI`);
+      
+    } catch (error) {
+      console.error('Error enhancing nodes:', error);
+      toast.dismiss();
+      toast.error('Failed to enhance nodes');
+    } finally {
+      setIsAiProcessing(false);
+    }
+  }, [nodes, edges, setNodes, addToHistory]);
+
+  // Legacy method for backward compatibility
+  const handleGenerateRelatedNodes = useCallback((topic: string, parentNodeId?: string) => {
+    handleGenerateIntelligentNodes(topic, {
+      domain: 'General',
+      purpose: 'Comprehensive exploration'
+    });
+  }, [handleGenerateIntelligentNodes]);
 
   const handleSave = useCallback(() => {
     const data = { nodes, edges, currentLayout, currentTheme, customTheme };
@@ -2080,6 +2910,18 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
 
   return (
     <div className={cn("w-full h-screen relative", className)}>
+      {/* AI Toolbar - Left Sidebar */}
+      <AIToolbar
+        onGenerateIntelligentNodes={handleGenerateIntelligentNodes}
+        onIdentifyFundamentals={handleIdentifyFundamentals}
+        onAutoGenerateBranches={handleAutoGenerateBranches}
+        onEnhanceAllNodes={handleEnhanceAllNodes}
+        nodeCount={nodes.length}
+        isProcessing={isAiProcessing}
+        fundamentalNodesCount={fundamentalNodes.length}
+      />
+
+      {/* Main Toolbar - Top */}
       <MindMapToolbar
         onAddNode={handleAddNode}
         onSave={handleSave}
@@ -2089,24 +2931,17 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
         onZoomOut={zoomOut}
         onFitView={() => fitView()}
         onLayoutChange={handleLayoutChange}
-        onThemeChange={handleThemeChange}
-        currentLayout={currentLayout}
-        currentTheme={currentTheme}
-        isDarkMode={isDarkMode}
-        onToggleDarkMode={handleToggleDarkMode}
-        onClearCanvas={handleClearCanvas}
-        onQuickDelete={handleQuickDelete}
         onUndo={handleUndo}
         onRedo={handleRedo}
+        onClearAll={handleClearCanvas}
+        currentLayout={currentLayout}
+        canUndo={history.length > 1}
+        canRedo={false}
         nodeCount={nodes.length}
-        edgeCount={edges.length}
-        customThemes={customThemes}
-        customTheme={customTheme}
-        setCustomTheme={setCustomTheme}
-        isLayoutLoading={isLayoutLoading}
       />
 
-      <div ref={reactFlowWrapper} className="w-full h-full mind-map-canvas">
+      {/* ReactFlow Canvas - Main area with perfect positioning */}
+      <div className="absolute top-[49px] left-96 right-3 bottom-0">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -2115,54 +2950,35 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           onConnect={onConnect}
           nodeTypes={nodeTypes}
           connectionMode={ConnectionMode.Loose}
-          fitView
-          attributionPosition="bottom-left"
-          className="mind-map-canvas"
           onInit={setReactFlowInstance}
-          snapToGrid={true}
-          snapGrid={[20, 20]}
-          defaultEdgeOptions={{
-            style: { stroke: customTheme.colors.secondary, strokeWidth: 2 },
-            type: 'smoothstep',
-          }}
           proOptions={{ hideAttribution: true }}
-          minZoom={0.1}
-          maxZoom={2}
-          nodesDraggable={true}
-          nodesConnectable={true}
-          elementsSelectable={true}
-          selectNodesOnDrag={false}
-          multiSelectionKeyCode="Shift"
-          deleteKeyCode="Delete"
-          zoomOnScroll={true}
-          zoomOnPinch={true}
-          panOnScroll={false}
-          zoomOnDoubleClick={false}
-          preventScrolling={true}
-          onError={(error) => console.error('ReactFlow error:', error)}
-          nodesFocusable={true}
-          connectionRadius={20}
-          panActivationKeyCode="Space"
-          selectionKeyCode="Shift"
-          zoomActivationKeyCode="Meta"
+          className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20"
+          fitView
+          fitViewOptions={{ 
+            padding: 0.15,
+            maxZoom: 1.5,
+            minZoom: 0.1
+          }}
         >
           <Background 
-            variant={getBackgroundVariant()}
+            variant={BackgroundVariant.Dots}
             gap={20}
             size={1}
-            className="opacity-30"
-            color={customTheme.colors.text}
+            className="opacity-40 dark:opacity-20"
+            color="#e2e8f0"
           />
           <Controls 
-            className="!bottom-4 !left-4 !bg-white/90 !backdrop-blur-sm !border !shadow-lg"
+            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg"
+            showZoom={true}
+            showFitView={true}
             showInteractive={false}
           />
           <MiniMap 
-            className="!bottom-4 !right-4 !bg-white/90 !backdrop-blur-sm !border !shadow-lg !rounded-lg"
-            nodeColor={(node) => {
-              const color = (node.data as NodeData)?.color || customTheme.colors.primary;
-              return color;
-            }}
+            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg overflow-hidden"
+            nodeColor="#8b5cf6"
+            maskColor="rgba(139, 92, 246, 0.1)"
+            pannable
+            zoomable
           />
         </ReactFlow>
       </div>

@@ -5,29 +5,20 @@ import {
   Download, 
   Upload, 
   Save, 
-  Grid3X3, 
   Circle, 
-  GitBranch,
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  Palette,
-  Settings,
   Moon,
   Sun,
-  Brain,
   Trash2,
   Undo,
   Redo,
   BarChart3,
-  RefreshCw,
-  Zap,
-  Sparkles,
-  Layers,
-  Network
+  GitBranch,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import ThemeSelector from './ThemeSelector';
 import Logo from '@/components/ui/logo';
 
 interface MindMapToolbarProps {
@@ -38,22 +29,15 @@ interface MindMapToolbarProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onFitView: () => void;
-  onLayoutChange: (layout: 'radial' | 'tree-horizontal' | 'tree-vertical' | 'hierarchical' | 'organic' | 'spiral' | 'force-directed' | 'hexagonal' | 'fractal' | 'galaxy' | 'neural' | 'molecular' | 'freeform') => void;
-  onThemeChange: (theme: string) => void;
+  onLayoutChange: (layout: 'radial' | 'tree-horizontal' | 'tree-vertical' | 'hierarchical' | 'force-directed' | 'organic') => void;
+  onUndo: () => void;
+  onRedo: () => void;
+  onClearAll: () => void;
   currentLayout: string;
-  currentTheme: string;
-  isDarkMode: boolean;
-  onToggleDarkMode: () => void;
-  onClearCanvas?: () => void;
-  onQuickDelete?: () => void;
-  onUndo?: () => void;
-  onRedo?: () => void;
-  nodeCount?: number;
-  edgeCount?: number;
-  customThemes?: Record<string, any>;
-  customTheme?: any;
-  setCustomTheme?: (theme: any) => void;
-  isLayoutLoading?: boolean;
+  canUndo: boolean;
+  canRedo: boolean;
+  nodeCount: number;
+  className?: string;
 }
 
 const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
@@ -65,241 +49,189 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   onZoomOut,
   onFitView,
   onLayoutChange,
-  onThemeChange,
-  currentLayout,
-  currentTheme,
-  isDarkMode,
-  onToggleDarkMode,
-  onClearCanvas,
-  onQuickDelete,
   onUndo,
   onRedo,
-  nodeCount = 0,
-  edgeCount = 0,
-  customThemes,
-  customTheme,
-  setCustomTheme,
-  isLayoutLoading = false,
+  onClearAll,
+  currentLayout,
+  canUndo,
+  canRedo,
+  nodeCount,
+  className
 }) => {
-  const layouts = [
-    { id: 'freeform', icon: Circle, label: 'Freeform' },
-    { id: 'radial', icon: GitBranch, label: 'Radial' },
-    { id: 'tree-horizontal', icon: GitBranch, label: 'Tree H' },
-    { id: 'tree-vertical', icon: GitBranch, label: 'Tree V' },
-    { id: 'hierarchical', icon: GitBranch, label: 'Hierarchical' },
-    { id: 'organic', icon: GitBranch, label: 'Organic' },
-    { id: 'spiral', icon: GitBranch, label: 'Spiral' },
-    { id: 'force-directed', icon: GitBranch, label: 'Force' },
-    { id: 'hexagonal', icon: Grid3X3, label: 'Hexagonal' },
-    { id: 'fractal', icon: Zap, label: 'Fractal' },
-    { id: 'galaxy', icon: Brain, label: 'Galaxy' },
-    { id: 'neural', icon: BarChart3, label: 'Neural' },
-    { id: 'molecular', icon: RefreshCw, label: 'Molecular' },
-  ];
-
-  const themes = [
-    { id: 'light', label: 'Light' },
-    { id: 'dark', label: 'Dark' },
-    { id: 'grid', label: 'Grid' },
-    { id: 'paper', label: 'Paper' },
-    ...(customThemes ? Object.entries(customThemes).map(([id, theme]) => ({
-      id,
-      label: theme.name
-    })) : [])
+  const layoutOptions = [
+    { id: 'radial', label: 'Radial', icon: Circle },
+    { id: 'tree-horizontal', label: 'Tree', icon: GitBranch },
+    { id: 'hierarchical', label: 'Hierarchy', icon: BarChart3 }
   ];
 
   return (
-    <div className="fixed top-4 left-4 right-4 z-50 flex items-center justify-between animate-fade-in-up">
-      {/* Left Section - Brand & Stats */}
-      <div className="flex items-center gap-4">
-        <Logo size="sm" variant="animated" className="bg-white/10 backdrop-blur-sm rounded-xl p-2 shadow-lg" />
+    <div className={cn(
+      "fixed top-0 left-96 right-3 z-40 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 shadow-lg",
+      className
+    )}>
+      <div className="flex items-center justify-between px-3 py-2">
         
-        {/* Stats */}
-        <div className="hidden sm:flex items-center gap-2 toolbar-enhanced rounded-xl px-3 py-2 shadow-medium border-gradient">
-          <BarChart3 size={16} className="text-nov8-primary" />
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {nodeCount} nodes • {edgeCount} connections
-          </span>
-        </div>
-      </div>
-
-      {/* Center Section - Main Tools */}
-      <div className="flex items-center gap-2 toolbar-enhanced rounded-xl p-2 shadow-medium border-gradient">
-        <Button
-          onClick={onAddNode}
-          variant="ghost"
-          size="sm"
-          className="nov8-transition hover:bg-nov8-primary/10 nov8-button-hover"
-        >
-          <Plus size={16} />
-          <span className="ml-1 hidden sm:inline">Add Node</span>
-        </Button>
-
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-
-        {/* Layout Controls */}
-        <div className="flex items-center gap-1">
-          {layouts.map((layout) => {
-            const Icon = layout.icon;
-            return (
+        {/* Left Section - Logo and Core Actions */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 border-r border-gray-200 dark:border-gray-700 pr-3">
+            <Logo size="sm" variant="gradient" />
+            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
+              <div className="w-1 h-1 rounded-full bg-green-500"></div>
+              <span className="font-medium">{nodeCount}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-1.5">
+            <Button
+              onClick={onAddNode}
+              size="sm"
+              className="h-6 px-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-xs font-medium"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Add
+            </Button>
+            
+            <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800/50 rounded p-0.5">
               <Button
-                key={layout.id}
-                onClick={() => onLayoutChange(layout.id as any)}
+                onClick={onUndo}
+                disabled={!canUndo}
                 variant="ghost"
                 size="sm"
-                disabled={isLayoutLoading}
-                className={cn(
-                  "nov8-transition hover:scale-105 nov8-button-hover",
-                  currentLayout === layout.id 
-                    ? "bg-nov8-primary text-white shadow-lg" 
-                    : "hover:bg-nov8-primary/10 hover:shadow-md",
-                  isLayoutLoading && "opacity-50 cursor-not-allowed"
-                )}
-                title={isLayoutLoading ? "Applying layout..." : layout.label}
+                className="h-5 w-5 p-0 disabled:opacity-40"
+                title="Undo"
               >
-                {isLayoutLoading && currentLayout === layout.id ? (
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ) : (
-                  <Icon size={16} />
-                )}
+                <Undo className="w-3 h-3" />
               </Button>
-            );
-          })}
+              <Button
+                onClick={onRedo}
+                disabled={!canRedo}
+                variant="ghost"
+                size="sm"
+                className="h-5 w-5 p-0 disabled:opacity-40"
+                title="Redo"
+              >
+                <Redo className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
         </div>
 
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-
-        {/* History Controls */}
-        <Button
-          onClick={onUndo}
-          variant="ghost"
-          size="sm"
-          className="nov8-transition hover:bg-nov8-primary/10"
-          title="Undo"
-        >
-          <Undo size={16} />
-        </Button>
-
-        <Button
-          onClick={onRedo}
-          variant="ghost"
-          size="sm"
-          className="nov8-transition hover:bg-nov8-primary/10"
-          title="Redo"
-        >
-          <Redo size={16} />
-        </Button>
-
-        <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-
-        {/* Zoom Controls */}
-        <Button
-          onClick={onZoomIn}
-          variant="ghost"
-          size="sm"
-          className="nov8-transition hover:bg-nov8-primary/10"
-          title="Zoom In (Ctrl + =)"
-        >
-          <ZoomIn size={16} />
-        </Button>
-
-        <Button
-          onClick={onZoomOut}
-          variant="ghost"
-          size="sm"
-          className="nov8-transition hover:bg-nov8-primary/10"
-          title="Zoom Out (Ctrl + -)"
-        >
-          <ZoomOut size={16} />
-        </Button>
-
-        <Button
-          onClick={onFitView}
-          variant="ghost"
-          size="sm"
-          className="nov8-transition hover:bg-nov8-primary/10"
-          title="Fit View (Ctrl + 0)"
-        >
-          <RotateCcw size={16} />
-        </Button>
-      </div>
-
-      {/* Right Section - File & Settings */}
-      <div className="flex items-center gap-2">
-        <div className="flex items-center gap-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm rounded-xl p-2 shadow-lg border nov8-toolbar-glow">
-          <Button
-            onClick={onSave}
-            variant="ghost"
-            size="sm"
-            className="nov8-transition hover:bg-nov8-success/10 text-nov8-success"
-            title="Save"
-          >
-            <Save size={16} />
-          </Button>
-
-          <Button
-            onClick={onExport}
-            variant="ghost"
-            size="sm"
-            className="nov8-transition hover:bg-nov8-primary/10"
-            title="Export"
-          >
-            <Download size={16} />
-          </Button>
-
-          <Button
-            onClick={onImport}
-            variant="ghost"
-            size="sm"
-            className="nov8-transition hover:bg-nov8-primary/10"
-            title="Import JSON"
-          >
-            <Upload size={16} />
-          </Button>
-
-          <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-
-          {onQuickDelete && (
+        {/* Center Section - Layout Controls */}
+        <div className="flex items-center gap-1">
+          <span className="text-xs font-medium text-gray-600 dark:text-gray-400 mr-1.5">Layout:</span>
+          <div className="flex items-center gap-0.5 bg-white dark:bg-gray-800 rounded p-0.5 border border-gray-200 dark:border-gray-700">
+            {layoutOptions.map(({ id, label, icon: Icon }) => (
+              <Button
+                key={id}
+                onClick={() => onLayoutChange(id as any)}
+                variant={currentLayout === id ? "default" : "ghost"}
+                size="sm"
+                className={cn(
+                  "h-5 px-1.5 text-xs",
+                  currentLayout === id 
+                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white" 
+                    : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400"
+                )}
+              >
+                <Icon className="w-3 h-3 mr-0.5" />
+                <span className="hidden sm:inline">{label}</span>
+              </Button>
+            ))}
             <Button
-              onClick={onQuickDelete}
-              variant="ghost"
+              onClick={() => onLayoutChange('organic')}
+              variant={currentLayout === 'organic' ? "default" : "ghost"}
               size="sm"
-              className="nov8-transition hover:bg-red-500/10 text-red-500 hover:scale-105"
-              title="Quick Delete All"
+              className={cn(
+                "h-5 px-1.5 text-xs",
+                currentLayout === 'organic'
+                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white" 
+                  : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400"
+              )}
             >
-              <Zap size={16} />
+              <Sparkles className="w-3 h-3 mr-0.5" />
+              <span className="hidden lg:inline">Organic</span>
             </Button>
-          )}
+          </div>
+        </div>
 
-          {onClearCanvas && (
-            <Button
-              onClick={onClearCanvas}
-              variant="ghost"
-              size="sm"
-              className="nov8-transition hover:bg-nov8-error/10 text-nov8-error hover:scale-105"
-              title="Clear Canvas"
-            >
-              <Trash2 size={16} />
+        {/* Right Section - Compact Controls */}
+        <div className="flex items-center gap-2">
+          {/* View Controls */}
+          <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800/50 rounded p-0.5">
+            <Button onClick={onZoomOut} variant="ghost" size="sm" className="h-5 w-5 p-0" title="Zoom Out">
+              <ZoomOut className="w-3 h-3" />
             </Button>
-          )}
+            <Button onClick={onFitView} variant="ghost" size="sm" className="h-5 px-1" title="Fit View">
+              <RotateCcw className="w-3 h-3" />
+            </Button>
+            <Button onClick={onZoomIn} variant="ghost" size="sm" className="h-5 w-5 p-0" title="Zoom In">
+              <ZoomIn className="w-3 h-3" />
+            </Button>
+          </div>
 
-          <ThemeSelector
-            currentTheme={currentTheme}
-            onThemeChange={onThemeChange}
-            customThemes={customThemes}
-            customTheme={customTheme}
-            setCustomTheme={setCustomTheme}
-          />
-          
+          {/* Theme Toggle */}
           <Button
-            onClick={onToggleDarkMode}
-            variant="ghost"
+            onClick={() => {
+              const isDark = document.documentElement.classList.contains('dark');
+              if (isDark) {
+                document.documentElement.classList.remove('dark');
+              } else {
+                document.documentElement.classList.add('dark');
+              }
+            }}
+            variant="outline"
             size="sm"
-            className="nov8-transition hover:bg-nov8-primary/10"
-            title="Toggle Dark Mode"
+            className="h-6 w-6 p-0 border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-800/50"
+            title="Toggle Theme"
           >
-            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+            <Sun className="w-3 h-3 block dark:hidden" />
+            <Moon className="w-3 h-3 hidden dark:block" />
           </Button>
+
+          {/* File Actions - Super Compact */}
+          <div className="flex items-center gap-0.5">
+            <Button
+              onClick={onSave}
+              variant="outline"
+              size="sm"
+              className="h-6 px-1.5 text-xs border-green-200 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-400"
+            >
+              <Save className="w-3 h-3 mr-0.5" />
+              <span className="hidden md:inline">Save</span>
+            </Button>
+            
+            <Button
+              onClick={onExport}
+              variant="outline"
+              size="sm"
+              className="h-6 px-1.5 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400"
+            >
+              <Download className="w-3 h-3 mr-0.5" />
+              <span className="hidden lg:inline">Export</span>
+            </Button>
+            
+            <Button
+              onClick={onImport}
+              variant="outline"
+              size="sm"
+              className="h-6 px-1.5 text-xs border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400"
+            >
+              <Upload className="w-3 h-3 mr-0.5" />
+              <span className="hidden lg:inline">Import</span>
+            </Button>
+            
+            <Button
+              onClick={onClearAll}
+              variant="outline"
+              size="sm"
+              className="h-6 px-1.5 text-xs border-red-200 text-red-700 hover:bg-red-50 dark:border-red-700 dark:text-red-400"
+              disabled={nodeCount === 0}
+              title="Clear All"
+            >
+              <Trash2 className="w-3 h-3 mr-0.5" />
+              <span className="hidden xl:inline">Clear</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>
