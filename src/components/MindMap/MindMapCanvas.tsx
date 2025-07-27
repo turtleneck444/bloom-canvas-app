@@ -2443,19 +2443,66 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     }
     
     setIsAiProcessing(true);
-    toast.loading('AI is enhancing all nodes...');
+    toast.loading('🚀 AI Pro is transforming all nodes with expert intelligence...', {
+      description: `Enhancing ${nodes.length} nodes with comprehensive frameworks and strategic insights`
+    });
     
     try {
       const enhancedNodes = [...nodes];
+      let enhancementCount = 0;
+      let errorCount = 0;
       
-      // Enhance nodes in batches to avoid overwhelming the API
-      for (let i = 0; i < nodes.length; i += 3) {
-        const batch = nodes.slice(i, i + 3);
+      // Enhanced context with more comprehensive mind map information
+      const mindMapContext = {
+        centralTheme: nodes.length > 0 ? nodes[0].data.label : 'Unknown',
+        nodeStructure: nodes.map(n => ({
+          label: n.data.label,
+          category: n.data.category,
+          importance: n.data.importance || 5,
+          connections: edges.filter(e => e.source === n.id || e.target === n.id).length
+        })),
+        totalNodes: nodes.length,
+        categories: [...new Set(nodes.map(n => n.data.category).filter(Boolean))],
+        averageConnectivity: edges.length / nodes.length
+      };
+      
+      // Process nodes in strategic batches (fundamental nodes first)
+      const fundamentalNodes = nodes.filter(n => n.data.importance >= 8 || n.data.isFundamental);
+      const strategicNodes = nodes.filter(n => n.data.importance >= 6 && n.data.importance < 8);
+      const tacticalNodes = nodes.filter(n => n.data.importance < 6);
+      
+      const processingOrder = [...fundamentalNodes, ...strategicNodes, ...tacticalNodes];
+      
+      for (let i = 0; i < processingOrder.length; i += 2) {
+        const batch = processingOrder.slice(i, i + 2);
         
         await Promise.all(batch.map(async (node) => {
           try {
-            const context = `Mind map context: ${nodes.map(n => n.data.label).join(', ')}`;
-            const enhancement = await aiService.enhanceNodeWithAI(node.data.label, context);
+            // Enhanced context with strategic positioning
+            const nodePosition = fundamentalNodes.includes(node) ? 'foundational' : 
+                                strategicNodes.includes(node) ? 'strategic' : 'tactical';
+            
+            const relatedNodes = edges
+              .filter(e => e.source === node.id || e.target === node.id)
+              .map(e => {
+                const relatedId = e.source === node.id ? e.target : e.source;
+                return nodes.find(n => n.id === relatedId)?.data.label;
+              })
+              .filter(Boolean)
+              .slice(0, 5);
+            
+            const comprehensiveContext = `
+              MIND MAP INTELLIGENCE:
+              • Central Theme: ${mindMapContext.centralTheme}
+              • Node Position: ${nodePosition} level (importance: ${node.data.importance || 5}/10)
+              • Connected Concepts: ${relatedNodes.join(', ') || 'None yet'}
+              • Domain Categories: ${mindMapContext.categories.join(', ')}
+              • Knowledge Ecosystem Size: ${mindMapContext.totalNodes} nodes
+              • Strategic Context: Enhancing comprehensive knowledge framework for expert-level understanding
+              • Enhancement Goal: Transform into actionable, strategic intelligence component
+            `;
+            
+            const enhancement = await aiService.enhanceNodeWithAI(node.data.label, comprehensiveContext);
             
             const nodeIndex = enhancedNodes.findIndex(n => n.id === node.id);
             if (nodeIndex !== -1) {
@@ -2464,35 +2511,87 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
                 data: {
                   ...enhancedNodes[nodeIndex].data,
                   label: enhancement.enhancedLabel,
-                  tags: enhancement.tags,
-                  category: enhancement.category,
+                  tags: [...(enhancedNodes[nodeIndex].data.tags || []), ...enhancement.tags],
+                  category: enhancement.category || enhancedNodes[nodeIndex].data.category,
+                  description: enhancement.description,
                   messages: [
                     ...(enhancedNodes[nodeIndex].data.messages || []),
-                    enhancement.description
-                  ]
+                    {
+                      id: `enhancement-${Date.now()}`,
+                      text: enhancement.description,
+                      timestamp: new Date().toISOString(),
+                      type: 'ai-enhancement' as const,
+                      priority: 'high' as const
+                    }
+                  ],
+                  importance: Math.max(
+                    enhancedNodes[nodeIndex].data.importance || 5,
+                    nodePosition === 'foundational' ? 8 : nodePosition === 'strategic' ? 6 : 4
+                  ),
+                  lastEnhanced: new Date().toISOString(),
+                  enhancementVersion: (enhancedNodes[nodeIndex].data.enhancementVersion || 0) + 1
                 }
               };
+              
+              enhancementCount++;
+              
+              // Show progress update
+              if (enhancementCount % 3 === 0) {
+                toast.dismiss();
+                toast.loading(`🧠 Enhanced ${enhancementCount}/${nodes.length} nodes`, {
+                  description: `Latest: "${enhancement.enhancedLabel}"`
+                });
+              }
             }
           } catch (error) {
             console.error(`Failed to enhance node ${node.id}:`, error);
+            errorCount++;
           }
         }));
+        
+        // Brief pause to avoid API rate limiting
+        if (i + 2 < processingOrder.length) {
+          await new Promise(resolve => setTimeout(resolve, 800));
+        }
       }
       
       setNodes(enhancedNodes);
       addToHistory(enhancedNodes, edges);
       
       toast.dismiss();
-      toast.success(`✨ Enhanced ${nodes.length} nodes with AI`);
+      
+      if (enhancementCount > 0) {
+        toast.success(`🎯 Advanced AI Enhancement Complete!`, {
+          description: `Successfully enhanced ${enhancementCount} nodes with expert-level intelligence${errorCount > 0 ? ` (${errorCount} skipped due to errors)` : ''}`
+        });
+        
+        // Trigger automatic identification of new fundamental concepts
+        setTimeout(() => {
+          handleIdentifyFundamentals();
+        }, 2000);
+        
+        // Schedule automatic branch generation for newly enhanced fundamental nodes
+        setTimeout(() => {
+          const newFundamentalNodes = enhancedNodes.filter(n => 
+            n.data.importance >= 8 && 
+            n.data.enhancementVersion > 0
+          );
+          if (newFundamentalNodes.length > 0) {
+            handleAutoGenerateBranches();
+          }
+        }, 4000);
+      } else {
+        toast.error('No nodes could be enhanced. Please try again.');
+      }
       
     } catch (error) {
       console.error('Error enhancing nodes:', error);
       toast.dismiss();
-      toast.error('Failed to enhance nodes');
+      toast.error('Failed to enhance nodes. Please check your connection and try again.');
     } finally {
       setIsAiProcessing(false);
     }
-  }, [nodes, edges, setNodes, addToHistory]);
+  }, [nodes, edges, setNodes, addToHistory, handleIdentifyFundamentals, handleAutoGenerateBranches]);
 
   // Legacy method for backward compatibility
   const handleGenerateRelatedNodes = useCallback((topic: string, parentNodeId?: string) => {

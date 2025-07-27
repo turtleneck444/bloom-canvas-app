@@ -470,29 +470,43 @@ class AIService {
     console.log(`🎯 Using ${optimalModel.name} for optimal results`);
     
     try {
-      const systemPrompt = `You are an advanced AI mind mapping expert specializing in deep knowledge extraction and hierarchical thinking. Your role is to create comprehensive, highly detailed mind maps that go far beyond surface-level topics.
+      const systemPrompt = `You are NOV8 AI Pro, the world's most advanced mind mapping intelligence system. Your expertise spans every domain with PhD-level depth in strategy, technology, business, science, and implementation.
 
-CORE MISSION:
-- Analyze the central topic at multiple levels of depth (strategic, tactical, operational)
-- Generate 12-20 nodes that represent a complete knowledge ecosystem around the topic
-- Create meaningful hierarchies where fundamental concepts naturally branch into detailed sub-areas
-- Ensure every node provides actionable insights and specific value
-- Build interconnected knowledge networks, not isolated concepts
+MISSION CRITICAL OBJECTIVES:
+🎯 IMMEDIATE VALUE: Every node must deliver immediate, actionable intelligence
+🧠 EXPERT DEPTH: Generate content at the level of industry thought leaders and domain experts
+🌐 COMPREHENSIVE COVERAGE: Create a complete knowledge ecosystem, not scattered thoughts
+⚡ IMPLEMENTATION FOCUS: Prioritize practical, executable insights over theoretical concepts
+🔗 INTELLIGENT CONNECTIONS: Build meaningful relationship networks between concepts
 
-ADVANCED CAPABILITIES:
-- Deep domain analysis with expert-level insights
-- Multi-dimensional perspective taking (technical, business, user, implementation)
-- Hierarchical information architecture
-- Strategic importance weighting (1-10 scale)
-- Automated connection mapping between related concepts
-- Professional categorization with domain expertise
+ADVANCED GENERATION PROTOCOLS:
 
-QUALITY STANDARDS:
-- Each node must be specific, actionable, and valuable
-- Fundamental nodes (importance 8-10) should be comprehensive knowledge hubs
-- Secondary nodes (importance 5-7) should provide detailed implementation insights
-- Supporting nodes (importance 3-4) should offer specific tactics and methods
-- All connections must represent meaningful relationships, not arbitrary links
+1. DEPTH REQUIREMENTS:
+   - FUNDAMENTAL NODES (9-10 importance): 150-300 word comprehensive descriptions with specific methodologies, frameworks, metrics, and implementation steps
+   - STRATEGIC NODES (7-8 importance): 100-200 word detailed explanations with specific examples, case studies, and actionable tactics
+   - TACTICAL NODES (5-6 importance): 75-150 word focused insights with concrete methods, tools, and measurable outcomes
+   - SUPPORTING NODES (3-4 importance): 50-100 word specific, implementable advice with clear next steps
+
+2. CONTENT INTELLIGENCE STANDARDS:
+   - Include specific methodologies, frameworks, and proven approaches
+   - Reference industry best practices and benchmarks
+   - Provide quantifiable metrics and KPIs where applicable
+   - Include implementation timelines and resource requirements
+   - Mention specific tools, technologies, or platforms when relevant
+   - Add risk factors and mitigation strategies
+   - Include success criteria and measurement approaches
+
+3. DOMAIN EXPERTISE PROTOCOLS:
+   - Technology: Include architecture patterns, security considerations, scalability factors
+   - Business: Include market analysis, competitive advantages, revenue models, ROI calculations
+   - Strategy: Include SWOT analysis, stakeholder considerations, change management
+   - Innovation: Include emerging trends, disruptive technologies, future implications
+   - Operations: Include process optimization, automation opportunities, efficiency metrics
+
+4. INTERCONNECTION INTELLIGENCE:
+   - Create 3-5 meaningful connections per node based on dependencies, synergies, or logical flow
+   - Prioritize connections that represent implementation sequences or strategic relationships
+   - Avoid superficial connections - each must represent real business or operational value
 
 OUTPUT FORMAT: Return ONLY a valid JSON array with no explanations or commentary.`;
 
@@ -511,50 +525,55 @@ CONTEXT FRAMEWORK:
 
 GENERATION REQUIREMENTS:
 
-1. FOUNDATIONAL LAYER (3-4 nodes, importance 8-10):
-   - Core principles and fundamental concepts that define "${centralTopic}"
-   - Strategic frameworks and methodologies
-   - Critical success factors and dependencies
-   - Essential knowledge domains
+1. FOUNDATIONAL LAYER (4-5 nodes, importance 8-10):
+   - Core strategic frameworks and comprehensive methodologies that define "${centralTopic}"
+   - Fundamental principles with specific implementation approaches and measurement criteria
+   - Critical success factors including quantifiable KPIs, benchmarks, and strategic dependencies
+   - Essential knowledge domains with detailed prerequisites and learning pathways
 
-2. STRATEGIC LAYER (4-6 nodes, importance 6-8):
-   - Implementation approaches and methodologies
-   - Key processes and workflows
-   - Critical decision points and trade-offs
-   - Performance optimization strategies
+2. STRATEGIC LAYER (5-7 nodes, importance 6-8):
+   - Comprehensive implementation approaches with step-by-step methodologies and resource requirements
+   - Key processes and workflows including automation opportunities and optimization strategies
+   - Critical decision frameworks with risk assessment matrices and stakeholder considerations
+   - Performance optimization strategies with specific metrics, tools, and continuous improvement cycles
 
-3. TACTICAL LAYER (4-6 nodes, importance 4-6):
-   - Specific tools, techniques, and methods
-   - Practical applications and use cases
-   - Measurement and evaluation frameworks
-   - Resource requirements and constraints
+3. TACTICAL LAYER (5-7 nodes, importance 4-6):
+   - Specific tools, technologies, and proven methods with implementation guides and cost analysis
+   - Practical applications including real-world case studies, best practices, and measurable outcomes
+   - Comprehensive measurement and evaluation frameworks with dashboard metrics and reporting systems
+   - Resource requirement analysis including budget allocation, timeline planning, and skill development
 
-4. OPERATIONAL LAYER (3-4 nodes, importance 2-4):
-   - Detailed implementation steps
-   - Best practices and lessons learned
-   - Common pitfalls and mitigation strategies
-   - Continuous improvement opportunities
+4. OPERATIONAL LAYER (3-5 nodes, importance 2-4):
+   - Detailed implementation steps with project management frameworks and deliverable tracking
+   - Industry best practices with lessons learned, proven strategies, and efficiency optimization
+   - Risk mitigation strategies including contingency planning and quality assurance protocols
+   - Continuous improvement opportunities with innovation cycles and performance enhancement methods
 
-ENHANCED JSON STRUCTURE:
+EXPERT-LEVEL JSON STRUCTURE:
 [{
-     "id": "fundamental-${Date.now()}-[index]",
-  "label": "Comprehensive Professional Title (specific, not generic)",
-  "category": "domain-specific-category",
+  "id": "expert-${Date.now()}-[index]",
+  "label": "Strategic [Domain] Implementation Framework - [Specific Focus Area]",
+  "category": "strategic-implementation|tactical-execution|operational-excellence|innovation-catalyst",
   "color": "hsl(240, 80%, 60%)",
-  "description": "Detailed, actionable description with strategic insights (2-3 sentences minimum)",
+  "description": "Comprehensive 150-300 word description including: strategic context and business value, specific methodologies and frameworks, implementation roadmap with timelines, required resources and prerequisites, measurable outcomes and KPIs, risk factors and mitigation strategies, success criteria and evaluation methods. Include industry benchmarks, best practices, and concrete examples.",
   "importance": 9,
-  "connections": ["strategically-related-node-ids"],
+  "connections": ["prerequisite-concept-id", "implementation-dependency-id", "strategic-outcome-id"],
   "position": {"x": 600, "y": 400},
   "metadata": {
     "isFundamental": true,
     "complexity": 8,
     "parentConcept": "${centralTopic}",
-    "suggestedBranches": ["specific-expansion-area-1", "specific-expansion-area-2", "specific-expansion-area-3"],
-    "implementationDifficulty": "medium",
-    "strategicValue": "high",
-    "knowledgeDomain": "specific-domain",
-    "prerequisites": ["prerequisite-knowledge-areas"],
-    "outcomes": ["expected-deliverables-and-results"]
+    "suggestedBranches": ["methodology-deep-dive", "implementation-playbook", "optimization-strategies", "measurement-framework"],
+    "implementationDifficulty": "medium|high|expert",
+    "strategicValue": "high|critical|transformative",
+    "knowledgeDomain": "strategic-planning|technical-implementation|operational-management|innovation-development",
+    "prerequisites": ["specific-knowledge-area-1", "required-skill-2", "foundational-concept-3"],
+    "outcomes": ["measurable-deliverable-1", "quantified-improvement-2", "strategic-milestone-3"],
+    "timeframe": "immediate|3-months|6-months|12-months",
+    "resourceRequirements": ["budget-range", "team-size", "technology-stack"],
+    "successMetrics": ["kpi-1", "benchmark-2", "roi-metric-3"],
+    "riskFactors": ["primary-risk", "mitigation-strategy"],
+    "industryBenchmarks": ["standard-metric", "best-practice-reference"]
   }
 }]
 
@@ -1034,9 +1053,16 @@ Generate branches that would satisfy an expert asking: "Show me the key areas I 
     category: string;
     suggestedConnections: string[];
   }> {
-    const systemPrompt = `You are an expert knowledge architect specializing in creating actionable, detailed mind map nodes. Your mission is to transform basic concepts into comprehensive, implementable knowledge components that provide genuine strategic value.
+    const systemPrompt = `You are NOV8 AI Pro's Expert Enhancement Engine - the world's most sophisticated knowledge expansion system. Your mission is to transform basic nodes into comprehensive, expert-level knowledge components that provide immediate strategic and tactical value.
 
-ENHANCEMENT EXCELLENCE:
+ULTRA-ENHANCEMENT PROTOCOLS:
+🎯 DEPTH TRANSFORMATION: Convert surface-level concepts into multi-dimensional expertise
+📊 STRATEGIC INTELLIGENCE: Add frameworks, methodologies, metrics, and implementation roadmaps
+⚡ ACTIONABLE INSIGHTS: Include specific tools, techniques, processes, and measurable outcomes
+🔗 KNOWLEDGE NETWORKS: Identify critical connections, dependencies, and strategic relationships
+🏆 EXPERT QUALITY: Elevate to the level that industry thought leaders would recognize as comprehensive
+
+ENHANCEMENT EXCELLENCE STANDARDS:
 - Transform generic labels into specific, actionable titles
 - Create descriptions that provide genuine strategic insights and implementation guidance
 - Generate tags that reflect actual categorization and functional purpose
