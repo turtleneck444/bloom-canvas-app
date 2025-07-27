@@ -28,8 +28,6 @@ export type NodeData = {
   aiGenerated?: boolean;
   fallbackGenerated?: boolean;
   parentConcept?: string;
-  enhanced?: boolean;
-  enhancedAt?: string;
 };
 
 const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
@@ -138,13 +136,6 @@ const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
     }
   };
 
-  const handleEnhanceNode = useCallback(() => {
-    console.log('🌟 Triggering node enhancement for:', nodeData.label);
-    window.dispatchEvent(new CustomEvent('enhanceNode', {
-      detail: { id }
-    }));
-  }, [id, nodeData.label]);
-
   const nodeStyle = {
     background: nodeData.isFundamental 
       ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 248, 220, 0.98) 100%)' 
@@ -171,8 +162,7 @@ const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
         selected && "selected",
         "cursor-pointer nov8-transition",
         getPriorityColor(),
-        nodeData.isCompleted && "line-through",
-        nodeData.enhanced && "enhanced-node"
+        nodeData.isCompleted && "line-through"
       )}
       style={nodeStyle}
       onDoubleClick={handleDoubleClick}
@@ -324,7 +314,7 @@ const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
         )}
       </div>
 
-      {/* Enhanced Hover Tools */}
+      {/* Hover Tools */}
       {(showTools || showColorPicker) && (
         <div className="absolute -top-3 -right-3 flex gap-1 transition-opacity z-10">
           <button
@@ -336,22 +326,6 @@ const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
             title="Edit"
           >
             <Edit3 size={12} />
-          </button>
-          
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEnhanceNode();
-            }}
-            className={cn(
-              "w-8 h-8 text-white rounded-full flex items-center justify-center transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-110 border-2 border-white backdrop-blur-sm",
-              nodeData.enhanced 
-                ? "bg-yellow-500 hover:bg-yellow-600" 
-                : "bg-green-500 hover:bg-green-600"
-            )}
-            title={nodeData.enhanced ? "Re-enhance Node" : "Enhance Node"}
-          >
-            <Star size={12} />
           </button>
           
           <button
