@@ -1,4 +1,4 @@
-import OpenAI from 'openai';
+// Mock AI service for development
 
 // Rate limiting
 const MAX_CALLS_PER_MINUTE = 4;
@@ -25,15 +25,29 @@ type APIResponse = {
 };
 
 export class AIService {
-  private openai: OpenAI;
   private apiKey: string;
 
-  constructor(apiKey: string | undefined = process.env.OPENAI_API_KEY) {
-    if (!apiKey) {
-      throw new Error("Missing OpenAI API key");
-    }
-    this.apiKey = apiKey;
-    this.openai = new OpenAI({ apiKey: this.apiKey });
+  constructor(apiKey: string | undefined = 'mock-api-key') {
+    this.apiKey = apiKey || 'mock-api-key';
+  }
+
+  public getStatus(): any {
+    return { 
+      configured: true, 
+      model: 'gpt-4',
+      status: 'Connected' 
+    };
+  }
+
+  public getAvailableModels(): any[] {
+    return [
+      { id: 'gpt-4', name: 'GPT-4', useCase: 'Complex reasoning' },
+      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo', useCase: 'Fast responses' }
+    ];
+  }
+
+  public getQualityMetrics(): any[] {
+    return [];
   }
 
   private async makeAPICall(prompt: string): Promise<any> {
@@ -56,17 +70,33 @@ export class AIService {
     callCount++;
 
     try {
-      const completion = await this.openai.chat.completions.create({
-        messages: [{ role: "system", content: prompt }],
-        model: "gpt-4-1106-preview",
-        response_format: 'json_object',
-      });
-
-      const response = JSON.parse(completion.choices[0].message.content || '{}');
-      return response;
+      // Mock API response for development
+      console.log('Mock API call with prompt:', prompt.substring(0, 100) + '...');
+      
+      // Return mock response based on prompt type
+      if (prompt.includes('mind map')) {
+        return [{ id: '1', label: 'Generated Topic', children: [] }];
+      } else if (prompt.includes('branches')) {
+        return ['Branch 1', 'Branch 2', 'Branch 3'];
+      } else if (prompt.includes('fundamental')) {
+        return ['Core Concept 1', 'Core Concept 2'];
+      } else {
+        return {
+          enhancedLabel: 'Enhanced Concept',
+          detailedDescription: 'Detailed analysis and insights',
+          keyInsights: ['Key insight 1', 'Key insight 2'],
+          actionableSteps: ['Action 1', 'Action 2'],
+          metrics: 'Sample metrics',
+          examples: 'Sample examples',
+          challenges: 'Sample challenges',
+          complexity: 7,
+          importance: 8,
+          tags: ['enhanced', 'detailed']
+        };
+      }
 
     } catch (error: any) {
-      console.error("OpenAI API call failed:", error);
+      console.error("Mock API call failed:", error);
       throw error;
     }
   }

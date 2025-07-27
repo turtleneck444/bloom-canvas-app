@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import ReactFlow, {
+import {
+  ReactFlow,
   ReactFlowProvider,
   addEdge,
   useNodesState,
@@ -13,9 +14,9 @@ import ReactFlow, {
 import '@xyflow/react/dist/style.css';
 import { initialNodes, initialEdges } from './initial-data';
 import MindMapNode from './MindMapNode';
-import { MindMapToolbar } from './MindMapToolbar';
+import MindMapToolbar from './MindMapToolbar';
 import FloatingEdge from './FloatingEdge';
-import { getLayoutedElements, apply জোরceLayout } from './layout-utils';
+import { getLayoutedElements, applyForceLayout } from './layout-utils';
 import { Handle } from '@xyflow/react';
 import { Button } from '@/components/ui/button';
 import { Brain, Circle, GitBranch, BarChart3, Sparkles } from 'lucide-react';
@@ -35,7 +36,7 @@ interface MindMapCanvasProps {
 
 const MindMapCanvas: React.FC<MindMapCanvasProps> = ({ onSave, onExport, onImport }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange, updateEdge] = useEdgesState(initialEdges);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
   const [reactFlowInstance, setReactFlowInstance] = useState(null);
   const [layout, setLayout] = useState('radial');
   const [isLayouting, setIsLayouting] = useState(false);
@@ -276,7 +277,7 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({ onSave, onExport, onImpor
     if (!reactFlowInstance) return;
 
     setIsLayouting(true);
-    apply জোরceLayout(nodes, edges, setNodes, { width: 800, height: 600 });
+    applyForceLayout(nodes, edges, setNodes, { width: 800, height: 600 });
     setIsLayouting(false);
   }, [nodes, edges, reactFlowInstance]);
 
@@ -351,7 +352,7 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({ onSave, onExport, onImpor
         position: n.position
       }));
       
-      const enhancedNodes = await aiService.enhanceAllNodes(nodeData, originalTopic);
+      const enhancedNodes = await aiService.enhanceAllNodes(nodeData, originalTopic as string);
       
       // Update nodes with enhanced data
       setNodes(prevNodes => 
@@ -464,7 +465,7 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = ({ onSave, onExport, onImpor
           className="bg-gray-100 dark:bg-gray-950"
         >
           <Controls />
-          <Background color="#444" variant="dots" />
+          <Background color="#444" />
         </ReactFlow>
       </div>
     </div>

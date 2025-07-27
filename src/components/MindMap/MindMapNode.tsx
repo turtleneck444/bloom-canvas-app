@@ -28,6 +28,8 @@ export type NodeData = {
   aiGenerated?: boolean;
   fallbackGenerated?: boolean;
   parentConcept?: string;
+  enhanced?: boolean;
+  enhancedAt?: string;
 };
 
 const MindMapNode = memo(({ data, selected, id }: NodeProps) => {

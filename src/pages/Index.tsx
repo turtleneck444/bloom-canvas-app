@@ -4,7 +4,11 @@ import MindMapCanvas from '@/components/MindMap/MindMapCanvas';
 const Index = () => {
   return (
     <div className="w-full h-screen overflow-hidden">
-      <MindMapCanvas />
+      <MindMapCanvas 
+        onSave={() => console.log('Save')}
+        onExport={() => console.log('Export')}
+        onImport={() => console.log('Import')}
+      />
     </div>
   );
 };
