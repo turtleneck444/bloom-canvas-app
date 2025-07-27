@@ -37,6 +37,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
     { id: 'dark', label: 'Dark', color: 'hsl(222.2 84% 4.9%)' },
     { id: 'grid', label: 'Grid', color: 'hsl(220 9% 90%)' },
     { id: 'paper', label: 'Paper', color: 'hsl(30 20% 98%)' },
+    { id: 'aura', label: 'Aura', color: 'linear-gradient(90deg, #7F5FFF 0%, #00E0FF 33%, #FFB86C 66%, #FF61A6 100%)' },
     ...(customThemes ? Object.entries(customThemes).map(([id, theme]) => ({
       id,
       label: theme.name,
@@ -57,9 +58,9 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
       </Button>
 
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 p-3 bg-white dark:bg-gray-800 rounded-lg shadow-xl border z-50 min-w-[200px]">
+        <div className="absolute top-full right-0 mt-2 p-3 bg-[hsl(var(--popover))] dark:bg-[hsl(var(--popover))] rounded-lg shadow-xl border border-[hsl(var(--border))] z-50 min-w-[200px]">
           <div className="space-y-2">
-            <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <h3 className="text-sm font-medium text-[hsl(var(--foreground))] mb-2">
               Choose Theme
             </h3>
             
@@ -74,7 +75,7 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                   "w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors",
                   currentTheme === theme.id
                     ? "bg-nov8-primary/10 text-nov8-primary"
-                    : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                    : "hover:bg-[hsl(var(--muted))] dark:hover:bg-[hsl(var(--muted))]"
                 )}
               >
                 <div
@@ -82,9 +83,9 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
                     "w-4 h-4 rounded-full border-2 shadow-sm",
                     currentTheme === theme.id 
                       ? "border-nov8-primary border-2" 
-                      : "border-gray-300 dark:border-gray-600"
+                      : "border-[hsl(var(--border))]"
                   )}
-                  style={{ backgroundColor: theme.color }}
+                  style={theme.id === 'aura' ? { background: theme.color } : { backgroundColor: theme.color }}
                 />
                 <span className="text-sm">{theme.label}</span>
               </button>

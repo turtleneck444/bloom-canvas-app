@@ -30,7 +30,13 @@ export type NodeData = {
   parentConcept?: string;
 };
 
-const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
+// Add isAuraTheme and onSubmit props
+interface MindMapNodeProps extends NodeProps {
+  isAuraTheme?: boolean;
+  onSubmit?: (id: string) => void;
+}
+
+const MindMapNode = memo(({ data, selected, id, isAuraTheme, onSubmit }: MindMapNodeProps) => {
   const nodeData = data as NodeData;
   const [isEditing, setIsEditing] = useState(nodeData.isEditing || false);
   const [label, setLabel] = useState(nodeData.label);
@@ -138,19 +144,19 @@ const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
 
   const nodeStyle = {
     background: nodeData.isFundamental 
-      ? 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 248, 220, 0.98) 100%)' 
-      : 'rgba(255, 255, 255, 0.98)',
+      ? 'var(--node-fundamental-bg, linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--nov8-accent)) 100%))' 
+      : 'var(--node-default, hsl(var(--card)))',
     fontSize: `${nodeData.fontSize || 14}px`,
     opacity: nodeData.opacity !== undefined ? nodeData.opacity : (nodeData.isCompleted ? 0.7 : 1),
     boxShadow: selected 
       ? `0 0 40px ${nodeData.color || 'hsl(var(--nov8-primary))'}50, 0 12px 40px rgba(0,0,0,0.12), 0 0 0 3px ${nodeData.color || 'hsl(var(--nov8-primary))'}` 
       : nodeData.isFundamental
-        ? `0 0 25px rgba(255, 215, 0, 0.3), 0 8px 32px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04), 0 0 0 3px ${nodeData.color || 'hsl(var(--nov8-primary))'}40`
-        : `0 8px 32px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04), 0 0 0 2px ${nodeData.color || 'hsl(var(--nov8-primary))'}20`,
+        ? `0 0 25px hsl(var(--nov8-accent) / 0.3), 0 8px 32px hsl(var(--shadow-soft)), 0 4px 16px hsl(var(--shadow-medium)), 0 0 0 3px ${nodeData.color || 'hsl(var(--nov8-primary))'}40`
+        : `0 8px 32px hsl(var(--shadow-soft)), 0 4px 16px hsl(var(--shadow-medium)), 0 0 0 2px ${nodeData.color || 'hsl(var(--nov8-primary))'}20`,
     transform: selected ? 'scale(1.05)' : nodeData.isFundamental ? 'scale(1.02)' : 'scale(1)',
     backdropFilter: 'blur(25px)',
-    border: `${nodeData.isFundamental ? '4px' : '3px'} solid ${nodeData.color || 'hsl(var(--nov8-primary))'}`,
-    color: '#1a1a1a',
+    border: isAuraTheme ? undefined : `${nodeData.isFundamental ? '4px' : '3px'} solid ${nodeData.color || 'hsl(var(--nov8-primary))'}`,
+    color: 'var(--node-text, hsl(var(--foreground)))',
     fontWeight: selected ? '600' : nodeData.isFundamental ? '600' : '500',
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out',
   };
@@ -196,18 +202,18 @@ const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
         {/* AI/Fundamental Indicators */}
         <div className="flex-shrink-0 flex items-center gap-1">
           {nodeData.isFundamental && (
-            <div className="p-1 bg-yellow-100 rounded-full" title="Fundamental Node">
-              <Target size={12} className="text-yellow-600" />
+            <div className="p-1 bg-yellow-100 dark:bg-yellow-900 rounded-full" title="Fundamental Node">
+              <Target size={12} className="text-yellow-600 dark:text-yellow-200" />
             </div>
           )}
           {nodeData.importance && nodeData.importance >= 8 && (
-            <div className="p-1 bg-purple-100 rounded-full" title={`Importance: ${nodeData.importance}/10`}>
-              <Star size={12} className="text-purple-600" />
+            <div className="p-1 bg-purple-100 dark:bg-purple-900 rounded-full" title={`Importance: ${nodeData.importance}/10`}>
+              <Star size={12} className="text-purple-600 dark:text-purple-200" />
             </div>
           )}
           {nodeData.complexity && nodeData.complexity >= 7 && (
-            <div className="p-1 bg-blue-100 rounded-full" title={`Complexity: ${nodeData.complexity}/10`}>
-              <Brain size={12} className="text-blue-600" />
+            <div className="p-1 bg-blue-100 dark:bg-blue-900 rounded-full" title={`Complexity: ${nodeData.complexity}/10`}>
+              <Brain size={12} className="text-blue-600 dark:text-blue-200" />
             </div>
           )}
         </div>
@@ -503,6 +509,26 @@ const MindMapNode = memo(({ data, selected, id }: NodeProps) => {
           </div>
         </div>
       )}
+      {/* Luxury Green SUBMIT button for first/root or editing node */}
+      <button
+        className="fixed-card-submit-btn text-teal-700 font-bold text-[11px] px-2.5 py-0.5 rounded-md bg-teal-50 hover:bg-cyan-50 shadow-sm transition-all border border-teal-200"
+        style={{
+          position: 'absolute',
+          bottom: '10px',
+          right: '14px',
+          zIndex: 20,
+          minWidth: '48px',
+          minHeight: '22px',
+        }}
+        onClick={() => {
+          setIsEditing(false);
+          window.dispatchEvent(new CustomEvent('generateBranches', {
+            detail: { id, label }
+          }));
+        }}
+      >
+        SUBMIT
+      </button>
     </div>
   );
 });

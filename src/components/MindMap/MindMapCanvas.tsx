@@ -25,9 +25,23 @@ import { Brain, Sparkles, Plus, Wand2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { aiService, GeneratedNode, FundamentalNode } from '@/services/aiService';
+import AuraCard from '../ui/AuraCard';
 
-const nodeTypes = {
-  mindMapNode: MindMapNode,
+// Support Aura theme by swapping node type
+const DefaultNodeTypes = {
+  mindMapNode: (props: any) => (
+    <MindMapNode {...props} onSubmit={handleGenerateBranchesFromNode} />
+  ),
+};
+const AuraNodeTypes = {
+  mindMapNode: (props: any) => {
+    const isRoot = !props.data?.parentId;
+    return (
+      <AuraCard isRoot={isRoot}>
+        <MindMapNode {...props} isAuraTheme={true} onSubmit={handleGenerateBranchesFromNode} />
+      </AuraCard>
+    );
+  },
 };
 
 // AI-powered node generation - Completely rewritten for relevance
@@ -1666,12 +1680,12 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
       addToHistory(newNodes, edges);
     }
     
-    // Auto-fit view to ensure new node is visible
-    setTimeout(() => {
-      if (reactFlowInstance) {
-        reactFlowInstance.fitView({ padding: 0.1, duration: 500 });
-      }
-    }, 100);
+    // Instantly fit view to new node using requestAnimationFrame for smoothness
+    if (reactFlowInstance) {
+      requestAnimationFrame(() => {
+        reactFlowInstance.fitView({ padding: 0.1, duration: 400 });
+      });
+    }
   }, [setNodes, setEdges, nodes, edges, customTheme, addToHistory, reactFlowInstance]);
 
   // Enhanced intelligent node suggestion function
@@ -3137,6 +3151,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     };
   }, [nodes, edges, setNodes, setEdges, addToHistory]);
 
+  const nodeTypes = currentTheme === 'aura' ? AuraNodeTypes : DefaultNodeTypes;
   return (
     <div className={cn("w-full h-screen relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20", className)}>
       {/* AI Toolbar - Left Sidebar */}
@@ -3153,22 +3168,59 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
       {/* Main Toolbar - Top */}
       <div className="absolute top-0 left-96 right-0 h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 z-30">
         <MindMapToolbar
-        onAddNode={handleAddNode}
-        onSave={handleSave}
-        onExport={handleExport}
-        onImport={handleImport}
-        onZoomIn={zoomIn}
-        onZoomOut={zoomOut}
-        onFitView={() => fitView()}
-        onLayoutChange={handleLayoutChange}
-        onUndo={handleUndo}
-        onRedo={handleRedo}
-        onClearAll={handleClearCanvas}
-        currentLayout={currentLayout}
-        canUndo={history.length > 1}
-        canRedo={false}
-        nodeCount={nodes.length}
-      />
+          onAddNode={handleAddNode}
+          onSave={handleSave}
+          onExport={handleExport}
+          onImport={handleImport}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onFitView={() => fitView()}
+          onLayoutChange={handleLayoutChange}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          onClearAll={handleClearCanvas}
+          currentLayout={currentLayout}
+          canUndo={history.length > 1}
+          canRedo={false}
+          nodeCount={nodes.length}
+          currentTheme={currentTheme}
+          onThemeChange={(theme) => {
+            setCurrentTheme(theme);
+            if (theme === 'dark') {
+              setIsDarkMode(true);
+              document.documentElement.classList.add('dark');
+              setCustomTheme(customThemes['nov8-dark']);
+            } else if (theme === 'light') {
+              setIsDarkMode(false);
+              document.documentElement.classList.remove('dark');
+              setCustomTheme(customThemes['nov8-classic']);
+            } else if (customThemes[theme as keyof typeof customThemes]) {
+              const selectedTheme = customThemes[theme as keyof typeof customThemes];
+              setCustomTheme(selectedTheme);
+              // Update CSS variables for the theme
+              const root = document.documentElement;
+              root.style.setProperty('--nov8-primary', selectedTheme.colors.primary);
+              root.style.setProperty('--nov8-secondary', selectedTheme.colors.secondary);
+              root.style.setProperty('--nov8-accent', selectedTheme.colors.accent);
+              root.style.setProperty('--nov8-background', selectedTheme.colors.background);
+              root.style.setProperty('--nov8-surface', selectedTheme.colors.surface);
+              root.style.setProperty('--nov8-text', selectedTheme.colors.text);
+              if (theme.includes('dark') || theme === 'midnight-dark') {
+                setIsDarkMode(true);
+                document.documentElement.classList.add('dark');
+              } else {
+                setIsDarkMode(false);
+                document.documentElement.classList.remove('dark');
+              }
+            } else if (theme === 'aura') {
+              // Aura theme: keep dark mode as is, but set theme to aura
+              setCustomTheme(undefined);
+            }
+          }}
+          customThemes={customThemes}
+          customTheme={customTheme}
+          setCustomTheme={setCustomTheme}
+        />
       </div>
 
       {/* ReactFlow Canvas - Main area with perfect positioning */}
@@ -3185,7 +3237,6 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
                   <Sparkles className="w-4 h-4 text-yellow-900" />
                 </div>
               </div>
-              
               <div className="space-y-3">
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
                   Welcome to NOV8 AI Mind Mapping
@@ -3194,11 +3245,10 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
                   Create powerful mind maps with revolutionary AI assistance. Start by adding a node or generating an intelligent mind map.
                 </p>
               </div>
-              
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button
-                  onClick={() => handleAddNode()}
-                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+                  onClick={() => setTimeout(() => handleAddNode(), 0)}
+                  className="bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 font-semibold"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Add First Node
@@ -3220,7 +3270,6 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
             </div>
           </div>
         )}
-        
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -3235,9 +3284,13 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           fitView
           fitViewOptions={{ 
             padding: 0.15,
-            maxZoom: 1.5,
-            minZoom: 0.1
+            maxZoom: 2.5,
+            minZoom: 0.05
           }}
+          minZoom={0.05}
+          maxZoom={2.5}
+          zoomOnScroll={true}
+          zoomOnPinch={true}
         >
           <Background 
             variant={BackgroundVariant.Dots}
@@ -3271,6 +3324,13 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = (props) => {
       <MindMapCanvasInner {...props} />
     </ReactFlowProvider>
   );
+};
+
+// Handler to generate a tree from a specific node
+const handleGenerateBranchesFromNode = (nodeId: string) => {
+  const node = nodes.find(n => n.id === nodeId);
+  if (!node) return;
+  handleAutoGenerateBranches(nodeId);
 };
 
 export default MindMapCanvas;

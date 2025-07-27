@@ -192,7 +192,7 @@ interface FundamentalNode {
 }
 
 class AIService {
-  private currentModel: string = 'anthropic/claude-3.5-sonnet';
+  private currentModel: string = 'mistralai/mixtral-8x7b-instruct';
   private apiKey: string = '';
   private baseUrl: string = 'https://openrouter.ai/api/v1';
   private isConfiguredFlag: boolean = false;
@@ -214,28 +214,8 @@ class AIService {
 
   // Advanced Model Selection Intelligence
   private selectOptimalModel(topic: string, context: any = {}): AIModel {
-    const detectedDomain = this.analyzeDomain(topic);
-    
-    // Get recommended model for domain
-    const domainProfile = DOMAIN_PROFILES.find(p => p.name === detectedDomain);
-    if (domainProfile) {
-      const model = AI_MODELS.find(m => m.id === domainProfile.aiModel);
-      if (model) {
-        console.log(`🎯 Selected ${model.name} for ${detectedDomain} domain`);
-        return model;
-      }
-    }
-    
-    // Fallback to context-based selection
-    const complexity = this.assessComplexity(topic, context);
-    
-    if (complexity > 0.8) {
-      return AI_MODELS.find(m => m.id === 'anthropic/claude-3.5-sonnet') || AI_MODELS[0];
-    } else if (complexity > 0.6) {
-      return AI_MODELS.find(m => m.id === 'openai/gpt-4o') || AI_MODELS[1];
-    } else {
-      return AI_MODELS.find(m => m.id === 'mistralai/mixtral-8x7b-instruct') || AI_MODELS[3];
-    }
+    // Force Mixtral for all topics
+    return AI_MODELS.find(m => m.id === 'mistralai/mixtral-8x7b-instruct')!;
   }
 
   private analyzeDomain(topic: string): string {
@@ -355,53 +335,51 @@ class AIService {
     if (!this.apiKey) {
       throw new Error('OpenRouter API key not configured');
     }
-
     this.requestCount++;
     this.lastRequestTime = Date.now();
-
-    try {
-      const selectedModel = model || this.currentModel;
-      console.log(`🚀 Making API call to ${selectedModel}`);
-      
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${this.apiKey}`,
-          'Content-Type': 'application/json',
-          'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://mindmap.ai',
-          'X-Title': 'NOV8 Mind Mapping AI Pro'
-        },
-        body: JSON.stringify({
-          model: selectedModel,
-          messages,
-          temperature,
-          max_tokens: 4000,
-          stream: false,
-          top_p: 0.9,
-          frequency_penalty: 0.1,
-          presence_penalty: 0.1
-        })
-      });
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.warn(`❌ API Error: ${response.status} - ${errorData}`);
-        
-        if (response.status === 402) {
-          throw new Error('INSUFFICIENT_CREDITS');
-        } else if (response.status === 429) {
-          throw new Error('RATE_LIMITED');
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const selectedModel = 'mistralai/mixtral-8x7b-instruct';
+        console.log(`🚀 Making API call to ${selectedModel}`);
+        const response = await fetch(`${this.baseUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${this.apiKey}`,
+            'Content-Type': 'application/json',
+            'HTTP-Referer': typeof window !== 'undefined' ? window.location.origin : 'https://mindmap.ai',
+            'X-Title': 'NOV8 Mind Mapping AI Pro'
+          },
+          body: JSON.stringify({
+            model: selectedModel,
+            messages,
+            temperature,
+            max_tokens: 4000,
+            stream: false,
+            top_p: 0.9,
+            frequency_penalty: 0.1,
+            presence_penalty: 0.1
+          })
+        });
+        if (!response.ok) {
+          const errorData = await response.text();
+          console.warn(`❌ API Error: ${response.status} - ${errorData}`);
+          if (response.status === 402) {
+            throw new Error('INSUFFICIENT_CREDITS');
+          } else if (response.status === 429) {
+            throw new Error('RATE_LIMITED');
+          }
+          throw new Error(`API request failed: ${response.status}`);
         }
-        
-        throw new Error(`API request failed: ${response.status}`);
+        const data = await response.json();
+        return data.choices[0]?.message?.content || '';
+      } catch (error) {
+        lastError = error;
+        console.error('OpenRouter request failed (attempt ' + (attempt + 1) + '):', error);
+        await new Promise(res => setTimeout(res, 1000 * (attempt + 1)));
       }
-
-      const data = await response.json();
-      return data.choices[0]?.message?.content || '';
-    } catch (error) {
-      console.error('OpenRouter request failed:', error);
-      throw error;
     }
+    throw lastError || new Error('OpenRouter API failed after 3 attempts');
   }
 
   // Public methods
@@ -445,6 +423,8 @@ class AIService {
       purpose?: string;
       audience?: string;
       depth?: number;
+      recursionDepth?: number;
+      maxDepth?: number;
     } = {}
   ): Promise<GeneratedNode[]> {
     console.log(`🧠 Generating SPECIFIC intelligent nodes for: "${centralTopic}"`);
@@ -483,7 +463,7 @@ OUTPUT FORMAT: Return ONLY a valid JSON array with no explanations.`;
       const userPrompt = `SPECIFIC TOPIC ANALYSIS: "${centralTopic}"
 
 ANALYSIS REQUIREMENTS:
-Generate 12-16 nodes that are EXCLUSIVELY about "${centralTopic}". Each node must pass this test: "Is this specifically about ${centralTopic} and would an expert in ${centralTopic} find this valuable?"
+Generate 16-32 nodes that are EXCLUSIVELY about "${centralTopic}". Each node must pass this test: "Is this specifically about ${centralTopic} and would an expert in ${centralTopic} find this valuable?"
 
 CONTEXT:
 - Domain: ${context.domain || 'Comprehensive coverage'}
@@ -493,16 +473,16 @@ CONTEXT:
 
 SPECIFIC NODE GENERATION RULES:
 
-FOUNDATIONAL NODES (4-5 nodes, importance 8-10):
+FOUNDATIONAL NODES (6-8 nodes, importance 8-10):
 Create nodes about the core principles, methodologies, or frameworks that define "${centralTopic}". Each must be specific to this topic with detailed implementation information.
 
-STRATEGIC NODES (4-6 nodes, importance 6-8): 
+STRATEGIC NODES (6-12 nodes, importance 6-8): 
 Generate nodes about specific approaches, strategies, or processes within "${centralTopic}". Include practical implementation details and real-world applications.
 
-TACTICAL NODES (4-5 nodes, importance 4-6):
+TACTICAL NODES (6-12 nodes, importance 4-6):
 Create nodes about specific tools, techniques, or methods used in "${centralTopic}". Include concrete examples and measurable outcomes.
 
-JSON STRUCTURE (generate 12-16 nodes):
+JSON STRUCTURE (generate 16-32 nodes):
 [{
   "id": "specific-${centralTopic.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-[index]",
   "label": "[Specific aspect of ${centralTopic}] - [Detailed focus area]",
@@ -588,12 +568,59 @@ CRITICAL SUCCESS CRITERIA:
         }, 2000);
       }
       
+      // After generating nodes and before returning, recursively generate branches for fundamentals if not at max depth
+      const recursionDepth = context.recursionDepth || 0;
+      const maxDepth = context.maxDepth || 3;
+      if (recursionDepth < maxDepth) {
+        for (const fundamental of fundamentalNodes) {
+          // Avoid infinite loops by tracking visited topics
+          if (!existingNodes.some(n => n.label === fundamental.label)) {
+            const branchNodes = await this.generateIntelligentNodes(
+              fundamental.label,
+              [...existingNodes, ...finalNodes],
+              { ...context, recursionDepth: recursionDepth + 1, maxDepth }
+            );
+            finalNodes.push(...branchNodes);
+          }
+        }
+      }
+      
       return finalNodes;
       
     } catch (error) {
       console.error('❌ AI generation failed completely:', error);
-      toast.error(`Failed to generate AI content for "${centralTopic}". Using topic-specific fallback.`);
-      return this.generateTopicSpecificFallback(centralTopic, context);
+      toast.error(`Failed to generate AI content for "${centralTopic}". Using advanced fallback.`);
+      // Use a more robust fallback: generate more nodes, add more detail, and randomize content
+      let fallbackNodes = this.generateTopicSpecificFallback(centralTopic, context);
+      // If fallback is too basic, add more nodes with unique details
+      if (fallbackNodes.length < 12) {
+        const extraNodes = Array.from({ length: 16 - fallbackNodes.length }, (_, i) => ({
+          id: `fallback-${centralTopic.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}-${i}`,
+          label: `${centralTopic} - Unique Aspect ${i + 1}`,
+          category: `fallback-category-${i % 4}`,
+          color: `hsl(${(i * 30) % 360}, 70%, 55%)`,
+          description: `Detailed fallback node for ${centralTopic}, aspect ${i + 1}. This node is generated as a backup and should be replaced with real AI content when available.`,
+          importance: 4 + (i % 6),
+          connections: [],
+          position: { x: 0, y: 0 },
+          metadata: {
+            isFundamental: i < 4,
+            complexity: 5 + (i % 5),
+            parentConcept: centralTopic,
+            suggestedBranches: [],
+            aiGenerated: false,
+            topicRelevance: 'fallback',
+            implementationDifficulty: 'unknown',
+            strategicValue: 'fallback',
+            knowledgeDomain: centralTopic,
+            prerequisites: [],
+            outcomes: [],
+            realWorldApplication: '',
+          }
+        }));
+        fallbackNodes = [...fallbackNodes, ...extraNodes];
+      }
+      return fallbackNodes;
     }
   }
 
@@ -753,63 +780,64 @@ CRITICAL SUCCESS CRITERIA:
     let categories: string[] = [];
     let nodeTemplates: Array<{label: string, importance: number, isFundamental: boolean, description: string}> = [];
     
-    // More sophisticated domain detection and node generation
+    // Advanced, context-aware fallback with world knowledge and best practices
+    // Add more detail, actionable insights, and unique content for each node
     if (topicLower.includes('business') || topicLower.includes('startup') || topicLower.includes('company') || topicLower.includes('enterprise')) {
       categories = ['Strategy', 'Operations', 'Marketing', 'Finance', 'Technology', 'HR', 'Growth', 'Innovation'];
       nodeTemplates = [
-        {label: `${centralTopic} Strategic Vision`, importance: 10, isFundamental: true, description: 'Core strategic direction and long-term goals'},
-        {label: `Operational Excellence`, importance: 9, isFundamental: true, description: 'Efficient processes and operational frameworks'},
-        {label: `Market Positioning`, importance: 8, isFundamental: true, description: 'Competitive advantage and market differentiation'},
-        {label: `Financial Management`, importance: 8, isFundamental: false, description: 'Revenue, costs, and financial planning'},
-        {label: `Technology Infrastructure`, importance: 7, isFundamental: false, description: 'Digital systems and technological capabilities'},
-        {label: `Team Development`, importance: 7, isFundamental: false, description: 'Human resources and organizational culture'},
-        {label: `Growth Strategies`, importance: 6, isFundamental: false, description: 'Expansion plans and scaling methodologies'},
-        {label: `Innovation Pipeline`, importance: 6, isFundamental: false, description: 'Future opportunities and disruptive capabilities'},
-        {label: `Risk Management`, importance: 5, isFundamental: false, description: 'Risk assessment and mitigation strategies'},
-        {label: `Performance Metrics`, importance: 5, isFundamental: false, description: 'KPIs and measurement frameworks'},
+        {label: `${centralTopic} Strategic Vision`, importance: 10, isFundamental: true, description: 'Define the core strategic direction, long-term goals, and vision for success. Include frameworks like OKRs, SWOT, and scenario planning.'},
+        {label: `Operational Excellence`, importance: 9, isFundamental: true, description: 'Implement Lean, Six Sigma, and agile methodologies for process optimization and operational efficiency.'},
+        {label: `Market Positioning`, importance: 8, isFundamental: true, description: 'Analyze competitors, identify unique value propositions, and leverage Porter’s Five Forces for market differentiation.'},
+        {label: `Financial Management`, importance: 8, isFundamental: false, description: 'Master budgeting, forecasting, and financial KPIs. Use best practices in cash flow management and capital allocation.'},
+        {label: `Technology Infrastructure`, importance: 7, isFundamental: false, description: 'Adopt cloud, SaaS, and cybersecurity best practices. Align IT with business strategy.'},
+        {label: `Team Development`, importance: 7, isFundamental: false, description: 'Foster a high-performance culture, talent development, and leadership pipelines.'},
+        {label: `Growth Strategies`, importance: 6, isFundamental: false, description: 'Explore organic and inorganic growth, M&A, partnerships, and international expansion.'},
+        {label: `Innovation Pipeline`, importance: 6, isFundamental: false, description: 'Establish R&D, open innovation, and design thinking for continuous improvement.'},
+        {label: `Risk Management`, importance: 5, isFundamental: false, description: 'Identify, assess, and mitigate risks using ERM frameworks and scenario analysis.'},
+        {label: `Performance Metrics`, importance: 5, isFundamental: false, description: 'Track KPIs, dashboards, and balanced scorecards for data-driven decision making.'},
       ];
     } else if (topicLower.includes('ai') || topicLower.includes('machine learning') || topicLower.includes('artificial intelligence') || topicLower.includes('technology')) {
       categories = ['Core Technology', 'Data Science', 'Applications', 'Ethics', 'Implementation', 'Innovation', 'Infrastructure', 'Future'];
       nodeTemplates = [
-        {label: `${centralTopic} Architecture`, importance: 10, isFundamental: true, description: 'Foundational AI system design and structure'},
-        {label: `Data Processing Pipeline`, importance: 9, isFundamental: true, description: 'Data collection, cleaning, and preparation workflows'},
-        {label: `Machine Learning Models`, importance: 9, isFundamental: true, description: 'Algorithm selection and model development'},
-        {label: `Real-world Applications`, importance: 8, isFundamental: false, description: 'Practical use cases and implementation scenarios'},
-        {label: `Ethical Considerations`, importance: 7, isFundamental: false, description: 'Bias, fairness, and responsible AI practices'},
-        {label: `Performance Optimization`, importance: 7, isFundamental: false, description: 'Efficiency improvements and scalability'},
-        {label: `Infrastructure Requirements`, importance: 6, isFundamental: false, description: 'Hardware, cloud, and computational resources'},
-        {label: `Future Innovations`, importance: 6, isFundamental: false, description: 'Emerging trends and next-generation capabilities'},
-        {label: `Security & Privacy`, importance: 5, isFundamental: false, description: 'Data protection and AI system security'},
-        {label: `ROI & Business Value`, importance: 5, isFundamental: false, description: 'Economic impact and business justification'},
+        {label: `${centralTopic} Architecture`, importance: 10, isFundamental: true, description: 'Design modular, scalable AI systems. Use microservices, APIs, and cloud-native patterns.'},
+        {label: `Data Processing Pipeline`, importance: 9, isFundamental: true, description: 'Build robust ETL, data lakes, and real-time streaming. Ensure data quality and governance.'},
+        {label: `Machine Learning Models`, importance: 9, isFundamental: true, description: 'Select algorithms, tune hyperparameters, and use AutoML. Apply best practices in model validation and deployment.'},
+        {label: `Real-world Applications`, importance: 8, isFundamental: false, description: 'Showcase use cases in NLP, computer vision, and predictive analytics. Reference industry benchmarks.'},
+        {label: `Ethical Considerations`, importance: 7, isFundamental: false, description: 'Address bias, fairness, transparency, and responsible AI. Reference IEEE and EU AI guidelines.'},
+        {label: `Performance Optimization`, importance: 7, isFundamental: false, description: 'Optimize for latency, throughput, and cost. Use distributed computing and hardware acceleration.'},
+        {label: `Infrastructure Requirements`, importance: 6, isFundamental: false, description: 'Leverage cloud, edge, and hybrid architectures. Plan for scalability and resilience.'},
+        {label: `Future Innovations`, importance: 6, isFundamental: false, description: 'Explore generative AI, quantum computing, and emerging trends.'},
+        {label: `Security & Privacy`, importance: 5, isFundamental: false, description: 'Implement data protection, encryption, and secure model serving.'},
+        {label: `ROI & Business Value`, importance: 5, isFundamental: false, description: 'Measure impact, TCO, and business outcomes. Use case studies and real-world metrics.'},
       ];
     } else if (topicLower.includes('marketing') || topicLower.includes('brand') || topicLower.includes('campaign') || topicLower.includes('digital marketing')) {
       categories = ['Strategy', 'Audience', 'Content', 'Channels', 'Analytics', 'Brand', 'Growth', 'Innovation'];
       nodeTemplates = [
-        {label: `${centralTopic} Strategy`, importance: 10, isFundamental: true, description: 'Comprehensive marketing approach and objectives'},
-        {label: `Target Audience Analysis`, importance: 9, isFundamental: true, description: 'Customer personas and market segmentation'},
-        {label: `Content Strategy`, importance: 8, isFundamental: true, description: 'Content creation and distribution framework'},
-        {label: `Multi-Channel Approach`, importance: 8, isFundamental: false, description: 'Integrated marketing across platforms'},
-        {label: `Brand Identity & Voice`, importance: 7, isFundamental: false, description: 'Brand positioning and messaging strategy'},
-        {label: `Performance Analytics`, importance: 7, isFundamental: false, description: 'Metrics, tracking, and optimization'},
-        {label: `Growth Hacking`, importance: 6, isFundamental: false, description: 'Innovative growth strategies and tactics'},
-        {label: `Customer Journey`, importance: 6, isFundamental: false, description: 'Touchpoints and experience optimization'},
-        {label: `Competitive Analysis`, importance: 5, isFundamental: false, description: 'Market positioning and differentiation'},
-        {label: `ROI Optimization`, importance: 5, isFundamental: false, description: 'Budget allocation and performance maximization'},
+        {label: `${centralTopic} Strategy`, importance: 10, isFundamental: true, description: 'Develop integrated marketing plans, set SMART goals, and align with business objectives.'},
+        {label: `Target Audience Analysis`, importance: 9, isFundamental: true, description: 'Build personas, segment markets, and use data-driven targeting.'},
+        {label: `Content Strategy`, importance: 8, isFundamental: true, description: 'Plan editorial calendars, repurpose content, and optimize for SEO/SEM.'},
+        {label: `Multi-Channel Approach`, importance: 8, isFundamental: false, description: 'Coordinate campaigns across social, email, paid, and organic channels.'},
+        {label: `Brand Identity & Voice`, importance: 7, isFundamental: false, description: 'Craft brand guidelines, tone, and storytelling.'},
+        {label: `Performance Analytics`, importance: 7, isFundamental: false, description: 'Use Google Analytics, attribution models, and A/B testing.'},
+        {label: `Growth Hacking`, importance: 6, isFundamental: false, description: 'Apply viral loops, referral programs, and rapid experimentation.'},
+        {label: `Customer Journey`, importance: 6, isFundamental: false, description: 'Map touchpoints, optimize UX, and reduce churn.'},
+        {label: `Competitive Analysis`, importance: 5, isFundamental: false, description: 'Benchmark against competitors, SWOT, and market trends.'},
+        {label: `ROI Optimization`, importance: 5, isFundamental: false, description: 'Allocate budget, measure CAC/LTV, and maximize returns.'},
       ];
     } else {
-      // Enhanced generic fallback
+      // Advanced generic fallback
       categories = ['Foundation', 'Strategy', 'Implementation', 'Innovation', 'Optimization', 'Growth', 'Risk', 'Future'];
       nodeTemplates = [
-        {label: `${centralTopic} Fundamentals`, importance: 10, isFundamental: true, description: 'Core principles and foundational concepts'},
-        {label: `Strategic Framework`, importance: 9, isFundamental: true, description: 'Comprehensive approach and methodology'},
-        {label: `Implementation Plan`, importance: 8, isFundamental: true, description: 'Execution strategy and action items'},
-        {label: `Innovation Opportunities`, importance: 7, isFundamental: false, description: 'Creative solutions and improvements'},
-        {label: `Optimization Strategies`, importance: 7, isFundamental: false, description: 'Efficiency and performance enhancement'},
-        {label: `Growth Pathways`, importance: 6, isFundamental: false, description: 'Expansion and scaling opportunities'},
-        {label: `Risk Assessment`, importance: 6, isFundamental: false, description: 'Challenges and mitigation strategies'},
-        {label: `Future Considerations`, importance: 5, isFundamental: false, description: 'Long-term trends and adaptations'},
-        {label: `Best Practices`, importance: 5, isFundamental: false, description: 'Industry standards and proven methods'},
-        {label: `Success Metrics`, importance: 4, isFundamental: false, description: 'Measurement and evaluation criteria'},
+        {label: `${centralTopic} Fundamentals`, importance: 10, isFundamental: true, description: 'Master the core principles, frameworks, and foundational concepts. Reference ISO, PMI, and industry standards.'},
+        {label: `Strategic Framework`, importance: 9, isFundamental: true, description: 'Apply proven methodologies (e.g., Agile, Lean, Design Thinking) for structured execution.'},
+        {label: `Implementation Plan`, importance: 8, isFundamental: true, description: 'Detail step-by-step actions, timelines, and resource allocation.'},
+        {label: `Innovation Opportunities`, importance: 7, isFundamental: false, description: 'Identify creative solutions, disruptive trends, and blue ocean strategies.'},
+        {label: `Optimization Strategies`, importance: 7, isFundamental: false, description: 'Use continuous improvement, Kaizen, and Six Sigma for efficiency.'},
+        {label: `Growth Pathways`, importance: 6, isFundamental: false, description: 'Explore scaling, partnerships, and new market entry.'},
+        {label: `Risk Assessment`, importance: 6, isFundamental: false, description: 'Conduct risk analysis, FMEA, and mitigation planning.'},
+        {label: `Future Considerations`, importance: 5, isFundamental: false, description: 'Anticipate trends, regulatory changes, and technology shifts.'},
+        {label: `Best Practices`, importance: 5, isFundamental: false, description: 'Adopt industry standards, certifications, and benchmarking.'},
+        {label: `Success Metrics`, importance: 4, isFundamental: false, description: 'Define KPIs, OKRs, and evaluation criteria.'},
       ];
     }
 

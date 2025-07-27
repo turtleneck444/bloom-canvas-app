@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
+import ThemeSelector from './ThemeSelector';
 
 interface MindMapToolbarProps {
   onAddNode: () => void;
@@ -37,6 +38,11 @@ interface MindMapToolbarProps {
   canUndo: boolean;
   canRedo: boolean;
   nodeCount: number;
+  currentTheme: string;
+  onThemeChange: (theme: string) => void;
+  customThemes?: Record<string, any>;
+  customTheme?: any;
+  setCustomTheme?: (theme: any) => void;
   className?: string;
 }
 
@@ -56,6 +62,11 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   canUndo,
   canRedo,
   nodeCount,
+  currentTheme,
+  onThemeChange,
+  customThemes,
+  customTheme,
+  setCustomTheme,
   className
 }) => {
   const layoutOptions = [
@@ -74,10 +85,10 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
         {/* Left Section - Logo and Core Actions */}
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 border-r border-gray-200 dark:border-gray-700 pr-3">
-            <Logo size="sm" variant="gradient" />
+            <Logo size="sm" variant="minimal" />
             <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-              <div className="w-1 h-1 rounded-full bg-green-500"></div>
-              <span className="font-medium">{nodeCount}</span>
+              <div className="w-1 h-1 rounded-full bg-teal-500"></div>
+              <span className="font-semibold">{nodeCount}</span>
             </div>
           </div>
           
@@ -85,7 +96,7 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
             <Button
               onClick={onAddNode}
               size="sm"
-              className="h-6 px-2.5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white text-xs font-medium"
+              className="h-6 px-2.5 bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 text-white text-xs font-semibold shadow-md"
             >
               <Plus className="w-3 h-3 mr-1" />
               Add
@@ -156,6 +167,16 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
 
         {/* Right Section - Compact Controls */}
         <div className="flex items-center gap-2">
+          {/* Luxury/Aesthetic Theme Dropdown */}
+          <div className="flex items-center">
+            <ThemeSelector
+              currentTheme={currentTheme}
+              onThemeChange={onThemeChange}
+              customThemes={customThemes}
+              customTheme={customTheme}
+              setCustomTheme={setCustomTheme}
+            />
+          </div>
           {/* View Controls */}
           <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800/50 rounded p-0.5">
             <Button onClick={onZoomOut} variant="ghost" size="sm" className="h-5 w-5 p-0" title="Zoom Out">

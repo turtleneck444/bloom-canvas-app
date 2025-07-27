@@ -197,21 +197,21 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
 
   return (
     <div className={cn(
-      "fixed left-0 top-0 bottom-0 w-96 bg-white/98 dark:bg-gray-900/98 backdrop-blur-md border-r border-purple-200 dark:border-purple-800 shadow-2xl overflow-hidden z-40",
+      "fixed left-0 top-0 bottom-0 w-96 bg-white/98 dark:bg-gray-900/98 backdrop-blur-md border-r border-emerald-200 dark:border-emerald-800 shadow-2xl overflow-hidden z-40",
       !isExpanded && "w-16"
     )}>
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white p-4 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-teal-600 to-cyan-500 text-white p-4 relative overflow-hidden">
         {/* Animated background pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.1),transparent_50%)] animate-pulse"></div>
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-600/30 via-transparent to-blue-600/30"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_40%,rgba(255,255,255,0.08),transparent_60%)] animate-pulse"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 via-transparent to-cyan-500/20"></div>
         <div className="flex items-center justify-between relative z-10">
           <div className="flex items-center space-x-2">
             <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
               <Crown className="w-5 h-5" />
             </div>
             <span className="font-bold text-lg">NOV8 AI Pro</span>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/30 font-semibold">
+            <Badge variant="secondary" className="bg-teal-500/20 text-cyan-100">
               v2.0
             </Badge>
           </div>
@@ -239,7 +239,7 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
         <div className="mt-3 space-y-2 relative z-10">
           <div className="flex items-center justify-between text-sm">
             <span>AI Status</span>
-            <Badge variant="secondary" className="bg-green-500/20 text-green-200">
+            <Badge variant="secondary" className="bg-teal-500/20 text-cyan-100">
               {aiStatus.configured ? 'Active' : 'Inactive'}
             </Badge>
           </div>
@@ -329,11 +329,11 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
                   </div>
 
                   {selectedTemplate && (
-                    <div className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg border">
+                    <div className="p-3 bg-teal-50/80 rounded-lg border border-teal-200">
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-xs font-medium text-purple-700">Smart Template Detected</p>
-                          <p className="text-xs text-purple-600">
+                          <p className="text-xs font-medium text-teal-700">Smart Template Detected</p>
+                          <p className="text-xs text-teal-600">
                             {SMART_TEMPLATES.find(t => t.id === selectedTemplate)?.name}
                           </p>
                         </div>
@@ -341,7 +341,7 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
                           size="sm"
                           onClick={handleTemplateGenerate}
                           disabled={isProcessing}
-                          className="bg-purple-600 hover:bg-purple-700"
+                          className="bg-teal-600 hover:bg-cyan-600 text-white font-semibold"
                         >
                           <Target className="w-3 h-3 mr-1" />
                           Use Template
@@ -390,7 +390,7 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
                   <Button
                     onClick={handleGenerateFromTopic}
                     disabled={isProcessing || !aiTopic.trim()}
-                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                    className="w-full bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 font-semibold"
                   >
                     {isProcessing ? (
                       <>
