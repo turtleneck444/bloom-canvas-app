@@ -2,14 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+/* NOV8 Mind Mapping App Design System
+Beautiful gradients, modern colors, and fluid animations
 All colors MUST be HSL.
 */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    /* Base Colors */
+    --background: 240 10% 98%;
     --foreground: 222.2 84% 4.9%;
+    
+    /* NOV8 Brand Colors */
+    --nov8-primary: 267 85% 66%;
+    --nov8-secondary: 213 94% 68%;
+    --nov8-accent: 292 91% 76%;
+    --nov8-success: 142 76% 36%;
+    --nov8-warning: 35 91% 65%;
+    --nov8-error: 0 84% 60%;
+    
+    /* Mind Map Specific Colors */
+    --node-default: 0 0% 100%;
+    --node-hover: 220 13% 96%;
+    --node-selected: 267 85% 95%;
+    --connection-line: 220 9% 60%;
+    --canvas-bg: 240 10% 98%;
+    --grid-color: 220 9% 90%;
+    
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(267 85% 66%), hsl(213 94% 68%));
+    --gradient-secondary: linear-gradient(135deg, hsl(213 94% 68%), hsl(292 91% 76%));
+    --gradient-canvas: linear-gradient(135deg, hsl(240 10% 98%), hsl(220 13% 95%));
+    --gradient-node: linear-gradient(135deg, hsl(0 0% 100%), hsl(220 13% 98%));
+    
+    /* Shadows */
+    --shadow-soft: 0 4px 12px -2px hsl(220 9% 60% / 0.1);
+    --shadow-medium: 0 8px 25px -5px hsl(220 9% 60% / 0.15);
+    --shadow-strong: 0 20px 40px -12px hsl(220 9% 60% / 0.25);
+    --shadow-glow: 0 0 20px hsl(267 85% 66% / 0.3);
+    
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
@@ -56,8 +90,34 @@ All colors MUST be HSL.
   }
 
   .dark {
+    /* Dark Mode Base */
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
+    
+    /* Dark Mode NOV8 Colors */
+    --nov8-primary: 267 85% 70%;
+    --nov8-secondary: 213 94% 72%;
+    --nov8-accent: 292 91% 80%;
+    
+    /* Dark Mode Mind Map */
+    --node-default: 222.2 47% 11%;
+    --node-hover: 217.2 32.6% 17.5%;
+    --node-selected: 267 85% 15%;
+    --connection-line: 215 20.2% 65.1%;
+    --canvas-bg: 222.2 84% 4.9%;
+    --grid-color: 217.2 32.6% 17.5%;
+    
+    /* Dark Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(267 85% 70%), hsl(213 94% 72%));
+    --gradient-secondary: linear-gradient(135deg, hsl(213 94% 72%), hsl(292 91% 80%));
+    --gradient-canvas: linear-gradient(135deg, hsl(222.2 84% 4.9%), hsl(217.2 32.6% 8%));
+    --gradient-node: linear-gradient(135deg, hsl(222.2 47% 11%), hsl(217.2 32.6% 17.5%));
+    
+    /* Dark Shadows */
+    --shadow-soft: 0 4px 12px -2px hsl(0 0% 0% / 0.3);
+    --shadow-medium: 0 8px 25px -5px hsl(0 0% 0% / 0.4);
+    --shadow-strong: 0 20px 40px -12px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 20px hsl(267 85% 70% / 0.4);
 
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
@@ -101,5 +161,106 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    background: var(--gradient-canvas);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   }
+  
+  /* NOV8 Utility Classes */
+  .nov8-gradient-primary {
+    background: var(--gradient-primary);
+  }
+  
+  .nov8-gradient-secondary {
+    background: var(--gradient-secondary);
+  }
+  
+  .nov8-shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+  
+  .nov8-shadow-medium {
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .nov8-shadow-strong {
+    box-shadow: var(--shadow-strong);
+  }
+  
+  .nov8-shadow-glow {
+    box-shadow: var(--shadow-glow);
+  }
+  
+  .nov8-transition {
+    transition: var(--transition-smooth);
+  }
+  
+  .nov8-bounce {
+    transition: var(--transition-bounce);
+  }
+  
+  /* Mind Map Specific Styles */
+  .mind-map-canvas {
+    background: var(--canvas-bg);
+    background-image: 
+      radial-gradient(circle at 25% 25%, hsl(var(--nov8-primary) / 0.05) 0%, transparent 25%),
+      radial-gradient(circle at 75% 75%, hsl(var(--nov8-secondary) / 0.05) 0%, transparent 25%);
+  }
+  
+  .mind-map-grid {
+    background-image: 
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  
+  .mind-map-node {
+    background: var(--gradient-node);
+    border-radius: 12px;
+    border: 1px solid hsl(var(--nov8-primary) / 0.2);
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition-smooth);
+  }
+  
+  .mind-map-node:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+    border-color: hsl(var(--nov8-primary) / 0.4);
+  }
+  
+  .mind-map-node.selected {
+    border-color: hsl(var(--nov8-primary));
+    box-shadow: var(--shadow-glow);
+  }
+  
+  /* React Flow Overrides */
+  .react-flow__node {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .react-flow__handle {
+    background: hsl(var(--nov8-primary)) !important;
+    border: 2px solid hsl(var(--background)) !important;
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50% !important;
+    opacity: 0 !important;
+    transition: opacity 0.2s ease;
+  }
+  
+  .react-flow__node:hover .react-flow__handle {
+    opacity: 1 !important;
+  }
+  
+  .react-flow__edge-path {
+    stroke: hsl(var(--connection-line)) !important;
+    stroke-width: 2px !important;
+  }
+  
+  .react-flow__edge.selected .react-flow__edge-path {
+    stroke: hsl(var(--nov8-primary)) !important;
+    stroke-width: 3px !important;
+  }
+}
 }

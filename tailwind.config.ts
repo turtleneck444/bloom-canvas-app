@@ -24,6 +24,22 @@ export default {
 				ring: 'hsl(var(--ring))',
 				background: 'hsl(var(--background))',
 				foreground: 'hsl(var(--foreground))',
+				
+				// NOV8 Brand Colors
+				'nov8-primary': 'hsl(var(--nov8-primary))',
+				'nov8-secondary': 'hsl(var(--nov8-secondary))',
+				'nov8-accent': 'hsl(var(--nov8-accent))',
+				'nov8-success': 'hsl(var(--nov8-success))',
+				'nov8-warning': 'hsl(var(--nov8-warning))',
+				'nov8-error': 'hsl(var(--nov8-error))',
+				
+				// Mind Map Colors
+				'node-default': 'hsl(var(--node-default))',
+				'node-hover': 'hsl(var(--node-hover))',
+				'node-selected': 'hsl(var(--node-selected))',
+				'connection-line': 'hsl(var(--connection-line))',
+				'canvas-bg': 'hsl(var(--canvas-bg))',
+				'grid-color': 'hsl(var(--grid-color))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
 					foreground: 'hsl(var(--primary-foreground))'
@@ -84,11 +100,31 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px)' },
+					'50%': { transform: 'translateY(-4px)' }
+				},
+				'pulse-slow': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' }
+				},
+				'slide-in': {
+					'0%': { transform: 'translateX(-100%)', opacity: '0' },
+					'100%': { transform: 'translateX(0)', opacity: '1' }
+				},
+				'fade-in': {
+					'0%': { opacity: '0', transform: 'scale(0.95)' },
+					'100%': { opacity: '1', transform: 'scale(1)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'float': 'float 3s ease-in-out infinite',
+				'pulse-slow': 'pulse-slow 2s ease-in-out infinite',
+				'slide-in': 'slide-in 0.3s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out'
 			}
 		}
 	},
