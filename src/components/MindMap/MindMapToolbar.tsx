@@ -77,10 +77,10 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
 
   return (
     <div className={cn(
-      "w-full h-full bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl",
+      "w-full h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-blue-200/40 dark:border-blue-800/40 shadow-2xl z-30 sticky top-0 left-0 overflow-x-auto flex-shrink-0",
       className
     )}>
-      <div className="flex items-center justify-between px-4 py-2 h-full">
+      <div className="flex flex-row items-center justify-between px-2 sm:px-4 py-2 h-full gap-y-2 min-w-[320px] w-full">
         
         {/* Left Section - Logo and Core Actions */}
         <div className="flex items-center gap-3">

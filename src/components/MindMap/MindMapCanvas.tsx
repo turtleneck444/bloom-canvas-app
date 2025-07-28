@@ -3133,20 +3133,9 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
 
   const nodeTypes = currentTheme === 'aura' ? AuraNodeTypes : DefaultNodeTypes;
   return (
-    <div className={cn("w-full h-screen relative bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20", className)}>
-      {/* AI Toolbar - Left Sidebar */}
-      <AIToolbar
-        onGenerateIntelligentNodes={handleGenerateIntelligentNodes}
-        onIdentifyFundamentals={handleIdentifyFundamentals}
-        onAutoGenerateBranches={handleAutoGenerateBranches}
-        onEnhanceAllNodes={handleEnhanceAllNodes}
-        nodeCount={nodes.length}
-        isProcessing={isAiProcessing}
-        fundamentalNodesCount={fundamentalNodes.length}
-      />
-
+    <div className={cn("w-full h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20", className)}>
       {/* Main Toolbar - Top */}
-      <div className="absolute top-0 left-96 right-0 h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 z-30">
+      <div className="w-full h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 z-30 sticky top-0 left-0">
         <MindMapToolbar
           onAddNode={handleAddNode}
           onSave={handleSave}
@@ -3202,97 +3191,109 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           setCustomTheme={setCustomTheme}
         />
       </div>
-
-      {/* ReactFlow Canvas - Main area with perfect positioning */}
-      <div className="absolute top-[49px] left-96 right-0 bottom-0">
-        {/* Beautiful Empty State */}
-        {nodes.length === 0 && (
-          <div className="absolute inset-0 flex items-center justify-center z-10 bg-gradient-to-br from-white/90 to-purple-50/60 dark:from-gray-900/90 dark:to-purple-900/60 backdrop-blur-sm">
-            <div className="text-center space-y-6 p-8 max-w-md">
-              <div className="relative">
-                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl">
-                  <Brain className="w-12 h-12 text-white" />
+      {/* Main Content: flex row, left = AI toolbar, right = canvas */}
+      <div className="flex flex-1 min-h-0">
+        {/* AI Toolbar - Left Sidebar */}
+        <AIToolbar
+          onGenerateIntelligentNodes={handleGenerateIntelligentNodes}
+          onIdentifyFundamentals={handleIdentifyFundamentals}
+          onAutoGenerateBranches={handleAutoGenerateBranches}
+          onEnhanceAllNodes={handleEnhanceAllNodes}
+          nodeCount={nodes.length}
+          isProcessing={isAiProcessing}
+          fundamentalNodesCount={fundamentalNodes.length}
+        />
+        {/* ReactFlow Canvas - Main area with perfect positioning */}
+        <div className="flex-1 relative flex items-center justify-center">
+          {/* Beautiful Empty State */}
+          {nodes.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center z-10 bg-gradient-to-br from-white/90 to-purple-50/60 dark:from-gray-900/90 dark:to-purple-900/60 backdrop-blur-sm">
+              <div className="text-center space-y-6 p-8 max-w-md mx-auto" style={{ marginLeft: 'auto', marginRight: 'auto' }}>
+                <div className="relative">
+                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                    <Brain className="w-12 h-12 text-white" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
+                    <Sparkles className="w-4 h-4 text-yellow-900" />
+                  </div>
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
-                  <Sparkles className="w-4 h-4 text-yellow-900" />
+                <div className="space-y-3">
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+                    Welcome to NOV8 AI Mind Mapping
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Create powerful mind maps with revolutionary AI assistance. Start by adding a node or generating an intelligent mind map.
+                  </p>
                 </div>
-              </div>
-              <div className="space-y-3">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                  Welcome to NOV8 AI Mind Mapping
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Create powerful mind maps with revolutionary AI assistance. Start by adding a node or generating an intelligent mind map.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
-                  onClick={() => setTimeout(() => handleAddNode(), 0)}
-                  className="bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 font-semibold"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add First Node
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const aiToolbar = document.querySelector('.ai-toolbar-topic-input') as HTMLInputElement;
-                    if (aiToolbar) {
-                      aiToolbar.focus();
-                    }
-                  }}
-                  className="border-purple-200 text-purple-700 hover:bg-purple-50 px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
-                >
-                  <Wand2 className="w-4 h-4 mr-2" />
-                  Generate AI Map
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button
+                    onClick={() => setTimeout(() => handleAddNode(), 0)}
+                    className="bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 font-semibold"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add First Node
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const aiToolbar = document.querySelector('.ai-toolbar-topic-input') as HTMLInputElement;
+                      if (aiToolbar) {
+                        aiToolbar.focus();
+                      }
+                    }}
+                    className="border-purple-200 text-purple-700 hover:bg-purple-50 px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+                  >
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Generate AI Map
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          connectionMode={ConnectionMode.Loose}
-          onInit={setReactFlowInstance}
-          proOptions={{ hideAttribution: true }}
-          className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20"
-          fitView
-          fitViewOptions={{ 
-            padding: 0.15,
-            maxZoom: 2.5,
-            minZoom: 0.05
-          }}
-          minZoom={0.05}
-          maxZoom={2.5}
-          zoomOnScroll={true}
-          zoomOnPinch={true}
-        >
-          <Background 
-            variant={BackgroundVariant.Dots}
-            gap={20}
-            size={1}
-            className="opacity-40 dark:opacity-20"
-            color="#e2e8f0"
-          />
-          <Controls 
-            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg"
-            showZoom={true}
-            showFitView={true}
-            showInteractive={false}
-          />
-          <MiniMap 
-            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg overflow-hidden"
-            nodeColor="#8b5cf6"
-            maskColor="rgba(139, 92, 246, 0.1)"
-            pannable
-            zoomable
-          />
-        </ReactFlow>
+          )}
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            connectionMode={ConnectionMode.Loose}
+            onInit={setReactFlowInstance}
+            proOptions={{ hideAttribution: true }}
+            className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20"
+            fitView
+            fitViewOptions={{ 
+              padding: 0.15,
+              maxZoom: 2.5,
+              minZoom: 0.05
+            }}
+            minZoom={0.05}
+            maxZoom={2.5}
+            zoomOnScroll={true}
+            zoomOnPinch={true}
+          >
+            <Background 
+              variant={BackgroundVariant.Dots}
+              gap={20}
+              size={1}
+              className="opacity-40 dark:opacity-20"
+              color="#e2e8f0"
+            />
+            <Controls 
+              className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg"
+              showZoom={true}
+              showFitView={true}
+              showInteractive={false}
+            />
+            <MiniMap 
+              className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg overflow-hidden"
+              nodeColor="#8b5cf6"
+              maskColor="rgba(139, 92, 246, 0.1)"
+              pannable
+              zoomable
+            />
+          </ReactFlow>
+        </div>
       </div>
     </div>
   );
