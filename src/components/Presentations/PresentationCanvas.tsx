@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useEffect, useState } from 'react';
 import PresentationToolbar from './PresentationToolbar';
 import SlideEditor from './SlideEditor';
 import { Button } from '../ui/button';
-import { Plus, FileText, Download, Upload, Save, RotateCcw, Presentation, Trash2, Copy, Image as ImageIcon, Type, Palette, Quote, Settings, CheckCircle, Undo2 as UndoIcon, Redo2 as RedoIcon, Copy as CopyIcon, Pause as PasteIcon, Bug as BlurIcon, Layers as LayersIcon, Lock as LockIcon, AlignEndVertical as AlignVerticalIcon, AlignEndHorizontal as AlignHorizontalIcon, Image as ImageIconIcon, ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon } from 'lucide-react';
+import { Plus, FileText, Download, Upload, Save, RotateCcw, Presentation, Trash2, Copy, Image as ImageIcon, Type, Palette, Quote, Settings, CheckCircle, Undo2 as UndoIcon, Redo2 as RedoIcon, Copy as CopyIcon, Pause as PasteIcon, Bug as BlurIcon, Layers as LayersIcon, Lock as LockIcon, AlignEndVertical as AlignVerticalIcon, AlignEndHorizontal as AlignHorizontalIcon, Image as ImageIconIcon, ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon, AlignLeft as AlignLeftIcon, AlignCenter as AlignCenterIcon, AlignRight as AlignRightIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -865,7 +865,7 @@ const PresentationCanvas: React.FC = () => {
                       <Settings className="w-4 h-4 text-orange-400" /> Customize Slide
                     </h3>
                     <hr className="my-4 border-orange-200/40 dark:border-orange-800/40" />
-                    <div className="flex items-center gap-2 overflow-x-auto py-2 mb-2">
+                    <div className="flex items-center gap-2 overflow-x-auto py-2 mb-2 max-w-[80vw]">
                       {backgroundImages.map((bg, i) => {
                         let style = {};
                         if (bg.startsWith('linear-gradient') || bg.startsWith('radial-gradient')) {
@@ -890,9 +890,9 @@ const PresentationCanvas: React.FC = () => {
                         );
                       })}
                     </div>
-                    <div className="flex w-full gap-3 items-end">
-                      {/* Font family/size */}
-                      <div className="flex flex-col flex-1 min-w-[120px]">
+                    <div className="flex flex-row flex-wrap items-end gap-x-6 gap-y-3 w-full bg-white/60 dark:bg-gray-900/60 rounded-xl p-2 shadow-inner">
+                      {/* Font controls */}
+                      <div className="flex flex-col items-center min-w-[120px]">
                         <label className="text-xs font-medium text-orange-800 dark:text-orange-200">Font</label>
                         <select value={currentSlide.fontFamily} onChange={e => handleSlideEdit(currentSlide.id, 'fontFamily', e.target.value)} className="w-full p-1.5 rounded-lg border border-orange-200 dark:border-orange-700 bg-white dark:bg-gray-800 text-sm" >
                           {fontOptions.map(font => (<option key={font.id} value={font.id}>{font.name}</option>))}
@@ -902,60 +902,70 @@ const PresentationCanvas: React.FC = () => {
                           {titleSizeOptions.map(opt => (<option key={opt.value} value={opt.value}>{opt.label}</option>))}
                         </select>
                       </div>
-                      {/* Text color, background color, border, shadow */}
-                      <div className="flex flex-col flex-1 min-w-[120px]">
-                        <label className="text-xs font-medium text-orange-800 dark:text-orange-200">Text Color</label>
-                        <input type="color" value={currentSlide.textColor} onChange={e => handleSlideEdit(currentSlide.id, 'textColor', e.target.value)} className="w-7 h-7 p-0 border-none rounded shadow" title="Text Color" />
-                        <label className="text-xs font-medium text-orange-800 dark:text-orange-200 mt-1">Background</label>
-                        <input type="color" value={currentSlide.textBgColor || '#ffffff'} onChange={e => handleSlideEdit(currentSlide.id, 'textBgColor', e.target.value)} className="w-7 h-7 p-0 border-none rounded shadow" title="Text Background Color" />
-                        <label className="text-xs font-medium text-orange-800 dark:text-orange-200 mt-1">Border</label>
-                        <input type="color" value={currentSlide.textBorderColor || '#000000'} onChange={e => handleSlideEdit(currentSlide.id, 'textBorderColor', e.target.value)} className="w-7 h-7 p-0 border-none rounded shadow" title="Text Border Color" />
-                        <label className="text-xs font-medium text-orange-800 dark:text-orange-200 mt-1">Shadow</label>
-                        <input type="checkbox" checked={!!currentSlide.textShadow} onChange={e => handleSlideEdit(currentSlide.id, 'textShadow', e.target.checked)} title="Text Shadow" />
+                      {/* Color controls */}
+                      <div className="flex flex-row items-center gap-2 min-w-[180px]">
+                        <div className="flex flex-col items-center">
+                          <label className="text-xs font-medium text-orange-800 dark:text-orange-200">Text</label>
+                          <input type="color" value={currentSlide.textColor} onChange={e => handleSlideEdit(currentSlide.id, 'textColor', e.target.value)} className="w-7 h-7 p-0 border-none rounded shadow" title="Text Color" />
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <label className="text-xs font-medium text-orange-800 dark:text-orange-200">Bg</label>
+                          <input type="color" value={currentSlide.textBgColor || '#ffffff'} onChange={e => handleSlideEdit(currentSlide.id, 'textBgColor', e.target.value)} className="w-7 h-7 p-0 border-none rounded shadow" title="Background Color" />
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <label className="text-xs font-medium text-orange-800 dark:text-orange-200">Border</label>
+                          <input type="color" value={currentSlide.textBorderColor || '#000000'} onChange={e => handleSlideEdit(currentSlide.id, 'textBorderColor', e.target.value)} className="w-7 h-7 p-0 border-none rounded shadow" title="Border Color" />
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <label className="text-xs font-medium text-orange-800 dark:text-orange-200">Shadow</label>
+                          <input type="checkbox" checked={!!currentSlide.textShadow} onChange={e => handleSlideEdit(currentSlide.id, 'textShadow', e.target.checked)} title="Text Shadow" />
+                        </div>
                       </div>
                       {/* Formatting controls */}
-                      <div className="flex flex-1 items-center gap-1 justify-center">
+                      <div className="flex flex-row items-center gap-1 min-w-[180px] bg-orange-50/40 dark:bg-orange-900/20 rounded-lg px-2 py-1">
                         <button title="Bold" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('bold')}><b>B</b></button>
                         <button title="Italic" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('italic')}><i>I</i></button>
                         <button title="Underline" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('underline')}><u>U</u></button>
                         <button title="Strikethrough" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('strikeThrough')}><s>S</s></button>
-                        <button title="Quote" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('formatBlock', 'BLOCKQUOTE')}>“”</button>
+                        <button title="Quote" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('formatBlock', 'BLOCKQUOTE')}>"”</button>
                         <button title="Duplicate" className="p-1 rounded hover:bg-orange-100" onClick={handleCopy}><CopyIcon /></button>
                         <button title="Group" className="p-1 rounded hover:bg-orange-100" onClick={handleGroup}><LayersIcon /></button>
                         <button title="Ungroup" className="p-1 rounded hover:bg-orange-100" onClick={handleUngroup}><LayersIcon /></button>
-                        </div>
-                      {/* Alignment, letter spacing, line height */}
-                      <div className="flex flex-1 items-center gap-1 justify-center">
-                        <button title="Align Left" className="p-1 rounded hover:bg-orange-100" onClick={() => handleSlideEdit(currentSlide.id, 'alignment', 'left')}>L</button>
-                        <button title="Align Center" className="p-1 rounded hover:bg-orange-100" onClick={() => handleSlideEdit(currentSlide.id, 'alignment', 'center')}>C</button>
-                        <button title="Align Right" className="p-1 rounded hover:bg-orange-100" onClick={() => handleSlideEdit(currentSlide.id, 'alignment', 'right')}>R</button>
-                        <label className="text-xs font-medium text-orange-800 dark:text-orange-200 ml-2">Spacing</label>
-                        <input type="range" min="0" max="10" value={currentSlide.letterSpacing || 0} onChange={e => handleSlideEdit(currentSlide.id, 'letterSpacing', Number(e.target.value))} className="w-16" title="Letter Spacing" />
-                        <label className="text-xs font-medium text-orange-800 dark:text-orange-200 ml-2">Line</label>
+                      </div>
+                      {/* Alignment, spacing, line height */}
+                      <div className="flex flex-row items-center gap-1 min-w-[180px] bg-orange-50/40 dark:bg-orange-900/20 rounded-lg px-2 py-1">
+                        <button title="Align Left" className={cn("p-1 rounded hover:bg-orange-100", currentSlide.alignment === 'left' && 'bg-orange-200')} onClick={() => handleSlideEdit(currentSlide.id, 'alignment', 'left')}>
+                          <AlignLeftIcon className="w-5 h-5" />
+                        </button>
+                        <button title="Align Center" className={cn("p-1 rounded hover:bg-orange-100", currentSlide.alignment === 'center' && 'bg-orange-200')} onClick={() => handleSlideEdit(currentSlide.id, 'alignment', 'center')}>
+                          <AlignCenterIcon className="w-5 h-5" />
+                        </button>
+                        <button title="Align Right" className={cn("p-1 rounded hover:bg-orange-100", currentSlide.alignment === 'right' && 'bg-orange-200')} onClick={() => handleSlideEdit(currentSlide.id, 'alignment', 'right')}>
+                          <AlignRightIcon className="w-5 h-5" />
+                        </button>
+                        <input type="range" min="0" max="10" value={currentSlide.letterSpacing || 0} onChange={e => handleSlideEdit(currentSlide.id, 'letterSpacing', Number(e.target.value))} className="w-16 mx-2" title="Letter Spacing" />
                         <input type="range" min="1" max="3" step="0.1" value={currentSlide.lineHeight || 1.2} onChange={e => handleSlideEdit(currentSlide.id, 'lineHeight', Number(e.target.value))} className="w-16" title="Line Height" />
                       </div>
-                      {/* Overlay settings */}
-                      <div className="flex flex-col flex-1 min-w-[120px]">
+                      {/* Overlay controls */}
+                      <div className="flex flex-col items-center min-w-[120px]">
                         <label className="text-xs font-medium text-orange-800 dark:text-orange-200">Overlay</label>
                         <input type="color" value={overlayColor} onChange={e => setOverlayColor(e.target.value)} className="w-7 h-7 p-0 border-none rounded shadow" title="Overlay Color" />
                         <input type="range" min="0" max="100" value={overlayStrength} onChange={e => setOverlayStrength(Number(e.target.value))} className="w-full" title="Overlay Strength" />
                         <span className="text-xs text-orange-700">{overlayStrength}%</span>
-                          </div>
-                      {/* Export, undo/redo, more */}
-                      <div className="flex flex-1 items-center gap-1 justify-center">
+                      </div>
+                      {/* Actions */}
+                      <div className="flex flex-row items-center gap-1 min-w-[120px] bg-orange-50/40 dark:bg-orange-900/20 rounded-lg px-2 py-1">
                         <button title="Undo" className="p-1 rounded hover:bg-orange-100" onClick={handleUndo}><UndoIcon /></button>
                         <button title="Redo" className="p-1 rounded hover:bg-orange-100" onClick={handleRedo}><RedoIcon /></button>
                         <button title="Export as Image" className="p-1 rounded hover:bg-orange-100" onClick={handleExportImage}><ImageIconIcon /></button>
                         <button title="Export as PDF" className="p-1 rounded hover:bg-orange-100" onClick={handleExportPDF}><FileText /></button>
                         <div className="relative group">
                           <button title="More" className="p-1 rounded hover:bg-orange-100">•••</button>
-                          {/* More dropdown: add more advanced/less-used features here */}
                           <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-900 border border-orange-200 dark:border-orange-700 rounded shadow-lg p-2 hidden group-hover:block z-50 min-w-[180px]">
                             <button className="block w-full text-left p-1 hover:bg-orange-50 dark:hover:bg-orange-800 rounded">Zoom In</button>
                             <button className="block w-full text-left p-1 hover:bg-orange-50 dark:hover:bg-orange-800 rounded">Zoom Out</button>
                             <button className="block w-full text-left p-1 hover:bg-orange-50 dark:hover:bg-orange-800 rounded">Lock</button>
                             <button className="block w-full text-left p-1 hover:bg-orange-50 dark:hover:bg-orange-800 rounded">Unlock</button>
-                            {/* Add more features as needed */}
                           </div>
                         </div>
                       </div>
@@ -966,8 +976,8 @@ const PresentationCanvas: React.FC = () => {
             )}
           </AnimatePresence>
           {/* Slide Canvas */}
-          <div className="flex-1 p-8 overflow-auto">
-            <div className="max-w-7xl mx-auto p-12 md:p-16 rounded-3xl shadow-2xl bg-white/80 dark:bg-gray-900/80 transition-all duration-300">
+          <div className="flex-1 p-8 overflow-auto flex flex-col items-center justify-center">
+            <div className="max-w-7xl w-full mx-auto p-12 md:p-16 rounded-3xl shadow-2xl bg-white/80 dark:bg-gray-900/80 transition-all duration-300">
               {currentSlide && (
                 <SlideEditor
                   slide={currentSlide}
