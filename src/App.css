@@ -40,3 +40,49 @@
 .read-the-docs {
   color: #888;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Lato:wght@400;700&family=Montserrat:wght@400;700&family=Open+Sans:wght@400;700&family=Raleway:wght@400;700&family=Source+Sans+Pro:wght@400;700&display=swap');
+
+.font-roboto { font-family: 'Roboto', sans-serif; }
+.font-lato { font-family: 'Lato', sans-serif; }
+.font-montserrat { font-family: 'Montserrat', sans-serif; }
+.font-opensans { font-family: 'Open Sans', sans-serif; }
+.font-raleway { font-family: 'Raleway', sans-serif; }
+.font-sourcesans { font-family: 'Source Sans Pro', sans-serif; }
+
+.shadow-neon-cyan {
+  box-shadow: 0 0 12px 2px #06b6d4, 0 0 32px 4px #06b6d4aa;
+}
+.shadow-neon-purple {
+  box-shadow: 0 0 12px 2px #a78bfa, 0 0 32px 4px #a78bfa88;
+}
+.shadow-neon-red {
+  box-shadow: 0 0 12px 2px #ef4444, 0 0 32px 4px #ef444488;
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+/* Animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.7; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+.animate-pulse-slow {
+  animation: pulse-slow 4s cubic-bezier(0.4,0,0.6,1) infinite;
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.8s cubic-bezier(0.4,0,0.6,1) both;
+}
