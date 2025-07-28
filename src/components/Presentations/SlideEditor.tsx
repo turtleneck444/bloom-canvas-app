@@ -105,72 +105,72 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
   // - Content area (textarea/input in edit mode, content in preview mode)
 
   const renderSlideContent = () => {
-    return (
-      <div className={cn(
+        return (
+          <div className={cn(
         "h-full flex flex-col justify-center p-16",
-        getFontClass(slide.fontFamily),
-        getAlignmentClass(slide.alignment)
-      )}>
-        {!isPreviewMode ? (
-          <>
-            <input
-              type="text"
-              value={slide.title}
-              onChange={(e) => onSlideEdit(slide.id, 'title', e.target.value)}
-              className={cn(
-                "bg-transparent border-none outline-none w-full placeholder-white/70 font-bold mb-4 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                getTitleSizeClass(slide.titleSize)
-              )}
-              style={{ color: slide.textColor }}
-              placeholder="Enter slide title..."
-            />
-            {slide.subtitle !== undefined && (
-              <input
-                type="text"
-                value={slide.subtitle}
-                onChange={(e) => onSlideEdit(slide.id, 'subtitle', e.target.value)}
-                className={cn(
-                  "bg-transparent border-none outline-none w-full placeholder-white/70 opacity-90 mb-6 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                  getContentSizeClass(slide.contentSize)
-                )}
-                style={{ color: slide.textColor }}
-                placeholder="Enter description..."
-              />
-            )}
-            {/* Content area for each slide type */}
-            {slide.template === 'bullets' ? (
-              <div className="space-y-4">
-                {slide.bulletPoints?.map((bullet, index) => (
-                  <div key={index} className="flex items-center gap-4">
-                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: slide.accentColor }} />
-                    <input
-                      type="text"
-                      value={bullet}
-                      onChange={(e) => updateBulletPoint(index, e.target.value)}
-                      className={cn(
-                        "bg-transparent border-none outline-none flex-1 placeholder-white/70 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                        getContentSizeClass(slide.contentSize)
-                      )}
-                      style={{ color: slide.textColor }}
-                      placeholder="Enter bullet point..."
-                    />
-                    <button onClick={() => removeBulletPoint(index)} className="text-red-400 hover:text-red-300 opacity-70 hover:opacity-100 transition-opacity">×</button>
-                  </div>
-                ))}
-                <button onClick={addBulletPoint} className="flex items-center gap-2 text-white/70 hover:text-white/90 transition-colors mt-4">+ Add bullet point</button>
-              </div>
-            ) : slide.template === 'two-column' ? (
-              <div className="grid grid-cols-2 gap-12">
-                <textarea
-                  value={slide.content}
-                  onChange={(e) => onSlideEdit(slide.id, 'content', e.target.value)}
+            getFontClass(slide.fontFamily),
+            getAlignmentClass(slide.alignment)
+          )}>
+            {!isPreviewMode ? (
+              <>
+                <input
+                  type="text"
+                  value={slide.title}
+                  onChange={(e) => onSlideEdit(slide.id, 'title', e.target.value)}
                   className={cn(
-                    "bg-transparent border-none outline-none w-full h-40 resize-none placeholder-white/70 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                    getContentSizeClass(slide.contentSize)
+                "bg-transparent border-none outline-none w-full placeholder-white/70 font-bold mb-4 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
+                    getTitleSizeClass(slide.titleSize)
                   )}
                   style={{ color: slide.textColor }}
-                  placeholder="Enter content for left column..."
+                  placeholder="Enter slide title..."
                 />
+                {slide.subtitle !== undefined && (
+                  <input
+                    type="text"
+                    value={slide.subtitle}
+                    onChange={(e) => onSlideEdit(slide.id, 'subtitle', e.target.value)}
+                    className={cn(
+                  "bg-transparent border-none outline-none w-full placeholder-white/70 opacity-90 mb-6 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
+                      getContentSizeClass(slide.contentSize)
+                    )}
+                    style={{ color: slide.textColor }}
+                placeholder="Enter description..."
+                  />
+                )}
+            {/* Content area for each slide type */}
+            {slide.template === 'bullets' ? (
+                <div className="space-y-4">
+                  {slide.bulletPoints?.map((bullet, index) => (
+                    <div key={index} className="flex items-center gap-4">
+                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: slide.accentColor }} />
+                      <input
+                        type="text"
+                        value={bullet}
+                        onChange={(e) => updateBulletPoint(index, e.target.value)}
+                        className={cn(
+                        "bg-transparent border-none outline-none flex-1 placeholder-white/70 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
+                          getContentSizeClass(slide.contentSize)
+                        )}
+                        style={{ color: slide.textColor }}
+                        placeholder="Enter bullet point..."
+                      />
+                    <button onClick={() => removeBulletPoint(index)} className="text-red-400 hover:text-red-300 opacity-70 hover:opacity-100 transition-opacity">×</button>
+                    </div>
+                  ))}
+                <button onClick={addBulletPoint} className="flex items-center gap-2 text-white/70 hover:text-white/90 transition-colors mt-4">+ Add bullet point</button>
+                </div>
+            ) : slide.template === 'two-column' ? (
+              <div className="grid grid-cols-2 gap-12">
+                  <textarea
+                    value={slide.content}
+                    onChange={(e) => onSlideEdit(slide.id, 'content', e.target.value)}
+                    className={cn(
+                    "bg-transparent border-none outline-none w-full h-40 resize-none placeholder-white/70 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
+                      getContentSizeClass(slide.contentSize)
+                    )}
+                    style={{ color: slide.textColor }}
+                    placeholder="Enter content for left column..."
+                  />
                 <textarea
                   value={slide.subtitle || ''}
                   onChange={(e) => onSlideEdit(slide.id, 'subtitle', e.target.value)}
@@ -183,20 +183,20 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
                 />
               </div>
             ) : (
-              <textarea
-                value={slide.content}
-                onChange={(e) => onSlideEdit(slide.id, 'content', e.target.value)}
-                className={cn(
+                <textarea
+                  value={slide.content}
+                  onChange={(e) => onSlideEdit(slide.id, 'content', e.target.value)}
+                  className={cn(
                   "bg-transparent border-none outline-none w-full flex-1 resize-none placeholder-white/70 leading-relaxed transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                  getContentSizeClass(slide.contentSize)
-                )}
-                style={{ color: slide.textColor }}
+                    getContentSizeClass(slide.contentSize)
+                  )}
+                  style={{ color: slide.textColor }}
                 placeholder="Click to edit and add your content here"
-              />
+                />
             )}
-          </>
-        ) : (
-          <>
+              </>
+            ) : (
+              <>
             <h1 className={cn("font-bold mb-4", getTitleSizeClass(slide.titleSize))} style={{ color: slide.textColor }}>{slide.title}</h1>
             {slide.subtitle && (
               <p className={cn("opacity-90 mb-6", getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>{slide.subtitle}</p>
@@ -218,15 +218,15 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
               </div>
             ) : (
               <div className={cn("leading-relaxed", getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>
-                {slide.content.split('\n').map((line, index) => (
-                  <p key={index} className="mb-4">{line}</p>
-                ))}
-              </div>
+                  {slide.content.split('\n').map((line, index) => (
+                    <p key={index} className="mb-4">{line}</p>
+                  ))}
+                </div>
             )}
-          </>
-        )}
-      </div>
-    );
+              </>
+            )}
+          </div>
+        );
   };
 
   // Tag editing state

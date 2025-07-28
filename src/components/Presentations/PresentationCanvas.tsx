@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import PptxGenJS from 'pptxgenjs';
 
 interface Slide {
   id: string;
@@ -640,6 +641,55 @@ const PresentationCanvas: React.FC = () => {
     toast.info('Ungroup feature coming soon!');
   };
 
+  // Add this function inside PresentationCanvas:
+  const handleExportPPTX = () => {
+    const pptx = new PptxGenJS();
+    slides.forEach((slide) => {
+      const s = pptx.addSlide();
+      // Set background
+      if (slide.backgroundImage && (slide.backgroundImage.startsWith('http') || slide.backgroundImage.startsWith('data:image'))) {
+        s.background = { data: slide.backgroundImage };
+      } else if (slide.backgroundColor) {
+        s.background = { fill: slide.backgroundColor };
+      }
+      // Add title
+      s.addText(slide.title || '', {
+        x: 0.5, y: 0.5, w: 9, h: 1,
+        fontSize: slide.titleSize === 'xl' ? 36 : slide.titleSize === 'large' ? 28 : slide.titleSize === 'medium' ? 22 : 18,
+        bold: true,
+        color: slide.textColor || '000000',
+        align: slide.alignment || 'center',
+      });
+      // Add subtitle
+      if (slide.subtitle) {
+        s.addText(slide.subtitle, {
+          x: 0.5, y: 1.2, w: 9, h: 0.7,
+          fontSize: 18,
+          color: slide.textColor || '444444',
+          italic: true,
+          align: slide.alignment || 'center',
+        });
+      }
+      // Add main content
+      if (slide.template === 'bullets' && slide.bulletPoints) {
+        s.addText(slide.bulletPoints.map(b => `• ${b}`).join('\n'), {
+          x: 0.7, y: 2, w: 8.5, h: 4,
+          fontSize: 18,
+          color: slide.textColor || '222222',
+          align: slide.alignment || 'left',
+        });
+      } else if (slide.content) {
+        s.addText(slide.content, {
+          x: 0.7, y: 2, w: 8.5, h: 4,
+          fontSize: 18,
+          color: slide.textColor || '222222',
+          align: slide.alignment || 'left',
+        });
+      }
+    });
+    pptx.writeFile('presentation.pptx');
+  };
+
   return (
     <div className="h-screen w-full bg-gradient-to-br from-white via-gray-100 to-gray-200 dark:from-black dark:via-gray-900 dark:to-gray-950 flex flex-col relative overflow-hidden">
       {/* Enhanced Background */}
@@ -927,7 +977,7 @@ const PresentationCanvas: React.FC = () => {
                         <button title="Italic" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('italic')}><i>I</i></button>
                         <button title="Underline" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('underline')}><u>U</u></button>
                         <button title="Strikethrough" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('strikeThrough')}><s>S</s></button>
-                        <button title="Quote" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('formatBlock', 'BLOCKQUOTE')}>"”</button>
+                        <button title="Quote" className="p-1 rounded hover:bg-orange-100" onClick={() => handleFormatTitle('formatBlock', 'BLOCKQUOTE')}>"</button>
                         <button title="Duplicate" className="p-1 rounded hover:bg-orange-100" onClick={handleCopy}><CopyIcon /></button>
                         <button title="Group" className="p-1 rounded hover:bg-orange-100" onClick={handleGroup}><LayersIcon /></button>
                         <button title="Ungroup" className="p-1 rounded hover:bg-orange-100" onClick={handleUngroup}><LayersIcon /></button>
@@ -959,6 +1009,9 @@ const PresentationCanvas: React.FC = () => {
                         <button title="Redo" className="p-1 rounded hover:bg-orange-100" onClick={handleRedo}><RedoIcon /></button>
                         <button title="Export as Image" className="p-1 rounded hover:bg-orange-100" onClick={handleExportImage}><ImageIconIcon /></button>
                         <button title="Export as PDF" className="p-1 rounded hover:bg-orange-100" onClick={handleExportPDF}><FileText /></button>
+                        <button title="Export as PowerPoint" className="p-1 rounded hover:bg-orange-100" onClick={handleExportPPTX}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="orange" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="18" rx="2"/><path d="M16 3v4a1 1 0 0 0 1 1h4"/><circle cx="8.5" cy="12.5" r="1.5"/><path d="M6 16V8h4a2 2 0 0 1 0 4H6"/></svg>
+                        </button>
                         <div className="relative group">
                           <button title="More" className="p-1 rounded hover:bg-orange-100">•••</button>
                           <div className="absolute right-0 top-full mt-1 bg-white dark:bg-gray-900 border border-orange-200 dark:border-orange-700 rounded shadow-lg p-2 hidden group-hover:block z-50 min-w-[180px]">
