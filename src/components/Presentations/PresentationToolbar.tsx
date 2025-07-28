@@ -12,7 +12,8 @@ import {
   FileText,
   Moon,
   Sun,
-  RotateCcw
+  RotateCcw,
+  Type
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/logo';
@@ -24,6 +25,7 @@ interface PresentationToolbarProps {
   onImport: () => void;
   onPreviewToggle: () => void;
   onTemplateSelect: () => void;
+  onCustomize: () => void;
   slideCount: number;
   currentTemplate: string;
   isPreviewMode: boolean;
@@ -37,6 +39,7 @@ const PresentationToolbar: React.FC<PresentationToolbarProps> = ({
   onImport,
   onPreviewToggle,
   onTemplateSelect,
+  onCustomize,
   slideCount,
   currentTemplate,
   isPreviewMode,
@@ -78,6 +81,17 @@ const PresentationToolbar: React.FC<PresentationToolbarProps> = ({
             >
               <Palette className="w-3 h-3 mr-1" />
               Templates
+            </Button>
+            
+            <Button
+              onClick={onCustomize}
+              variant="outline"
+              size="sm"
+              className="h-6 px-2.5 text-xs border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400"
+              title="Customize Slide"
+            >
+              <Type className="w-3 h-3 mr-1" />
+              Customize
             </Button>
           </div>
         </div>

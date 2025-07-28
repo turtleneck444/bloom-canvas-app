@@ -1,11 +1,9 @@
 import React from 'react';
 import MindMapCanvas from '@/components/MindMap/MindMapCanvas';
-import Navigation from '@/components/Navigation';
 
 const Index = () => {
   return (
-    <div className="w-full h-screen overflow-hidden relative">
-      <Navigation />
+    <div className="w-full h-screen overflow-hidden">
       <MindMapCanvas />
     </div>
   );
