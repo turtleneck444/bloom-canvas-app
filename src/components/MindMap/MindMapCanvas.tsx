@@ -3306,11 +3306,10 @@ const MindMapCanvas: React.FC<MindMapCanvasProps> = (props) => {
   );
 };
 
-// Handler to generate a tree from a specific node
+// Handler to generate a tree from a specific node - placeholder
 const handleGenerateBranchesFromNode = (nodeId: string) => {
-  const node = nodes.find(n => n.id === nodeId);
-  if (!node) return;
-  handleAutoGenerateBranches(nodeId);
+  // This function will be properly implemented inside the component
+  console.log('Generate branches for node:', nodeId);
 };
 
 // Place nudgeOverlappingNodes above applyLayout for correct scoping

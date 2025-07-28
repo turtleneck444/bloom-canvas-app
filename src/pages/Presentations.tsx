@@ -1,14 +1,14 @@
 import React from 'react';
-import MindMapCanvas from '@/components/MindMap/MindMapCanvas';
+import PresentationCanvas from '@/components/Presentations/PresentationCanvas';
 import Navigation from '@/components/Navigation';
 
-const Index = () => {
+const Presentations = () => {
   return (
     <div className="w-full h-screen overflow-hidden relative">
       <Navigation />
-      <MindMapCanvas />
+      <PresentationCanvas />
     </div>
   );
 };
 
-export default Index;
+export default Presentations;
