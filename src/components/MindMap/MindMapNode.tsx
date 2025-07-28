@@ -2,6 +2,7 @@ import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
 import { Handle, Position, NodeProps } from '@xyflow/react';
 import { Brain, Plus, Trash2, Palette, Type, Edit3, Copy, Users, Hash, Sparkles, MessageSquare, Target, Zap, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 export type NodeData = {
   label: string;
@@ -28,6 +29,8 @@ export type NodeData = {
   aiGenerated?: boolean;
   fallbackGenerated?: boolean;
   parentConcept?: string;
+  animateIn?: boolean;
+  animateMove?: boolean;
 };
 
 // Add isAuraTheme and onSubmit props
@@ -161,8 +164,27 @@ const MindMapNode = memo(({ data, selected, id, isAuraTheme, onSubmit }: MindMap
     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease-in-out',
   };
 
+  // Animation config
+  const animate = {
+    opacity: nodeData.opacity !== undefined ? nodeData.opacity : 1,
+    scale: nodeData.scale !== undefined ? nodeData.scale : 1,
+  };
+  const initial = {
+    opacity: nodeData.animateIn ? 0 : animate.opacity,
+    scale: nodeData.animateIn ? 0.3 : animate.scale,
+  };
+  const transition = {
+    type: 'spring' as const,
+    stiffness: 420,
+    damping: 38,
+    mass: 1.1,
+  };
   return (
-    <div 
+    <motion.div
+      layout
+      initial={initial}
+      animate={animate}
+      transition={transition}
       className={cn(
         "mind-map-node relative min-w-[120px] max-w-[300px] p-4 group",
         selected && "selected",
@@ -529,7 +551,7 @@ const MindMapNode = memo(({ data, selected, id, isAuraTheme, onSubmit }: MindMap
       >
         SUBMIT
       </button>
-    </div>
+    </motion.div>
   );
 });
 

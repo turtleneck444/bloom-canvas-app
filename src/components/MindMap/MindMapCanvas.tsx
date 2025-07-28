@@ -26,6 +26,8 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { aiService, GeneratedNode, FundamentalNode } from '@/services/aiService';
 import AuraCard from '../ui/AuraCard';
+// 1. Import motion for animation
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Support Aura theme by swapping node type
 const DefaultNodeTypes = {
@@ -316,11 +318,11 @@ const checkCollision = (pos1: { x: number; y: number }, pos2: { x: number; y: nu
 const findSafePosition = (
   desiredPosition: { x: number; y: number },
   existingNodes: Array<Node<NodeData>>,
-  maxAttempts: number = 36
+  maxAttempts: number = 72 // more attempts for dense clusters
 ): { x: number; y: number } => {
   let currentPosition = { ...desiredPosition };
   let attempts = 0;
-  
+  const MIN_DISTANCE = 280; // increased minimum distance for clarity
   // Define reasonable viewport bounds
   const bounds = {
     minX: VIEWPORT_PADDING,
@@ -328,41 +330,31 @@ const findSafePosition = (
     minY: VIEWPORT_PADDING,
     maxY: 1200 - VIEWPORT_PADDING
   };
-  
   while (attempts < maxAttempts) {
     let hasCollision = false;
-    
-    // Check collision with all existing nodes
     for (const node of existingNodes) {
       if (checkCollision(currentPosition, node.position)) {
         hasCollision = true;
         break;
       }
     }
-    
-    // Check if position is within reasonable bounds
     const withinBounds = currentPosition.x >= bounds.minX && 
                         currentPosition.x <= bounds.maxX && 
                         currentPosition.y >= bounds.minY && 
                         currentPosition.y <= bounds.maxY;
-    
     if (!hasCollision && withinBounds) {
       return currentPosition;
     }
-    
-    // Try to find a new position in a spiral pattern with smaller increments
-    const angle = (attempts * 0.6) * Math.PI;
-    const radius = MIN_DISTANCE * 0.8 + (attempts * 15);
-    
+    // More aggressive spiral search
+    const angle = (attempts * 0.7) * Math.PI;
+    const radius = MIN_DISTANCE + (attempts * 18);
     currentPosition = {
       x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + Math.cos(angle) * radius)),
       y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + Math.sin(angle) * radius)),
     };
-    
     attempts++;
   }
-  
-  // If we can't find a safe position, return a position with slight offset that's guaranteed to be in bounds
+  // Fallback: offset in bounds
   return {
     x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + (Math.random() - 0.5) * MIN_DISTANCE)),
     y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + (Math.random() - 0.5) * MIN_DISTANCE)),
@@ -708,167 +700,188 @@ const applyLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], layout: string
     ...node,
     position: { ...node.position }
   }));
-  
-  // Find root node (node with no incoming edges)
-  const rootNode = updatedNodes.find(n => !edges.some(e => e.target === n.id)) || updatedNodes[0];
-  
-  if (!rootNode) return updatedNodes;
 
-  console.log(`Applying ${layout} layout to ${updatedNodes.length} nodes`);
+  // Helper: Find all connected components (subgraphs)
+  const findConnectedComponents = (nodes: Node<NodeData>[], edges: Edge[]) => {
+    const visited = new Set<string>();
+    const components: Node<NodeData>[][] = [];
+    const nodeMap = new Map(nodes.map(n => [n.id, n]));
+    const edgeMap = new Map<string, string[]>();
+    edges.forEach(e => {
+      if (!edgeMap.has(e.source)) edgeMap.set(e.source, []);
+      if (!edgeMap.has(e.target)) edgeMap.set(e.target, []);
+      edgeMap.get(e.source)!.push(e.target);
+      edgeMap.get(e.target)!.push(e.source);
+    });
+    for (const node of nodes) {
+      if (!visited.has(node.id)) {
+        const queue = [node.id];
+        const component: Node<NodeData>[] = [];
+        visited.add(node.id);
+        while (queue.length > 0) {
+          const curr = queue.shift()!;
+          component.push(nodeMap.get(curr)!);
+          (edgeMap.get(curr) || []).forEach(neigh => {
+            if (!visited.has(neigh)) {
+              visited.add(neigh);
+              queue.push(neigh);
+            }
+          });
+        }
+        components.push(component);
+      }
+    }
+    return components;
+  };
 
-  switch (layout) {
-    case 'radial':
-      return applyRadialLayout(updatedNodes, edges, rootNode);
-    case 'tree-horizontal':
-      return applyHorizontalTreeLayout(updatedNodes, edges, rootNode);
-    case 'tree-vertical':
-      return applyVerticalTreeLayout(updatedNodes, edges, rootNode);
-    case 'hierarchical':
-      return applyHierarchicalLayout(updatedNodes, edges, rootNode);
-    case 'organic':
-      return applyOrganicLayout(updatedNodes, edges, rootNode);
-    case 'spiral':
-      return applySpiralLayout(updatedNodes, edges, rootNode);
-    case 'force-directed':
-      return applyForceDirectedLayout(updatedNodes, edges, rootNode);
-    case 'hexagonal':
-      return applyHexagonalLayout(updatedNodes, edges, rootNode);
-    case 'fractal':
-      return applyFractalLayout(updatedNodes, edges, rootNode);
-    case 'galaxy':
-      return applyGalaxyLayout(updatedNodes, edges, rootNode);
-    case 'neural':
-      return applyNeuralLayout(updatedNodes, edges, rootNode);
-    case 'molecular':
-      return applyMolecularLayout(updatedNodes, edges, rootNode);
-    case 'freeform':
-      return updatedNodes; // Keep current positions
-    default:
-      return updatedNodes;
+  // Find all connected components
+  const components = findConnectedComponents(updatedNodes, edges);
+
+  // 1. Find the largest component (main map)
+  let mainComponent = components[0] || [];
+  for (const comp of components) {
+    if (comp.length > mainComponent.length) mainComponent = comp;
   }
+  // 2. Lay out the main map from its root node
+  const mainEdges = edges.filter(e => mainComponent.some(n => n.id === e.source || n.id === e.target));
+  const rootNode = mainComponent.find(n => !mainEdges.some(e => e.target === n.id)) || mainComponent[0];
+  if (rootNode) {
+    switch (layout) {
+      case 'radial':
+        applyRadialLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'tree-horizontal':
+        applyHorizontalTreeLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'tree-vertical':
+        applyVerticalTreeLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'hierarchical':
+        applyHierarchicalLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'organic':
+        applyOrganicLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'spiral':
+        applySpiralLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'force-directed':
+        applyForceDirectedLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'hexagonal':
+        applyHexagonalLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'fractal':
+        applyFractalLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'galaxy':
+        applyGalaxyLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'neural':
+        applyNeuralLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'molecular':
+        applyMolecularLayout(mainComponent, mainEdges, rootNode, 900, 600);
+        break;
+      case 'freeform':
+      default:
+        // Do nothing, keep current positions
+        break;
+    }
+  }
+  // 3. Place any truly disconnected nodes (not in mainComponent) in a small cluster near the main map
+  const orphanComponents = components.filter(comp => comp !== mainComponent);
+  let orphanAngle = 0;
+  const orphanRadius = 600;
+  orphanComponents.forEach((comp, i) => {
+    comp.forEach((node, j) => {
+      node.position = {
+        x: 900 + Math.cos(orphanAngle + j) * orphanRadius,
+        y: 1200 + Math.sin(orphanAngle + j) * orphanRadius,
+      };
+    });
+    orphanAngle += Math.PI / 4;
+  });
+  // Final anti-overlap pass
+  nudgeOverlappingNodes(updatedNodes);
+  return updatedNodes;
 };
 
-const applyRadialLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  // Improved center positioning that's more conservative
-  const centerX = 800;
-  const centerY = 500;
-  const baseRadius = 220; // Reduced for better organization
-  const childRadius = 180; // Increased for better child spacing
-  
-  console.log('Applying radial layout, root node:', rootNode.id);
-  
-  // Position root node at center
+const applyRadialLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
+  const baseRadius = 260;
+  const childRadius = 200;
   rootNode.position = { x: centerX, y: centerY };
-  
-  // Get all children of root and group by category
   const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
   const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  
-  // Group children by category for better organization
   const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
   childNodes.forEach(node => {
     const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
+    if (!categoryGroups[category]) categoryGroups[category] = [];
     categoryGroups[category].push(node);
   });
-  
-  console.log(`Found ${childNodes.length} child nodes in ${Object.keys(categoryGroups).length} categories`);
-  
-  // Track positioned nodes for collision detection
   const positionedNodes: Node<NodeData>[] = [rootNode];
-  
-  // Position children by category in organized sectors with improved spacing
   let currentAngle = 0;
   const totalCategories = Object.keys(categoryGroups).length;
-  
   Object.entries(categoryGroups).forEach(([category, categoryNodes], categoryIndex) => {
     const sectorAngle = (2 * Math.PI) / totalCategories;
     const categoryCenter = currentAngle + sectorAngle / 2;
-    
     categoryNodes.forEach((node, nodeIndex) => {
-      // Calculate position with better distribution
       const totalNodesInCategory = categoryNodes.length;
       let nodeAngle;
-      
       if (totalNodesInCategory === 1) {
         nodeAngle = categoryCenter;
       } else {
-        const angleSpread = Math.min(sectorAngle * 0.7, Math.PI / 2); // Limit spread
+        const angleSpread = Math.min(sectorAngle * 0.7, Math.PI / 2);
         const startAngle = categoryCenter - angleSpread / 2;
         nodeAngle = startAngle + (nodeIndex / (totalNodesInCategory - 1)) * angleSpread;
       }
-      
-      const radius = baseRadius + (nodeIndex % 2) * 40; // Slight radius variation
-      
+      const radius = baseRadius + (nodeIndex % 2) * 40;
       const desiredPosition = {
         x: centerX + Math.cos(nodeAngle) * radius,
         y: centerY + Math.sin(nodeAngle) * radius,
       };
-      
-      // Use improved collision detection
-      node.position = findSafePosition(desiredPosition, positionedNodes);
+      node.position = findSafePosition(desiredPosition, positionedNodes, 48);
       positionedNodes.push(node);
-      
-      // Assign category color if not already set
       if (!(node.data as NodeData).color) {
         (node.data as NodeData).color = getColorForCategory(category);
       }
-      
-      console.log(`Positioned ${category} child ${node.id} at (${node.position.x}, ${node.position.y})`);
     });
-    
     currentAngle += sectorAngle;
   });
-  
-  // Position grandchildren with improved algorithm
+  // Recursively position grandchildren
   childNodes.forEach((childNode) => {
     const grandChildren = edges.filter(e => e.source === childNode.id).map(e => e.target);
     const grandChildNodes = nodes.filter(n => grandChildren.includes(n.id));
-    
     if (grandChildNodes.length > 0) {
       const childX = childNode.position.x;
       const childY = childNode.position.y;
       const childCategory = (childNode.data as NodeData).category || 'default';
-      
       grandChildNodes.forEach((grandChild, grandChildIndex) => {
-        // Calculate angle away from center to avoid overlap
         const angleToCenter = Math.atan2(childY - centerY, childX - centerX);
-        const baseAngle = angleToCenter + Math.PI; // Opposite direction from center
-        
-        // Distribute grandchildren around the base angle
+        const baseAngle = angleToCenter + Math.PI;
         const angleOffset = (grandChildIndex - (grandChildNodes.length - 1) / 2) * (Math.PI / 4);
         const finalAngle = baseAngle + angleOffset;
-        
         const radius = childRadius;
-        
         const desiredPosition = {
           x: childX + Math.cos(finalAngle) * radius,
           y: childY + Math.sin(finalAngle) * radius,
         };
-        
-        // Use improved collision detection
-        grandChild.position = findSafePosition(desiredPosition, positionedNodes);
+        grandChild.position = findSafePosition(desiredPosition, positionedNodes, 48);
         positionedNodes.push(grandChild);
-        
-        // Assign category color if not already set
         if (!(grandChild.data as NodeData).color) {
           (grandChild.data as NodeData).color = getColorForCategory(childCategory);
         }
       });
     }
   });
-  
-  console.log('Radial layout completed with improved collision avoidance');
   return nodes;
 };
 
-const applyVerticalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
+const applyVerticalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const visited = new Set<string>();
   const levelHeight = 180; // Optimized spacing
-  const startX = 800; // Centered
-  const startY = 150; // Top margin
+  const startX = centerX - (levelHeight / 2); // Centered
+  const startY = centerY - (levelHeight / 2); // Top margin
   
   console.log('Applying vertical tree layout, root node:', rootNode.id);
   
@@ -916,11 +929,11 @@ const applyVerticalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], ro
   return nodes;
 };
 
-const applyHorizontalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
+const applyHorizontalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const visited = new Set<string>();
   const levelWidth = 280; // Optimized spacing
-  const startX = 150; // Left margin
-  const startY = 500; // Centered
+  const startX = centerX - (levelWidth / 2); // Left margin
+  const startY = centerY - (levelWidth / 2); // Centered
   
   console.log('Applying horizontal tree layout, root node:', rootNode.id);
   
@@ -938,7 +951,7 @@ const applyHorizontalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], 
     const nodeY = startY - (totalHeight / 2) + (siblingIndex * spacing);
     
     node.position = {
-      x: startX + (level * levelWidth),
+      x: centerX + (level * levelWidth),
       y: nodeY,
     };
     
@@ -968,11 +981,11 @@ const applyHorizontalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], 
   return nodes;
 };
 
-const applyHierarchicalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
+const applyHierarchicalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const visited = new Set<string>();
   const levelHeight = 140; // Optimized spacing
-  const startX = 800; // Centered
-  const startY = 150; // Top margin
+  const startX = centerX - (levelHeight / 2); // Centered
+  const startY = centerY - (levelHeight / 2); // Top margin
   
   console.log('Applying hierarchical layout, root node:', rootNode.id);
   
@@ -1010,9 +1023,7 @@ const applyHierarchicalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], ro
   return nodes;
 };
 
-const applyOrganicLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  const centerX = 700;
-  const centerY = 500;
+const applyOrganicLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const baseRadius = 200;
   
   console.log('Applying organic layout, root node:', rootNode.id);
@@ -1086,9 +1097,7 @@ const applyOrganicLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNod
   return nodes;
 };
 
-const applySpiralLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  const centerX = 700;
-  const centerY = 500;
+const applySpiralLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const spiralRadius = 60;
   const spiralSpacing = 40; // Optimized spacing
   
@@ -1138,12 +1147,7 @@ const applySpiralLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode
   return nodes;
 };
 
-const applyForceDirectedLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  const centerX = 700;
-  const centerY = 500;
-  
-  console.log('Applying force-directed layout, root node:', rootNode.id);
-  
+const applyForceDirectedLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   // Position root at center
   rootNode.position = { x: centerX, y: centerY };
   
@@ -1228,9 +1232,7 @@ const applyForceDirectedLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], r
 
 // Advanced Layout Algorithms
 
-const applyHexagonalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  const centerX = 800;
-  const centerY = 500;
+const applyHexagonalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const hexSize = 150; // Increased for better spacing
   
   console.log('Applying hexagonal layout, root node:', rootNode.id);
@@ -1289,9 +1291,7 @@ const applyHexagonalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootN
   return nodes;
 };
 
-const applyFractalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  const centerX = 800;
-  const centerY = 500;
+const applyFractalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const baseRadius = 150;
   
   console.log('Applying fractal layout, root node:', rootNode.id);
@@ -1340,9 +1340,7 @@ const applyFractalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNod
   return nodes;
 };
 
-const applyGalaxyLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  const centerX = 800;
-  const centerY = 500;
+const applyGalaxyLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const baseRadius = 100;
   
   console.log('Applying galaxy layout, root node:', rootNode.id);
@@ -1389,9 +1387,7 @@ const applyGalaxyLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode
   return nodes;
 };
 
-const applyNeuralLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  const centerX = 800;
-  const centerY = 500;
+const applyNeuralLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const baseRadius = 180;
   
   console.log('Applying neural layout, root node:', rootNode.id);
@@ -1440,9 +1436,7 @@ const applyNeuralLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode
   return nodes;
 };
 
-const applyMolecularLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>) => {
-  const centerX = 800;
-  const centerY = 500;
+const applyMolecularLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
   const baseRadius = 140;
   
   console.log('Applying molecular layout, root node:', rootNode.id);
@@ -2667,37 +2661,49 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     input.click();
   }, [setNodes, setEdges]);
 
-  const handleLayoutChange = useCallback((layout: 'radial' | 'tree-horizontal' | 'tree-vertical' | 'hierarchical' | 'organic' | 'spiral' | 'force-directed' | 'freeform') => {
-    console.log('Layout change requested:', layout, 'Current nodes:', nodes.length, 'Current edges:', edges.length);
-    
+  // 2. Utility for animating node position
+  const animateNodePosition = (node, targetPosition, duration = 0.7) => {
+    // This is a placeholder for future direct animation logic if needed
+    // For now, we rely on Framer Motion in the node rendering
+    return { ...node, position: targetPosition };
+  };
+
+  // 3. In MindMapCanvasInner, update layout switching to animate node movement
+  const handleLayoutChange = useCallback((layout) => {
     setCurrentLayout(layout);
     setIsLayoutLoading(true);
-    
-    // Show loading state
     toast.loading(`Applying ${layout} layout...`);
-    
-    // Always apply layout immediately, even with existing data
     if (layout !== 'freeform') {
       try {
         const updatedNodes = applyLayout(nodes, edges, layout);
-        console.log('Updated nodes:', updatedNodes.length, 'Layout applied:', layout);
-        
-        // Force React to recognize the change by creating a new array
-        setNodes([...updatedNodes]);
+        // Animate node movement by updating positions with a transition
+        setNodes(currentNodes =>
+          currentNodes.map(node => {
+            const updated = updatedNodes.find(n => n.id === node.id);
+            if (updated) {
+              return {
+                ...node,
+                position: updated.position,
+                data: {
+                  ...node.data,
+                  // Trigger animation by setting a flag
+                  animateMove: true
+                }
+              };
+            }
+            return node;
+          })
+        );
         addToHistory(updatedNodes, edges);
-        
-        // Fit view after layout change for better visibility
         setTimeout(() => {
           if (reactFlowInstance) {
             reactFlowInstance.fitView({ padding: 0.2, duration: 1000 });
-            console.log('Fit view applied');
           }
           setIsLayoutLoading(false);
           toast.dismiss();
           toast.success(`Layout changed to ${layout} - ${updatedNodes.length} nodes organized`);
         }, 500);
       } catch (error) {
-        console.error('Layout application error:', error);
         setIsLayoutLoading(false);
         toast.dismiss();
         toast.error(`Failed to apply ${layout} layout`);
@@ -3039,117 +3045,91 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [zoomIn, zoomOut, fitView, setNodes, setEdges, handleAddNode, handleUndo, handleRedo, nodes, edges, addToHistory]);
 
-  // Automatic branch generation event listener
-  useEffect(() => {
-    const handleAutomaticBranches = (event: CustomEvent) => {
-      const { parentNodeId, branches } = event.detail;
-      
-      if (!branches || branches.length === 0) return;
-      
-      console.log(`🌿 Adding ${branches.length} automatic branches for node ${parentNodeId}`);
-      
-      // Find parent node position for relative positioning
-      const parentNode = nodes.find(n => n.id === parentNodeId);
-      if (!parentNode) return;
-      
-      const newNodes = [...nodes];
-      const newEdges = [...edges];
-      
-      branches.forEach((branch: any, index: number) => {
-        // Position branches around the parent node in a circular pattern
-        const angle = (2 * Math.PI * index) / branches.length;
-        const radius = 250;
-        const branchX = parentNode.position.x + Math.cos(angle) * radius;
-        const branchY = parentNode.position.y + Math.sin(angle) * radius;
-        
-        const branchNode: Node<NodeData> = {
-          id: branch.id,
-          type: 'mindMapNode',
-          position: { x: branchX, y: branchY },
-          data: {
-            label: branch.label,
-            color: branch.color,
-            fontSize: 12,
-            category: branch.category,
-            messages: branch.description ? [branch.description] : [],
-            opacity: 0, // Start invisible for animation
-            scale: 0.3,
-            parentId: parentNodeId,
-            importance: branch.importance,
-            ...branch.metadata
+  // 4. In handleAutomaticBranches, always position new nodes around the parent node's current position
+  const handleAutomaticBranches = (event: CustomEvent) => {
+    const { parentNodeId, branches } = event.detail;
+    if (!branches || branches.length === 0) return;
+    const parentNode = nodes.find(n => n.id === parentNodeId);
+    if (!parentNode) return;
+    const newNodes = [...nodes];
+    const newEdges = [...edges];
+    const baseRadius = 250;
+    branches.forEach((branch, index) => {
+      const angle = (2 * Math.PI * index) / branches.length;
+      const branchX = parentNode.position.x + Math.cos(angle) * baseRadius;
+      const branchY = parentNode.position.y + Math.sin(angle) * baseRadius;
+      const branchNode = {
+        id: branch.id,
+        type: 'mindMapNode',
+        position: { x: branchX, y: branchY },
+        data: {
+          label: branch.label,
+          color: branch.color,
+          fontSize: 12,
+          category: branch.category,
+          messages: branch.description ? [branch.description] : [],
+          opacity: 0,
+          scale: 0.3,
+          parentId: parentNodeId,
+          importance: branch.importance,
+          ...branch.metadata,
+          animateIn: true // Animation flag
+        }
+      };
+      newNodes.push(branchNode);
+      const branchEdge = {
+        id: `edge-${parentNodeId}-${branch.id}`,
+        source: parentNodeId,
+        target: branch.id,
+        type: 'smoothstep',
+        animated: false,
+        style: {
+          stroke: branch.color,
+          strokeWidth: 2,
+          opacity: 0
+        }
+      };
+      newEdges.push(branchEdge);
+    });
+    setNodes(newNodes);
+    setEdges(newEdges);
+    addToHistory(newNodes, newEdges);
+    setTimeout(() => {
+      setNodes(current =>
+        current.map(node => {
+          if (branches.some(b => b.id === node.id)) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                opacity: 1,
+                scale: 1,
+                animateIn: false
+              }
+            };
           }
-        };
-        
-        newNodes.push(branchNode);
-        
-        // Create edge from parent to branch
-        const branchEdge: Edge = {
-          id: `edge-${parentNodeId}-${branch.id}`,
-          source: parentNodeId,
-          target: branch.id,
-          type: 'smoothstep',
-          animated: false,
-          style: { 
-            stroke: branch.color,
-            strokeWidth: 2,
-            opacity: 0
+          return node;
+        })
+      );
+      setEdges(current =>
+        current.map(edge => {
+          if (branches.some(b => edge.target === b.id)) {
+            return {
+              ...edge,
+              style: {
+                ...edge.style,
+                opacity: 1
+              }
+            };
           }
-        };
-        
-        newEdges.push(branchEdge);
-      });
-      
-      setNodes(newNodes);
-      setEdges(newEdges);
-      addToHistory(newNodes, newEdges);
-      
-      // Animate branches in
-      setTimeout(() => {
-        setNodes(current => 
-          current.map(node => {
-            if (branches.some((b: any) => b.id === node.id)) {
-              return {
-                ...node,
-                data: {
-                  ...node.data,
-                  opacity: 1,
-                  scale: 1
-                }
-              };
-            }
-            return node;
-          })
-        );
-        
-        setEdges(current =>
-          current.map(edge => {
-            if (branches.some((b: any) => edge.target === b.id)) {
-              return {
-                ...edge,
-                style: {
-                  ...edge.style,
-                  opacity: 1
-                }
-              };
-            }
-            return edge;
-          })
-        );
-      }, 100);
-      
-      toast.success(`🌿 Generated ${branches.length} expansion branches`, {
-        description: 'Automatic knowledge expansion complete'
-      });
-    };
-    
-    // Type assertion for the custom event
-    const typedHandler = handleAutomaticBranches as EventListener;
-    window.addEventListener('addAutomaticBranches', typedHandler);
-    
-    return () => {
-      window.removeEventListener('addAutomaticBranches', typedHandler);
-    };
-  }, [nodes, edges, setNodes, setEdges, addToHistory]);
+          return edge;
+        })
+      );
+    }, 100);
+    toast.success(`🌿 Generated ${branches.length} expansion branches`, {
+      description: 'Automatic knowledge expansion complete'
+    });
+  };
 
   const nodeTypes = currentTheme === 'aura' ? AuraNodeTypes : DefaultNodeTypes;
   return (
@@ -3331,6 +3311,30 @@ const handleGenerateBranchesFromNode = (nodeId: string) => {
   const node = nodes.find(n => n.id === nodeId);
   if (!node) return;
   handleAutoGenerateBranches(nodeId);
+};
+
+// Place nudgeOverlappingNodes above applyLayout for correct scoping
+const nudgeOverlappingNodes = (nodes: Array<Node<NodeData>>) => {
+  const MIN_DISTANCE = 260;
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const a = nodes[i];
+      const b = nodes[j];
+      if (checkCollision(a.position, b.position)) {
+        // Move b away from a
+        const dx = b.position.x - a.position.x;
+        const dy = b.position.y - a.position.y;
+        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+        const moveDist = (MIN_DISTANCE - dist) / 2 + 1;
+        const moveX = (dx / dist) * moveDist;
+        const moveY = (dy / dist) * moveDist;
+        b.position.x += moveX;
+        b.position.y += moveY;
+        a.position.x -= moveX;
+        a.position.y -= moveY;
+      }
+    }
+  }
 };
 
 export default MindMapCanvas;

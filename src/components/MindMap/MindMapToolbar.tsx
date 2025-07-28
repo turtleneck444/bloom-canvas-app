@@ -72,7 +72,7 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   const layoutOptions = [
     { id: 'radial', label: 'Radial', icon: Circle },
     { id: 'tree-horizontal', label: 'Tree', icon: GitBranch },
-    { id: 'hierarchical', label: 'Hierarchy', icon: BarChart3 }
+    { id: 'hierarchical', label: 'Hierarchy', icon: BarChart3 },
   ];
 
   return (
