@@ -21,13 +21,24 @@ import MindMapNode, { NodeData } from './MindMapNode';
 import MindMapToolbar from './MindMapToolbar';
 import AIToolbar from './AIToolbar';
 import { Button } from '../ui/button';
-import { Brain, Sparkles, Plus, Wand2 } from 'lucide-react';
+import { Brain, Sparkles, Plus, Wand2, LayoutGrid, GitBranch, BarChart3, ArrowRight, Fish } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { aiService, GeneratedNode, FundamentalNode } from '@/services/aiService';
 import AuraCard from '../ui/AuraCard';
 // 1. Import motion for animation
 import { motion, AnimatePresence } from 'framer-motion';
+// Import new layout engine
+import { layoutEngine } from '../../utils/graphEngine/layoutEngine';
+import { LayoutType, LayoutConfig, BaseNodeData } from '../../utils/graphEngine/types';
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../ui/tooltip';
+import {
+  createHandleUpdateNode,
+  createHandleDeleteNode,
+  createHandleAddChildNode,
+  createHandleDuplicateNode,
+  createHandleGenerateBranches
+} from './mindmapHandlers';
 
 // Support Aura theme by swapping node type
 const DefaultNodeTypes = {
@@ -693,796 +704,6 @@ const generateSpecificTopics = (topic: string, category: string): string[] => {
   return generatePersonalizedTopics(topic, context);
 };
 
-// Enhanced layout algorithms
-const applyLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], layout: string) => {
-  // Create a deep copy of nodes to avoid mutation issues
-  const updatedNodes = nodes.map(node => ({
-    ...node,
-    position: { ...node.position }
-  }));
-
-  // Helper: Find all connected components (subgraphs)
-  const findConnectedComponents = (nodes: Node<NodeData>[], edges: Edge[]) => {
-    const visited = new Set<string>();
-    const components: Node<NodeData>[][] = [];
-    const nodeMap = new Map(nodes.map(n => [n.id, n]));
-    const edgeMap = new Map<string, string[]>();
-    edges.forEach(e => {
-      if (!edgeMap.has(e.source)) edgeMap.set(e.source, []);
-      if (!edgeMap.has(e.target)) edgeMap.set(e.target, []);
-      edgeMap.get(e.source)!.push(e.target);
-      edgeMap.get(e.target)!.push(e.source);
-    });
-    for (const node of nodes) {
-      if (!visited.has(node.id)) {
-        const queue = [node.id];
-        const component: Node<NodeData>[] = [];
-        visited.add(node.id);
-        while (queue.length > 0) {
-          const curr = queue.shift()!;
-          component.push(nodeMap.get(curr)!);
-          (edgeMap.get(curr) || []).forEach(neigh => {
-            if (!visited.has(neigh)) {
-              visited.add(neigh);
-              queue.push(neigh);
-            }
-          });
-        }
-        components.push(component);
-      }
-    }
-    return components;
-  };
-
-  // Find all connected components
-  const components = findConnectedComponents(updatedNodes, edges);
-
-  // 1. Find the largest component (main map)
-  let mainComponent = components[0] || [];
-  for (const comp of components) {
-    if (comp.length > mainComponent.length) mainComponent = comp;
-  }
-  // 2. Lay out the main map from its root node
-  const mainEdges = edges.filter(e => mainComponent.some(n => n.id === e.source || n.id === e.target));
-  const rootNode = mainComponent.find(n => !mainEdges.some(e => e.target === n.id)) || mainComponent[0];
-  if (rootNode) {
-    switch (layout) {
-      case 'radial':
-        applyRadialLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'tree-horizontal':
-        applyHorizontalTreeLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'tree-vertical':
-        applyVerticalTreeLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'hierarchical':
-        applyHierarchicalLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'organic':
-        applyOrganicLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'spiral':
-        applySpiralLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'force-directed':
-        applyForceDirectedLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'hexagonal':
-        applyHexagonalLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'fractal':
-        applyFractalLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'galaxy':
-        applyGalaxyLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'neural':
-        applyNeuralLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'molecular':
-        applyMolecularLayout(mainComponent, mainEdges, rootNode, 900, 600);
-        break;
-      case 'freeform':
-      default:
-        // Do nothing, keep current positions
-        break;
-    }
-  }
-  // 3. Place any truly disconnected nodes (not in mainComponent) in a small cluster near the main map
-  const orphanComponents = components.filter(comp => comp !== mainComponent);
-  let orphanAngle = 0;
-  const orphanRadius = 600;
-  orphanComponents.forEach((comp, i) => {
-    comp.forEach((node, j) => {
-      node.position = {
-        x: 900 + Math.cos(orphanAngle + j) * orphanRadius,
-        y: 1200 + Math.sin(orphanAngle + j) * orphanRadius,
-      };
-    });
-    orphanAngle += Math.PI / 4;
-  });
-  // Final anti-overlap pass
-  nudgeOverlappingNodes(updatedNodes);
-  return updatedNodes;
-};
-
-const applyRadialLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const baseRadius = 260;
-  const childRadius = 200;
-  rootNode.position = { x: centerX, y: centerY };
-  const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
-  const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  childNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) categoryGroups[category] = [];
-    categoryGroups[category].push(node);
-  });
-  const positionedNodes: Node<NodeData>[] = [rootNode];
-  let currentAngle = 0;
-  const totalCategories = Object.keys(categoryGroups).length;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes], categoryIndex) => {
-    const sectorAngle = (2 * Math.PI) / totalCategories;
-    const categoryCenter = currentAngle + sectorAngle / 2;
-    categoryNodes.forEach((node, nodeIndex) => {
-      const totalNodesInCategory = categoryNodes.length;
-      let nodeAngle;
-      if (totalNodesInCategory === 1) {
-        nodeAngle = categoryCenter;
-      } else {
-        const angleSpread = Math.min(sectorAngle * 0.7, Math.PI / 2);
-        const startAngle = categoryCenter - angleSpread / 2;
-        nodeAngle = startAngle + (nodeIndex / (totalNodesInCategory - 1)) * angleSpread;
-      }
-      const radius = baseRadius + (nodeIndex % 2) * 40;
-      const desiredPosition = {
-        x: centerX + Math.cos(nodeAngle) * radius,
-        y: centerY + Math.sin(nodeAngle) * radius,
-      };
-      node.position = findSafePosition(desiredPosition, positionedNodes, 48);
-      positionedNodes.push(node);
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-    });
-    currentAngle += sectorAngle;
-  });
-  // Recursively position grandchildren
-  childNodes.forEach((childNode) => {
-    const grandChildren = edges.filter(e => e.source === childNode.id).map(e => e.target);
-    const grandChildNodes = nodes.filter(n => grandChildren.includes(n.id));
-    if (grandChildNodes.length > 0) {
-      const childX = childNode.position.x;
-      const childY = childNode.position.y;
-      const childCategory = (childNode.data as NodeData).category || 'default';
-      grandChildNodes.forEach((grandChild, grandChildIndex) => {
-        const angleToCenter = Math.atan2(childY - centerY, childX - centerX);
-        const baseAngle = angleToCenter + Math.PI;
-        const angleOffset = (grandChildIndex - (grandChildNodes.length - 1) / 2) * (Math.PI / 4);
-        const finalAngle = baseAngle + angleOffset;
-        const radius = childRadius;
-        const desiredPosition = {
-          x: childX + Math.cos(finalAngle) * radius,
-          y: childY + Math.sin(finalAngle) * radius,
-        };
-        grandChild.position = findSafePosition(desiredPosition, positionedNodes, 48);
-        positionedNodes.push(grandChild);
-        if (!(grandChild.data as NodeData).color) {
-          (grandChild.data as NodeData).color = getColorForCategory(childCategory);
-        }
-      });
-    }
-  });
-  return nodes;
-};
-
-const applyVerticalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const visited = new Set<string>();
-  const levelHeight = 180; // Optimized spacing
-  const startX = centerX - (levelHeight / 2); // Centered
-  const startY = centerY - (levelHeight / 2); // Top margin
-  
-  console.log('Applying vertical tree layout, root node:', rootNode.id);
-  
-  const positionNode = (nodeId: string, level: number, siblingIndex: number, siblingsCount: number) => {
-    if (visited.has(nodeId)) return;
-    visited.add(nodeId);
-    
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    
-    // Calculate position with better organization
-    const baseWidth = Math.max(1000, siblingsCount * 250); // Optimized spacing
-    const totalWidth = baseWidth + (level * 80); // Gradual width increase
-    const spacing = siblingsCount > 1 ? totalWidth / (siblingsCount - 1) : 0;
-    const nodeX = startX - (totalWidth / 2) + (siblingIndex * spacing);
-    
-    node.position = {
-      x: nodeX,
-      y: startY + (level * levelHeight),
-    };
-    
-    // Ensure minimum spacing between nodes
-    if (siblingIndex > 0) {
-      const prevNode = nodes.find(n => n.id === Array.from(visited).slice(-2)[0]);
-      if (prevNode && Math.abs(node.position.x - prevNode.position.x) < 180) {
-        node.position.x = prevNode.position.x + 180;
-      }
-    }
-    
-    // Assign category color if not already set
-    const nodeData = node.data as NodeData;
-    if (!nodeData.color && nodeData.category) {
-      nodeData.color = getColorForCategory(nodeData.category);
-    }
-    
-    console.log(`Positioned node ${node.id} at level ${level}, position (${node.position.x}, ${node.position.y})`);
-    
-    const children = edges.filter(e => e.source === nodeId).map(e => e.target);
-    children.forEach((childId, index) => {
-      positionNode(childId, level + 1, index, children.length);
-    });
-  };
-  
-  positionNode(rootNode.id, 0, 0, 1);
-  return nodes;
-};
-
-const applyHorizontalTreeLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const visited = new Set<string>();
-  const levelWidth = 280; // Optimized spacing
-  const startX = centerX - (levelWidth / 2); // Left margin
-  const startY = centerY - (levelWidth / 2); // Centered
-  
-  console.log('Applying horizontal tree layout, root node:', rootNode.id);
-  
-  const positionNode = (nodeId: string, level: number, siblingIndex: number, siblingsCount: number) => {
-    if (visited.has(nodeId)) return;
-    visited.add(nodeId);
-    
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    
-    // Calculate position with better organization
-    const baseHeight = Math.max(800, siblingsCount * 200); // Optimized spacing
-    const totalHeight = baseHeight + (level * 80); // Gradual height increase
-    const spacing = siblingsCount > 1 ? totalHeight / (siblingsCount - 1) : 0;
-    const nodeY = startY - (totalHeight / 2) + (siblingIndex * spacing);
-    
-    node.position = {
-      x: centerX + (level * levelWidth),
-      y: nodeY,
-    };
-    
-    // Ensure minimum spacing between nodes
-    if (siblingIndex > 0) {
-      const prevNode = nodes.find(n => n.id === Array.from(visited).slice(-2)[0]);
-      if (prevNode && Math.abs(node.position.y - prevNode.position.y) < 160) {
-        node.position.y = prevNode.position.y + 160;
-      }
-    }
-    
-    // Assign category color if not already set
-    const nodeData = node.data as NodeData;
-    if (!nodeData.color && nodeData.category) {
-      nodeData.color = getColorForCategory(nodeData.category);
-    }
-    
-    console.log(`Positioned node ${node.id} at level ${level}, position (${node.position.x}, ${node.position.y})`);
-    
-    const children = edges.filter(e => e.source === nodeId).map(e => e.target);
-    children.forEach((childId, index) => {
-      positionNode(childId, level + 1, index, children.length);
-    });
-  };
-  
-  positionNode(rootNode.id, 0, 0, 1);
-  return nodes;
-};
-
-const applyHierarchicalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const visited = new Set<string>();
-  const levelHeight = 140; // Optimized spacing
-  const startX = centerX - (levelHeight / 2); // Centered
-  const startY = centerY - (levelHeight / 2); // Top margin
-  
-  console.log('Applying hierarchical layout, root node:', rootNode.id);
-  
-  const positionNode = (nodeId: string, level: number, siblingIndex: number, siblingsCount: number) => {
-    if (visited.has(nodeId)) return;
-    visited.add(nodeId);
-    
-    const node = nodes.find(n => n.id === nodeId);
-    if (!node) return;
-    
-    const totalWidth = Math.max(800, siblingsCount * 200); // Optimized spacing
-    const spacing = siblingsCount > 1 ? totalWidth / (siblingsCount - 1) : 0;
-    const nodeX = startX - (totalWidth / 2) + (siblingIndex * spacing);
-    
-    node.position = {
-      x: nodeX,
-      y: startY + (level * levelHeight),
-    };
-    
-    // Assign category color if not already set
-    const nodeData = node.data as NodeData;
-    if (!nodeData.color && nodeData.category) {
-      nodeData.color = getColorForCategory(nodeData.category);
-    }
-    
-    console.log(`Positioned node ${node.id} at level ${level}, position (${node.position.x}, ${node.position.y})`);
-    
-    const children = edges.filter(e => e.source === nodeId).map(e => e.target);
-    children.forEach((childId, index) => {
-      positionNode(childId, level + 1, index, children.length);
-    });
-  };
-  
-  positionNode(rootNode.id, 0, 0, 1);
-  return nodes;
-};
-
-const applyOrganicLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const baseRadius = 200;
-  
-  console.log('Applying organic layout, root node:', rootNode.id);
-  
-  // Position root node at center
-  rootNode.position = { x: centerX, y: centerY };
-  
-  // Get all children of root and group by category
-  const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
-  const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  
-  // Group children by category for better organization
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  childNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
-    categoryGroups[category].push(node);
-  });
-  
-  console.log(`Found ${childNodes.length} child nodes in ${Object.keys(categoryGroups).length} categories for organic layout`);
-  
-  // Position children by category in organized clusters
-  let currentAngle = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    const sectorAngle = (2 * Math.PI) / Object.keys(categoryGroups).length;
-    const nodesPerCategory = categoryNodes.length;
-    
-    categoryNodes.forEach((node, index) => {
-      const angle = currentAngle + (index / nodesPerCategory) * sectorAngle * 0.7; // 70% of sector
-      const radius = baseRadius + (Math.random() * 40); // Reduced randomness
-      const offsetX = (Math.random() - 0.5) * 20; // Reduced offset
-      const offsetY = (Math.random() - 0.5) * 20;
-      
-      node.position = {
-        x: centerX + Math.cos(angle) * radius + offsetX,
-        y: centerY + Math.sin(angle) * radius + offsetY,
-      };
-      
-      // Assign category color if not already set
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-      
-      // Ensure minimum distance from other nodes
-      const minDistance = 100;
-      for (let i = 0; i < index; i++) {
-        const otherNode = categoryNodes[i];
-        const distance = Math.sqrt(
-          Math.pow(node.position.x - otherNode.position.x, 2) + 
-          Math.pow(node.position.y - otherNode.position.y, 2)
-        );
-        
-        if (distance < minDistance) {
-          const angle = Math.atan2(
-            node.position.y - otherNode.position.y,
-            node.position.x - otherNode.position.x
-          );
-          node.position.x = otherNode.position.x + Math.cos(angle) * minDistance;
-          node.position.y = otherNode.position.y + Math.sin(angle) * minDistance;
-        }
-      }
-      
-      console.log(`Positioned ${category} child ${node.id} at (${node.position.x}, ${node.position.y})`);
-    });
-    
-    currentAngle += sectorAngle;
-  });
-  
-  return nodes;
-};
-
-const applySpiralLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const spiralRadius = 60;
-  const spiralSpacing = 40; // Optimized spacing
-  
-  console.log('Applying spiral layout, root node:', rootNode.id);
-  
-  // Position root node at center
-  rootNode.position = { x: centerX, y: centerY };
-  
-  // Get all children of root and group by category
-  const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
-  const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  
-  // Group children by category for better organization
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  childNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
-    categoryGroups[category].push(node);
-  });
-  
-  console.log(`Found ${childNodes.length} child nodes in ${Object.keys(categoryGroups).length} categories for spiral layout`);
-  
-  // Position children by category in organized spiral sectors
-  let currentIndex = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    categoryNodes.forEach((node, categoryIndex) => {
-      const angle = currentIndex * 0.5; // Optimized angle increment
-      const radius = spiralRadius + (currentIndex * spiralSpacing);
-      
-      node.position = {
-        x: centerX + Math.cos(angle) * radius,
-        y: centerY + Math.sin(angle) * radius,
-      };
-      
-      // Assign category color if not already set
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-      
-      console.log(`Positioned ${category} child ${node.id} at (${node.position.x}, ${node.position.y})`);
-      currentIndex++;
-    });
-  });
-  
-  return nodes;
-};
-
-const applyForceDirectedLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  // Position root at center
-  rootNode.position = { x: centerX, y: centerY };
-  
-  const otherNodes = nodes.filter(n => n.id !== rootNode.id);
-  
-  // Group nodes by category for better initial positioning
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  otherNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
-    categoryGroups[category].push(node);
-  });
-  
-  // Initialize nodes by category in organized clusters
-  let currentAngle = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    const sectorAngle = (2 * Math.PI) / Object.keys(categoryGroups).length;
-    
-    categoryNodes.forEach((node, index) => {
-      const angle = currentAngle + (index / categoryNodes.length) * sectorAngle * 0.8;
-      const radius = 180 + (index * 20); // Gradual radius increase within category
-      
-      node.position = {
-        x: centerX + Math.cos(angle) * radius,
-        y: centerY + Math.sin(angle) * radius,
-      };
-      
-      // Assign category color if not already set
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-    });
-    
-    currentAngle += sectorAngle;
-  });
-  
-  // Enhanced force-directed simulation
-  const iterations = 80; // Optimized iterations
-  const minDistance = 100; // Optimized minimum distance
-  
-  for (let iter = 0; iter < iterations; iter++) {
-    otherNodes.forEach((node, i) => {
-      let fx = 0, fy = 0;
-      
-      // Repulsion from other nodes
-      otherNodes.forEach((otherNode, j) => {
-        if (i !== j) {
-          const dx = node.position.x - otherNode.position.x;
-          const dy = node.position.y - otherNode.position.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          if (distance > 0) {
-            // Optimized repulsion forces
-            const force = distance < minDistance ? 1500 / (distance * distance) : 400 / (distance * distance);
-            fx += (dx / distance) * force;
-            fy += (dy / distance) * force;
-          }
-        }
-      });
-      
-      // Attraction to root
-      const dx = centerX - node.position.x;
-      const dy = centerY - node.position.y;
-      const distance = Math.sqrt(dx * dx + dy * dy);
-      if (distance > 0) {
-        const force = distance * 0.03; // Optimized attraction force
-        fx += (dx / distance) * force;
-        fy += (dy / distance) * force;
-      }
-      
-      // Apply forces with damping
-      const damping = 0.04; // Optimized damping
-      node.position.x += fx * damping;
-      node.position.y += fy * damping;
-    });
-  }
-  
-  console.log(`Force-directed layout completed for ${otherNodes.length} nodes`);
-  return nodes;
-};
-
-// Advanced Layout Algorithms
-
-const applyHexagonalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const hexSize = 150; // Increased for better spacing
-  
-  console.log('Applying hexagonal layout, root node:', rootNode.id);
-  
-  // Position root node at center and ensure it's visible
-  rootNode.position = { x: centerX, y: centerY };
-  
-  // Get all children of root and group by category
-  const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
-  const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  
-  // Group children by category
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  childNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
-    categoryGroups[category].push(node);
-  });
-  
-  // Track positioned nodes for collision detection
-  const positionedNodes: Node<NodeData>[] = [rootNode];
-  
-  // Position children in hexagonal pattern with collision avoidance
-  let currentIndex = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    categoryNodes.forEach((node, categoryIndex) => {
-      const ring = Math.floor(currentIndex / 6) + 1;
-      const positionInRing = currentIndex % 6;
-      const angle = (positionInRing * Math.PI) / 3;
-      const radius = ring * hexSize * 1.5;
-      
-      const desiredPosition = {
-        x: centerX + Math.cos(angle) * radius,
-        y: centerY + Math.sin(angle) * radius,
-      };
-      
-      // Use collision detection to find safe position
-      positionNodeSafely(node, desiredPosition, positionedNodes);
-      positionedNodes.push(node);
-      
-      // Assign category color
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-      
-      currentIndex++;
-    });
-  });
-  
-  // Final check to ensure root node visibility
-  ensureRootNodeVisibility(rootNode, nodes);
-  
-  console.log('Hexagonal layout completed with collision avoidance');
-  return nodes;
-};
-
-const applyFractalLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const baseRadius = 150;
-  
-  console.log('Applying fractal layout, root node:', rootNode.id);
-  
-  // Position root node at center
-  rootNode.position = { x: centerX, y: centerY };
-  
-  // Get all children of root and group by category
-  const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
-  const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  
-  // Group children by category
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  childNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
-    categoryGroups[category].push(node);
-  });
-  
-  // Position children in fractal pattern
-  let currentAngle = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    const sectorAngle = (2 * Math.PI) / Object.keys(categoryGroups).length;
-    
-    categoryNodes.forEach((node, index) => {
-      const angle = currentAngle + (index / categoryNodes.length) * sectorAngle * 0.8;
-      const radius = baseRadius * Math.pow(1.5, Math.floor(index / 3));
-      const spiralAngle = angle + (index * 0.3);
-      
-      node.position = {
-        x: centerX + Math.cos(spiralAngle) * radius,
-        y: centerY + Math.sin(spiralAngle) * radius,
-      };
-      
-      // Assign category color
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-    });
-    
-    currentAngle += sectorAngle;
-  });
-  
-  return nodes;
-};
-
-const applyGalaxyLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const baseRadius = 100;
-  
-  console.log('Applying galaxy layout, root node:', rootNode.id);
-  
-  // Position root node at center
-  rootNode.position = { x: centerX, y: centerY };
-  
-  // Get all children of root and group by category
-  const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
-  const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  
-  // Group children by category
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  childNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
-    categoryGroups[category].push(node);
-  });
-  
-  // Position children in galaxy spiral pattern
-  let currentIndex = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    categoryNodes.forEach((node, categoryIndex) => {
-      const angle = currentIndex * 0.8;
-      const radius = baseRadius + (currentIndex * 25);
-      const spiralOffset = Math.sin(currentIndex * 0.5) * 30;
-      
-      node.position = {
-        x: centerX + Math.cos(angle) * radius + spiralOffset,
-        y: centerY + Math.sin(angle) * radius + spiralOffset,
-      };
-      
-      // Assign category color
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-      
-      currentIndex++;
-    });
-  });
-  
-  return nodes;
-};
-
-const applyNeuralLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const baseRadius = 180;
-  
-  console.log('Applying neural layout, root node:', rootNode.id);
-  
-  // Position root node at center
-  rootNode.position = { x: centerX, y: centerY };
-  
-  // Get all children of root and group by category
-  const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
-  const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  
-  // Group children by category
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  childNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
-    categoryGroups[category].push(node);
-  });
-  
-  // Position children in neural network pattern
-  let currentAngle = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    const sectorAngle = (2 * Math.PI) / Object.keys(categoryGroups).length;
-    
-    categoryNodes.forEach((node, index) => {
-      const angle = currentAngle + (index / categoryNodes.length) * sectorAngle * 0.7;
-      const radius = baseRadius + (Math.random() * 60);
-      const neuralOffset = Math.sin(index * 0.7) * 40;
-      
-      node.position = {
-        x: centerX + Math.cos(angle) * radius + neuralOffset,
-        y: centerY + Math.sin(angle) * radius + neuralOffset,
-      };
-      
-      // Assign category color
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-    });
-    
-    currentAngle += sectorAngle;
-  });
-  
-  return nodes;
-};
-
-const applyMolecularLayout = (nodes: Array<Node<NodeData>>, edges: Edge[], rootNode: Node<NodeData>, centerX: number, centerY: number) => {
-  const baseRadius = 140;
-  
-  console.log('Applying molecular layout, root node:', rootNode.id);
-  
-  // Position root node at center
-  rootNode.position = { x: centerX, y: centerY };
-  
-  // Get all children of root and group by category
-  const rootChildren = edges.filter(e => e.source === rootNode.id).map(e => e.target);
-  const childNodes = nodes.filter(n => rootChildren.includes(n.id));
-  
-  // Group children by category
-  const categoryGroups: { [key: string]: Node<NodeData>[] } = {};
-  childNodes.forEach(node => {
-    const category = (node.data as NodeData).category || 'default';
-    if (!categoryGroups[category]) {
-      categoryGroups[category] = [];
-    }
-    categoryGroups[category].push(node);
-  });
-  
-  // Position children in molecular pattern
-  let currentIndex = 0;
-  Object.entries(categoryGroups).forEach(([category, categoryNodes]) => {
-    categoryNodes.forEach((node, categoryIndex) => {
-      const angle = currentIndex * 1.2;
-      const radius = baseRadius + (Math.floor(currentIndex / 4) * 80);
-      const molecularOffset = Math.cos(currentIndex * 0.8) * 35;
-      
-      node.position = {
-        x: centerX + Math.cos(angle) * radius + molecularOffset,
-        y: centerY + Math.sin(angle) * radius + molecularOffset,
-      };
-      
-      // Assign category color
-      if (!(node.data as NodeData).color) {
-        (node.data as NodeData).color = getColorForCategory(category);
-      }
-      
-      currentIndex++;
-    });
-  });
-  
-  return nodes;
-};
-
 // Custom themes - Consolidated to best ones
 const customThemes = {
   'nov8-classic': {
@@ -1583,13 +804,6 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [fundamentalNodes, setFundamentalNodes] = useState<FundamentalNode[]>([]);
   const { fitView, zoomIn, zoomOut } = useReactFlow();
-
-  // Core functions
-  const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    [setEdges]
-  );
-
   const addToHistory = useCallback((newNodes: Node<NodeData>[], newEdges: Edge[]) => {
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push({ nodes: newNodes, edges: newEdges });
@@ -1597,7 +811,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     setHistoryIndex(newHistory.length - 1);
   }, [history, historyIndex]);
 
-  const handleAddNode = useCallback(async (parentId?: string) => {
+  const handleAddNode = useCallback(async (parentId?: string, explicitColor?: string) => {
     const parentNode = parentId ? nodes.find(n => n.id === parentId) : null;
     
     let newPosition;
@@ -1637,13 +851,14 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     nodeDescription = '';
     nodeCategory = 'general';
     
+    const inheritedColor = explicitColor || parentNode?.data.color || getContextualColor(nodeCategory);
     const newNode: Node<NodeData> = {
       id: `${Date.now()}`,
       type: 'mindMapNode',
       position: newPosition,
-      data: { 
-        label: nodeLabel, 
-        color: getContextualColor(nodeCategory),
+      data: {
+        label: nodeLabel,
+        color: inheritedColor,
         fontSize: parentNode ? 13 : 14,
         parentId: parentId,
         category: nodeCategory,
@@ -1659,13 +874,27 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     
     // Create connection if parent exists
     if (parentId) {
+      const parentNode = nodes.find(n => n.id === parentId);
+      const parentColor = parentNode?.data.color || 'hsl(267 85% 66%)';
+      const childColor = getContextualColor(nodeCategory);
+      
       const newEdge: Edge = {
         id: `edge-${parentId}-${newNode.id}`,
         source: parentId,
         target: newNode.id,
         type: 'smoothstep',
-        animated: false,
-        style: { stroke: getContextualColor(nodeCategory), strokeWidth: 2 }
+        animated: true,
+        style: { 
+          stroke: parentColor,
+          strokeWidth: 4, // Thicker lines
+          strokeDasharray: 'none',
+          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+        },
+        data: {
+          sourceColor: parentColor,
+          targetColor: childColor,
+          gradient: parentColor !== childColor
+        }
       };
       const newEdges = [...edges, newEdge];
       setEdges(newEdges);
@@ -1681,6 +910,104 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
       });
     }
   }, [setNodes, setEdges, nodes, edges, customTheme, addToHistory, reactFlowInstance]);
+
+  // Event handler callbacks (must be after addToHistory and handleAddNode)
+  const handleUpdateNode = useCallback(
+    createHandleUpdateNode(nodes, edges, setNodes, addToHistory),
+    [nodes, edges, setNodes, addToHistory]
+  );
+  const handleDeleteNode = useCallback(
+    createHandleDeleteNode(nodes, edges, setNodes, setEdges, addToHistory),
+    [nodes, edges, setNodes, setEdges, addToHistory]
+  );
+  const handleAddChildNode = useCallback(
+    createHandleAddChildNode(handleAddNode),
+    [handleAddNode]
+  );
+  const handleDuplicateNode = useCallback(
+    createHandleDuplicateNode(nodes, setNodes, addToHistory, edges),
+    [nodes, setNodes, addToHistory, edges]
+  );
+
+  const layoutConfigs = [
+    {
+      id: 'radial',
+      name: 'Radial Layout',
+      description: 'Central node with branches radiating outward',
+      icon: LayoutGrid,
+      color: 'bg-gradient-to-br from-purple-500 to-pink-500',
+      category: 'Mind Map'
+    },
+    {
+      id: 'tree-horizontal',
+      name: 'Tree (Horizontal)',
+      description: 'Top-down hierarchy with horizontal branches',
+      icon: GitBranch,
+      color: 'bg-gradient-to-br from-blue-500 to-cyan-500',
+      category: 'Hierarchy'
+    },
+    {
+      id: 'tree-vertical',
+      name: 'Tree (Vertical)',
+      description: 'Left-right hierarchy with vertical branches',
+      icon: BarChart3,
+      color: 'bg-gradient-to-br from-green-500 to-emerald-500',
+      category: 'Hierarchy'
+    },
+    {
+      id: 'flowchart',
+      name: 'Flowchart',
+      description: 'Process flow with directional arrows',
+      icon: ArrowRight,
+      color: 'bg-gradient-to-br from-orange-500 to-red-500',
+      category: 'Process'
+    },
+    {
+      id: 'organic',
+      name: 'Organic',
+      description: 'Natural, flowing layout with organic positioning',
+      icon: Fish,
+      color: 'bg-gradient-to-br from-green-500 to-teal-500',
+      category: 'Natural'
+    }
+  ];
+
+  const currentLayoutConfig = layoutConfigs.find(config => config.id === currentLayout);
+
+  // Core functions
+  const onConnect = useCallback(
+    (params: Connection) => {
+      // Get source and target node colors for gradient
+      const sourceNode = nodes.find(n => n.id === params.source);
+      const targetNode = nodes.find(n => n.id === params.target);
+      
+      const sourceColor = sourceNode?.data.color || 'hsl(267 85% 66%)';
+      const targetColor = targetNode?.data.color || 'hsl(213 94% 68%)';
+      
+      // Create edge with enhanced styling
+      const newEdge: Edge = {
+        id: `edge-${params.source}-${params.target}`,
+        source: params.source!,
+        target: params.target!,
+        type: 'smoothstep',
+        animated: true,
+        style: { 
+          stroke: sourceColor,
+          strokeWidth: 4, // Thicker lines
+          strokeDasharray: 'none',
+          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+        },
+        data: {
+          sourceColor,
+          targetColor,
+          gradient: sourceColor !== targetColor
+        }
+      };
+      
+      setEdges((eds) => [...eds, newEdge]);
+    },
+    [setEdges, nodes]
+  );
 
   // Enhanced intelligent node suggestion function
   const generateIntelligentNodeSuggestion = async (parentLabel: string, context: string) => {
@@ -1845,8 +1172,10 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
       const edgesToAnimate: Edge[] = [];
       
       // Enhanced positioning algorithm for better visual layout
-      const centerX = 800;
-      const centerY = 500;
+      // Use the parent node's current position as the center for new nodes
+      const parentNode = nodes.find(n => n.id === context?.parentNodeId || context?.parentId || context?.id);
+      const centerX = context?.parentNodePosition?.x ?? (parentNode ? parentNode.position.x : 800);
+      const centerY = context?.parentNodePosition?.y ?? (parentNode ? parentNode.position.y : 500);
       const gridCols = Math.ceil(Math.sqrt(generatedNodes.length));
       const gridSpacing = 300;
       const startX = centerX - ((gridCols - 1) * gridSpacing) / 2;
@@ -1887,23 +1216,68 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
         // Create connections based on AI suggestions with enhanced edge styling
         genNode.connections.forEach(targetId => {
           if (nodes.find(n => n.id === targetId) || nodesToAnimate.find(n => n.id === targetId)) {
+            const targetNode = nodes.find(n => n.id === targetId) || nodesToAnimate.find(n => n.id === targetId);
+            const targetColor = targetNode?.data.color || 'hsl(213 94% 68%)';
+            
             const edgeId = `${genNode.id}-${targetId}`;
             const newEdge: Edge = {
               id: edgeId,
               source: genNode.id,
               target: targetId,
               type: 'smoothstep',
-              animated: genNode.metadata.isFundamental,
+              animated: true, // Always animate
               style: { 
-                stroke: genNode.color, 
-                strokeWidth: genNode.metadata.isFundamental ? 4 : 2,
-                strokeDasharray: genNode.metadata.isFundamental ? 'none' : '5,5',
-                opacity: 0
+                stroke: genNode.color,
+                strokeWidth: 4,
+                strokeDasharray: 'none', // Always solid
+                opacity: 0,
+                filter: 'drop-shadow(0 0 8px ' + genNode.color + '80), drop-shadow(0 2px 8px #0002)'
               },
+              data: {
+                sourceColor: genNode.color,
+                targetColor: targetColor,
+                gradient: genNode.color !== targetColor,
+                isFundamental: genNode.metadata.isFundamental
+              }
             };
             edgesToAnimate.push(newEdge);
           }
         });
+        
+        // Auto-connect to existing nodes based on category similarity
+        if (genNode.category) {
+          const similarNodes = nodes.filter(n => 
+            n.data.category === genNode.category && 
+            n.id !== genNode.id &&
+            !genNode.connections.includes(n.id)
+          );
+          
+          // Connect to up to 2 similar nodes
+          similarNodes.slice(0, 2).forEach(similarNode => {
+            const edgeId = `${genNode.id}-${similarNode.id}`;
+            const newEdge: Edge = {
+              id: edgeId,
+              source: genNode.id,
+              target: similarNode.id,
+              type: 'smoothstep',
+              animated: false,
+              style: { 
+                stroke: genNode.color,
+                strokeWidth: 3,
+                strokeDasharray: 'none',
+                opacity: 0,
+                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'
+              },
+              data: {
+                sourceColor: genNode.color,
+                targetColor: similarNode.data.color || 'hsl(213 94% 68%)',
+                gradient: genNode.color !== (similarNode.data.color || 'hsl(213 94% 68%)'),
+                isAutoConnected: true
+              }
+            };
+            edgesToAnimate.push(newEdge);
+          });
+        }
       });
       
       // Add all nodes and edges
@@ -2036,7 +1410,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
             description: 'Fallback algorithms created contextually relevant nodes'
           });
         } else {
-          toast.success(`🎯 AI generated ${generatedNodes.length} intelligent nodes for "${topic}"`, {
+          toast.success(`🎯 AI generated ${generatedNodes.length} intelligent nodes for "${topic}" in ${currentLayout} layout`, {
             description: `Using ${aiService.getCurrentModel().split('/')[1]} model`
           });
           
@@ -2044,14 +1418,125 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           setTimeout(() => handleIdentifyFundamentals(), 500);
         }
         
-        // Auto-fit view to show all new nodes
-        if (reactFlowInstance) {
-          reactFlowInstance.fitView({ 
-            padding: 0.15, 
-            duration: 1000,
-            maxZoom: 1.2
-          });
-        }
+        // Auto-organize nodes based on current layout
+        setTimeout(() => {
+          if (currentLayout !== 'freeform') {
+            toast.loading('🎨 Organizing nodes with current layout...');
+            try {
+              const layoutConfig: LayoutConfig = {
+                type: currentLayout as LayoutType,
+                spacing: 80, // Reduced from 150 for tighter layouts
+                nodeSize: { width: 200, height: 100 },
+                animation: true,
+                autoFit: true,
+                padding: 30 // Reduced from 50
+              };
+              
+              // Convert nodes to BaseNodeData type for layout engine
+              const baseNodes = newNodes.map(node => ({
+                ...node,
+                data: {
+                  ...node.data,
+                  label: node.data.label || 'Untitled',
+                  color: node.data.color,
+                  fontSize: node.data.fontSize,
+                  parentId: node.data.parentId,
+                  category: node.data.category,
+                  messages: node.data.messages,
+                  opacity: node.data.opacity,
+                  scale: node.data.scale,
+                  isFundamental: node.data.isFundamental,
+                  importance: node.data.importance,
+                  centralityScore: node.data.centralityScore,
+                  tags: node.data.tags || [],
+                  priority: node.data.priority || 'medium',
+                  isCompleted: node.data.isCompleted || false,
+                  complexity: node.data.complexity,
+                  suggestedBranches: node.data.suggestedBranches || [],
+                  pulseEffect: node.data.pulseEffect || false,
+                  highlightEffect: node.data.highlightEffect || false,
+                  branchGenerated: node.data.branchGenerated || false,
+                  aiGenerated: node.data.aiGenerated || false,
+                  fallbackGenerated: node.data.fallbackGenerated || false,
+                  parentConcept: node.data.parentConcept,
+                  animateIn: node.data.animateIn || false,
+                  animateMove: node.data.animateMove || false,
+                  isEditing: node.data.isEditing || false,
+                  icon: node.data.icon
+                }
+              })) as Node<BaseNodeData>[];
+              
+              const updatedBaseNodes = layoutEngine.calculatePositions(baseNodes, newEdges, layoutConfig);
+              
+              // Validate that no nodes were lost
+              if (updatedBaseNodes.length !== baseNodes.length) {
+                console.error('❌ Layout engine lost nodes!', {
+                  input: baseNodes.length,
+                  output: updatedBaseNodes.length,
+                  missing: baseNodes.filter(n => !updatedBaseNodes.find(u => u.id === n.id)).map(n => n.id)
+                });
+                toast.error(`Layout error: ${baseNodes.length - updatedBaseNodes.length} nodes lost`);
+                setIsLayoutLoading(false);
+                return;
+              }
+              
+              console.log('✅ Layout engine validation passed, all nodes preserved');
+              
+              // Convert back to NodeData type
+              const updatedNodes = updatedBaseNodes.map(node => ({
+                ...node,
+                data: {
+                  ...node.data,
+                  label: node.data.label,
+                  color: node.data.color,
+                  fontSize: node.data.fontSize,
+                  parentId: node.data.parentId,
+                  category: node.data.category,
+                  messages: node.data.messages,
+                  opacity: node.data.opacity,
+                  scale: node.data.scale,
+                  isFundamental: node.data.isFundamental,
+                  importance: node.data.importance,
+                  centralityScore: node.data.centralityScore,
+                  tags: node.data.tags,
+                  priority: node.data.priority,
+                  isCompleted: node.data.isCompleted,
+                  complexity: node.data.complexity,
+                  suggestedBranches: node.data.suggestedBranches,
+                  pulseEffect: node.data.pulseEffect,
+                  highlightEffect: node.data.highlightEffect,
+                  branchGenerated: node.data.branchGenerated,
+                  aiGenerated: node.data.aiGenerated,
+                  fallbackGenerated: node.data.fallbackGenerated,
+                  parentConcept: node.data.parentConcept,
+                  animateIn: node.data.animateIn,
+                  animateMove: node.data.animateMove,
+                  isEditing: node.data.isEditing,
+                  icon: node.data.icon
+                }
+              })) as Node<NodeData>[];
+              
+              setNodes(updatedNodes);
+              addToHistory(updatedNodes, newEdges);
+              
+              toast.dismiss();
+              toast.success(`🎨 Organized ${updatedNodes.length} nodes in ${currentLayout} layout`);
+              
+              // Auto-fit view to show all organized nodes
+              if (reactFlowInstance) {
+                reactFlowInstance.fitView({ 
+                  padding: 0.15, 
+                  duration: 1000,
+                  maxZoom: 1.2
+                });
+              }
+            } catch (error) {
+              console.error('Layout organization failed:', error);
+              toast.dismiss();
+              toast.error('Failed to organize nodes with layout');
+            }
+          }
+        }, 1000);
         
       }, totalAnimationTime);
       
@@ -2314,7 +1799,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
             style: { 
               stroke: branch.color, 
               strokeWidth: 2,
-              strokeDasharray: '3,3',
+              strokeDasharray: 'none',
               opacity: 0
             },
           };
@@ -2608,11 +2093,21 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
 
   // Legacy method for backward compatibility
   const handleGenerateRelatedNodes = useCallback((topic: string, parentNodeId?: string) => {
+  
+    // Find the parent node and pass its position as context
+    const parentNode = nodes.find(n => n.id === parentNodeId);
     handleGenerateIntelligentNodes(topic, {
       domain: 'General',
-      purpose: 'Comprehensive exploration'
+      purpose: 'Comprehensive exploration',
+      parentNodeId,
+      parentNodePosition: parentNode ? { ...parentNode.position } : undefined
     });
-  }, [handleGenerateIntelligentNodes]);
+  }, [handleGenerateIntelligentNodes, nodes]);
+
+  const handleGenerateBranches = useCallback(
+    createHandleGenerateBranches(handleGenerateRelatedNodes),
+    [handleGenerateRelatedNodes]
+  );
 
   const handleSave = useCallback(() => {
     const data = { nodes, edges, currentLayout, currentTheme, customTheme };
@@ -2631,6 +2126,47 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     URL.revokeObjectURL(url);
     toast.success('Mind map exported successfully!');
   }, [nodes, edges, currentLayout, currentTheme, customTheme]);
+
+  const handleExportAsPNG = useCallback(() => {
+    if (reactFlowInstance) {
+      const canvas = document.querySelector('.react-flow__viewport canvas') as HTMLCanvasElement;
+      if (canvas) {
+        const link = document.createElement('a');
+        link.download = `nov8-mindmap-${Date.now()}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+        toast.success('Mind map exported as PNG!');
+      }
+    }
+  }, [reactFlowInstance]);
+
+  const handleExportAsPDF = useCallback(() => {
+    if (reactFlowInstance) {
+      const canvas = document.querySelector('.react-flow__viewport canvas') as HTMLCanvasElement;
+      if (canvas) {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new (window as any).jsPDF();
+        const imgWidth = 210;
+        const pageHeight = 295;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        let heightLeft = imgHeight;
+        let position = 0;
+
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+
+        pdf.save(`nov8-mindmap-${Date.now()}.pdf`);
+        toast.success('Mind map exported as PDF!');
+      }
+    }
+  }, [reactFlowInstance]);
 
   const handleImport = useCallback(() => {
     const input = document.createElement('input');
@@ -2668,33 +2204,122 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     return { ...node, position: targetPosition };
   };
 
-  // 3. In MindMapCanvasInner, update layout switching to animate node movement
+  // 3. In MindMapCanvasInner, update layout switching to use the layout engine
   const handleLayoutChange = useCallback((layout) => {
+    console.log('🔄 Layout change requested:', layout);
+    console.log('📊 Current nodes:', nodes.length);
+    console.log('🔗 Current edges:', edges.length);
+    
     setCurrentLayout(layout);
     setIsLayoutLoading(true);
     toast.loading(`Applying ${layout} layout...`);
+    
     if (layout !== 'freeform') {
       try {
-        const updatedNodes = applyLayout(nodes, edges, layout);
-        // Animate node movement by updating positions with a transition
-        setNodes(currentNodes =>
-          currentNodes.map(node => {
-            const updated = updatedNodes.find(n => n.id === node.id);
-            if (updated) {
-              return {
-                ...node,
-                position: updated.position,
-                data: {
-                  ...node.data,
-                  // Trigger animation by setting a flag
-                  animateMove: true
-                }
-              };
-            }
-            return node;
-          })
-        );
+        console.log('🎯 Applying layout using layout engine:', layout);
+        
+        // Use the layout engine instead of local applyLayout function
+        const layoutConfig = {
+          type: layout,
+          spacing: 80, // Reduced from 150 for tighter layouts
+          nodeSize: { width: 200, height: 100 },
+          animation: true,
+          autoFit: true,
+          padding: 30 // Reduced from 50
+        };
+        
+        // Convert nodes to BaseNodeData type for layout engine
+        const baseNodes = nodes.map(node => ({
+          ...node,
+          data: {
+            ...node.data,
+            // Ensure all required BaseNodeData properties are present
+            label: node.data.label || 'Untitled',
+            color: node.data.color,
+            fontSize: node.data.fontSize,
+            parentId: node.data.parentId,
+            category: node.data.category,
+            messages: node.data.messages,
+            opacity: node.data.opacity,
+            scale: node.data.scale,
+            isFundamental: node.data.isFundamental,
+            importance: node.data.importance,
+            centralityScore: node.data.centralityScore,
+            // Add any missing properties with defaults
+            tags: node.data.tags || [],
+            priority: node.data.priority || 'medium',
+            isCompleted: node.data.isCompleted || false,
+            complexity: node.data.complexity,
+            suggestedBranches: node.data.suggestedBranches || [],
+            pulseEffect: node.data.pulseEffect || false,
+            highlightEffect: node.data.highlightEffect || false,
+            branchGenerated: node.data.branchGenerated || false,
+            aiGenerated: node.data.aiGenerated || false,
+            fallbackGenerated: node.data.fallbackGenerated || false,
+            parentConcept: node.data.parentConcept,
+            animateIn: node.data.animateIn || false,
+            animateMove: node.data.animateMove || false,
+            isEditing: node.data.isEditing || false,
+            icon: node.data.icon
+          }
+        })) as Node<BaseNodeData>[];
+        
+        const updatedBaseNodes = layoutEngine.calculatePositions(baseNodes, edges, layoutConfig);
+        
+        // Validate that no nodes were lost
+        if (updatedBaseNodes.length !== baseNodes.length) {
+          console.error('❌ Layout engine lost nodes!', {
+            input: baseNodes.length,
+            output: updatedBaseNodes.length,
+            missing: baseNodes.filter(n => !updatedBaseNodes.find(u => u.id === n.id)).map(n => n.id)
+          });
+          toast.error(`Layout error: ${baseNodes.length - updatedBaseNodes.length} nodes lost`);
+          setIsLayoutLoading(false);
+          return;
+        }
+        
+        console.log('✅ Layout engine validation passed, all nodes preserved');
+        
+        // Convert back to NodeData type
+        const updatedNodes = updatedBaseNodes.map(node => ({
+          ...node,
+          data: {
+            ...node.data,
+            label: node.data.label,
+            color: node.data.color,
+            fontSize: node.data.fontSize,
+            parentId: node.data.parentId,
+            category: node.data.category,
+            messages: node.data.messages,
+            opacity: node.data.opacity,
+            scale: node.data.scale,
+            isFundamental: node.data.isFundamental,
+            importance: node.data.importance,
+            centralityScore: node.data.centralityScore,
+            tags: node.data.tags,
+            priority: node.data.priority,
+            isCompleted: node.data.isCompleted,
+            complexity: node.data.complexity,
+            suggestedBranches: node.data.suggestedBranches,
+            pulseEffect: node.data.pulseEffect,
+            highlightEffect: node.data.highlightEffect,
+            branchGenerated: node.data.branchGenerated,
+            aiGenerated: node.data.aiGenerated,
+            fallbackGenerated: node.data.fallbackGenerated,
+            parentConcept: node.data.parentConcept,
+            animateIn: node.data.animateIn,
+            animateMove: node.data.animateMove,
+            isEditing: node.data.isEditing,
+            icon: node.data.icon
+          }
+        })) as Node<NodeData>[];
+        console.log('✅ Layout engine applied, updated nodes:', updatedNodes.length);
+        console.log('📍 Sample node positions:', updatedNodes.slice(0, 3).map(n => ({ id: n.id, position: n.position })));
+        
+        // Set the updated nodes directly
+        setNodes(updatedNodes);
         addToHistory(updatedNodes, edges);
+        
         setTimeout(() => {
           if (reactFlowInstance) {
             reactFlowInstance.fitView({ padding: 0.2, duration: 1000 });
@@ -2704,6 +2329,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           toast.success(`Layout changed to ${layout} - ${updatedNodes.length} nodes organized`);
         }, 500);
       } catch (error) {
+        console.error('❌ Layout application failed:', error);
         setIsLayoutLoading(false);
         toast.dismiss();
         toast.error(`Failed to apply ${layout} layout`);
@@ -2916,58 +2542,6 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
 
   // Event listeners for node updates
   useEffect(() => {
-    const handleUpdateNode = (event: any) => {
-      const { id, updates } = event.detail;
-      const updatedNodes = nodes.map((node) =>
-        node.id === id ? { ...node, data: { ...node.data, ...updates } } : node
-      );
-      setNodes(updatedNodes);
-      addToHistory(updatedNodes, edges);
-      
-      // Removed automatic generation prompt - AI generation should only be explicit
-    };
-
-    const handleDeleteNode = (event: any) => {
-      const { id } = event.detail;
-      const updatedNodes = nodes.filter((node) => node.id !== id);
-      const updatedEdges = edges.filter((edge) => edge.source !== id && edge.target !== id);
-      setNodes(updatedNodes);
-      setEdges(updatedEdges);
-      addToHistory(updatedNodes, updatedEdges);
-    };
-
-    const handleAddChildNode = (event: any) => {
-      const { parentId } = event.detail;
-      handleAddNode(parentId);
-    };
-
-    const handleDuplicateNode = (event: any) => {
-      const { id } = event.detail;
-      const nodeToClone = nodes.find(n => n.id === id);
-      if (nodeToClone) {
-        const newNode: Node<NodeData> = {
-          ...nodeToClone,
-          id: `${Date.now()}`,
-          position: {
-            x: nodeToClone.position.x + 100,
-            y: nodeToClone.position.y + 50,
-          },
-          data: {
-            ...nodeToClone.data,
-            label: `${nodeToClone.data.label} (Copy)`
-          }
-        };
-        const newNodes = [...nodes, newNode];
-        setNodes(newNodes);
-        addToHistory(newNodes, edges);
-      }
-    };
-
-    const handleGenerateBranches = (event: any) => {
-      const { id, label } = event.detail;
-      handleGenerateRelatedNodes(label, id);
-    };
-
     window.addEventListener('updateNode', handleUpdateNode);
     window.addEventListener('deleteNode', handleDeleteNode);
     window.addEventListener('addChildNode', handleAddChildNode);
@@ -2981,7 +2555,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
       window.removeEventListener('duplicateNode', handleDuplicateNode);
       window.removeEventListener('generateBranches', handleGenerateBranches);
     };
-  }, [setNodes, setEdges, handleAddNode, nodes, edges, addToHistory, handleGenerateRelatedNodes]);
+  }, [handleUpdateNode, handleDeleteNode, handleAddChildNode, handleDuplicateNode, handleGenerateBranches]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -3082,7 +2656,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
         source: parentNodeId,
         target: branch.id,
         type: 'smoothstep',
-        animated: false,
+        animated: true,
         style: {
           stroke: branch.color,
           strokeWidth: 2,
@@ -3189,6 +2763,8 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           customThemes={customThemes}
           customTheme={customTheme}
           setCustomTheme={setCustomTheme}
+          onExportAsPNG={handleExportAsPNG}
+          onExportAsPDF={handleExportAsPDF}
         />
       </div>
       {/* Main Content: flex row, left = AI toolbar, right = canvas */}
@@ -3295,6 +2871,31 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
         </ReactFlow>
         </div>
       </div>
+      <TooltipProvider>
+        <div style={{ position: 'absolute', top: 16, right: 24, zIndex: 50 }}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button aria-label="Layout Info" className="rounded-full bg-white/80 hover:bg-white shadow p-2 border border-gray-200">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#6366f1" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="#6366f1" fontWeight="bold">i</text></svg>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="max-w-xs">
+              <div className="font-semibold mb-1">{currentLayoutConfig?.name || 'Layout'}</div>
+              <div className="mb-2 text-xs text-gray-600">{currentLayoutConfig?.description || 'No description.'}</div>
+              <div className="text-xs text-blue-700 font-medium">Best Practices:</div>
+              <ul className="text-xs text-gray-700 list-disc pl-4">
+                {/* Example best practices, you can expand per layout */}
+                {currentLayout === 'radial' && <li>Use for classic mind maps with a central topic.</li>}
+                {currentLayout === 'tree-horizontal' && <li>Great for org charts and hierarchies.</li>}
+                {currentLayout === 'tree-vertical' && <li>Best for left-to-right flows.</li>}
+                {currentLayout === 'flowchart' && <li>Ideal for process diagrams and stepwise flows.</li>}
+                {currentLayout === 'hexagonal' && <li>Best for dense, interconnected ideas.</li>}
+                {/* Add more per layout as needed */}
+              </ul>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
     </div>
   );
 };
