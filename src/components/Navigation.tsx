@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Brain, Presentation } from 'lucide-react';
+import { Brain, Presentation, LayoutGrid } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navigation: React.FC = () => {
@@ -39,6 +39,22 @@ const Navigation: React.FC = () => {
           >
             <Presentation className="w-4 h-4 mr-2" />
             Presentations
+          </Button>
+        </Link>
+        
+        <Link to="/layout-demo">
+          <Button
+            variant={location.pathname === '/layout-demo' ? 'default' : 'ghost'}
+            size="sm"
+            className={cn(
+              "rounded-full px-4 py-2",
+              location.pathname === '/layout-demo'
+                ? "bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600 text-white" 
+                : "hover:bg-purple-50 dark:hover:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+            )}
+          >
+            <LayoutGrid className="w-4 h-4 mr-2" />
+            Layout Engine
           </Button>
         </Link>
       </div>

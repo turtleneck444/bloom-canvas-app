@@ -1,7 +1,7 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Palette, Settings } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Palette, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ActionSearchBar } from '@/components/ui/action-search-bar';
 
 interface ThemeSelectorProps {
   currentTheme: string;
@@ -18,81 +18,79 @@ const ThemeSelector: React.FC<ThemeSelectorProps> = ({
   customTheme,
   setCustomTheme,
 }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const ref = React.useRef<HTMLDivElement>(null);
+  const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
 
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
+  // Detect system theme preference
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const updateSystemTheme = (e: MediaQueryListEvent | MediaQueryList) => {
+      setSystemTheme(e.matches ? 'dark' : 'light');
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    // Set initial theme
+    updateSystemTheme(mediaQuery);
+
+    // Listen for changes
+    mediaQuery.addEventListener('change', updateSystemTheme);
+    return () => mediaQuery.removeEventListener('change', updateSystemTheme);
   }, []);
 
   const themes = [
-    { id: 'light', label: 'Light', color: 'hsl(0 0% 100%)' },
-    { id: 'dark', label: 'Dark', color: 'hsl(222.2 84% 4.9%)' },
-    { id: 'grid', label: 'Grid', color: 'hsl(220 9% 90%)' },
-    { id: 'paper', label: 'Paper', color: 'hsl(30 20% 98%)' },
-    { id: 'aura', label: 'Aura', color: 'linear-gradient(90deg, #7F5FFF 0%, #00E0FF 33%, #FFB86C 66%, #FF61A6 100%)' },
+    { id: 'light', label: 'Light Theme', description: 'Clean light theme', color: 'hsl(0 0% 100%)' },
+    { id: 'dark', label: 'Dark Theme', description: 'Dark mode', color: 'hsl(222.2 84% 4.9%)' },
+    { id: 'system', label: `System (${systemTheme === 'dark' ? 'Dark' : 'Light'})`, description: 'Follows system preference', color: systemTheme === 'dark' ? 'hsl(222.2 84% 4.9%)' : 'hsl(0 0% 100%)' },
+    { id: 'grid', label: 'Grid Theme', description: 'Grid background', color: 'hsl(220 9% 90%)' },
+    { id: 'paper', label: 'Paper Theme', description: 'Paper texture', color: 'hsl(30 20% 98%)' },
+    { id: 'aura', label: 'Aura Theme', description: 'Glowing aura effect', color: 'linear-gradient(90deg, #7F5FFF 0%, #00E0FF 33%, #FFB86C 66%, #FF61A6 100%)' },
     ...(customThemes ? Object.entries(customThemes).map(([id, theme]) => ({
       id,
-      label: theme.name,
+      label: `${theme.name} Theme`,
+      description: theme.description || 'Custom theme',
       color: theme.colors.primary
     })) : [])
   ];
 
-  return (
-    <div className="relative" ref={ref}>
-      <Button
-        onClick={() => setIsOpen(!isOpen)}
-        variant="ghost"
-        size="sm"
-        className="nov8-transition hover:bg-nov8-primary/10"
-        title="Select Theme"
-      >
-        <Palette size={16} />
-      </Button>
+  const currentThemeData = themes.find(t => t.id === currentTheme);
+  
+  // Get the display name for the current theme
+  const getCurrentThemeDisplayName = () => {
+    if (currentTheme === 'system') {
+      return `System (${systemTheme === 'dark' ? 'Dark' : 'Light'})`;
+    }
+    return currentThemeData?.label || 'Light Theme';
+  };
 
-      {isOpen && (
-        <div className="absolute top-full right-0 mt-2 p-3 bg-[hsl(var(--popover))] dark:bg-[hsl(var(--popover))] rounded-lg shadow-xl border border-[hsl(var(--border))] z-50 min-w-[200px]">
-          <div className="space-y-2">
-            <h3 className="text-sm font-medium text-[hsl(var(--foreground))] mb-2">
-              Choose Theme
-            </h3>
-            
-            {themes.map((theme) => (
-              <button
-                key={theme.id}
-                onClick={() => {
-                  onThemeChange(theme.id);
-                  setIsOpen(false);
-                }}
-                className={cn(
-                  "w-full flex items-center gap-3 px-3 py-2 text-left rounded-md transition-colors",
-                  currentTheme === theme.id
-                    ? "bg-nov8-primary/10 text-nov8-primary"
-                    : "hover:bg-[hsl(var(--muted))] dark:hover:bg-[hsl(var(--muted))]"
-                )}
-              >
-                <div
-                  className={cn(
-                    "w-4 h-4 rounded-full border-2 shadow-sm",
-                    currentTheme === theme.id 
-                      ? "border-nov8-primary border-2" 
-                      : "border-[hsl(var(--border))]"
-                  )}
-                  style={theme.id === 'aura' ? { background: theme.color } : { backgroundColor: theme.color }}
-                />
-                <span className="text-sm">{theme.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+  const themeActions = themes.map(theme => ({
+    id: theme.id,
+    label: theme.label,
+    description: theme.description,
+    icon: (
+      <div 
+        className="w-4 h-4 rounded-full border-2 shadow-sm"
+        style={theme.id === 'aura' ? { background: theme.color } : { backgroundColor: theme.color }}
+      />
+    ),
+    color: theme.id === 'aura' ? '#7F5FFF' : theme.color,
+    onClick: () => {
+      console.log('Theme selected:', theme.id);
+      if (theme.id === 'system') {
+        onThemeChange(systemTheme);
+      } else {
+        onThemeChange(theme.id);
+      }
+    }
+  }));
+
+  return (
+    <div className="relative">
+      <ActionSearchBar
+        placeholder={getCurrentThemeDisplayName()}
+        actions={themeActions}
+        className="w-40 h-8 text-xs"
+        compact={true}
+        currentThemeData={currentThemeData}
+        systemTheme={systemTheme}
+      />
     </div>
   );
 };

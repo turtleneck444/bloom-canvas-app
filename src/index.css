@@ -662,3 +662,241 @@ input[type=range]::-webkit-slider-runnable-track {
 input[type=range]::-moz-focus-outer {
   border: 0;
 }
+
+/* Theme-specific styles */
+.mind-map-canvas[data-theme="grid"] {
+  background-image: 
+    linear-gradient(90deg, hsl(var(--nov8-primary) / 0.1) 1px, transparent 1px),
+    linear-gradient(0deg, hsl(var(--nov8-primary) / 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.mind-map-canvas[data-theme="paper"] {
+  background-image: 
+    radial-gradient(circle at 50% 50%, hsl(var(--nov8-primary) / 0.05) 1px, transparent 1px);
+  background-size: 15px 15px;
+}
+
+.mind-map-canvas[data-theme="aura"] {
+  background-image: 
+    radial-gradient(circle at 20% 80%, hsl(267 85% 66% / 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, hsl(213 94% 68% / 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 40% 40%, hsl(292 91% 76% / 0.1) 0%, transparent 50%);
+}
+
+/* Smooth theme transitions */
+.mind-map-canvas {
+  transition: background 0.3s ease-in-out;
+}
+
+/* Enhanced theme selector animations */
+.theme-selector-dropdown {
+  animation: slideInDown 0.2s ease-out;
+}
+
+/* Dropdown item animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  animation: fadeInUp 0.2s ease-out forwards;
+  opacity: 0;
+}
+
+/* Staggered animation for dropdown items */
+.dropdown-item:nth-child(1) { animation-delay: 0ms; }
+.dropdown-item:nth-child(2) { animation-delay: 50ms; }
+.dropdown-item:nth-child(3) { animation-delay: 100ms; }
+.dropdown-item:nth-child(4) { animation-delay: 150ms; }
+.dropdown-item:nth-child(5) { animation-delay: 200ms; }
+.dropdown-item:nth-child(6) { animation-delay: 250ms; }
+.dropdown-item:nth-child(7) { animation-delay: 300ms; }
+.dropdown-item:nth-child(8) { animation-delay: 350ms; }
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ReactFlow Controls positioning */
+.react-flow__controls {
+  position: absolute !important;
+  left: 24rem !important;
+  bottom: 1rem !important;
+  transform: none !important;
+  z-index: 50 !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(229, 231, 235, 0.5) !important;
+  border-radius: 0.75rem !important;
+  backdrop-filter: blur(16px) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  padding: 0.5rem !important;
+  width: fit-content !important;
+}
+
+.react-flow__controls-button {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0.5rem !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.react-flow__controls-button:hover {
+  background: rgba(156, 163, 175, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.dark .react-flow__controls {
+  background: rgba(31, 41, 55, 0.95) !important;
+  border-color: rgba(75, 85, 99, 0.5) !important;
+}
+
+.dark .react-flow__controls-button:hover {
+  background: rgba(75, 85, 99, 0.2) !important;
+}
+
+/* Expandable Tabs for Mind Mapping */
+.expandable-tabs-node {
+  position: absolute;
+  z-index: 50;
+  filter: drop-shadow(0 10px 8px rgb(0 0 0 / 0.04)) drop-shadow(0 4px 3px rgb(0 0 0 / 0.1));
+}
+
+.expandable-tabs-node .collapsible-trigger {
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.expandable-tabs-node .collapsible-content {
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border-radius: 0.5rem;
+}
+
+/* Enhanced hover effects for action buttons */
+.expandable-tabs-node button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Enhanced Expandable Tabs for Mind Mapping */
+.expandable-tabs-node {
+  position: absolute;
+  z-index: 50;
+  filter: drop-shadow(0 20px 25px -5px rgba(0, 0, 0, 0.1)) drop-shadow(0 10px 10px -5px rgba(0, 0, 0, 0.04));
+}
+
+.expandable-tabs-node .collapsible-trigger {
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.expandable-tabs-node .collapsible-trigger:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 35px 60px -12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+.expandable-tabs-node .collapsible-content {
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 25px 50px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  border-radius: 0.75rem;
+  overflow: hidden;
+}
+
+/* Luxury button effects */
+.expandable-tabs-node button {
+  position: relative;
+  overflow: hidden;
+}
+
+.expandable-tabs-node button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.expandable-tabs-node button:hover::before {
+  left: 100%;
+}
+
+.expandable-tabs-node button:hover {
+  transform: translateY(-1px);
+  box-shadow: 
+    0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+    0 4px 6px -2px rgba(0, 0, 0, 0.05),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+}
+
+/* Enhanced icon styling */
+.expandable-tabs-node .action-icon {
+  position: relative;
+  overflow: hidden;
+}
+
+.expandable-tabs-node .action-icon::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.expandable-tabs-node button:hover .action-icon::after {
+  width: 100%;
+  height: 100%;
+}
+
+/* Compact Actions Menu Styles */
+.mind-map-node .compact-actions-menu {
+  filter: drop-shadow(0 10px 25px -5px rgba(0, 0, 0, 0.1)) drop-shadow(0 4px 6px -2px rgba(0, 0, 0, 0.05));
+}
+
+/* Smooth expandable animation */
+.mind-map-node .expandable-content {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Subtle hover effects */
+.mind-map-node .action-item:hover {
+  transform: translateX(2px);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+/* Arrow rotation animation */
+.mind-map-node .chevron-arrow {
+  transition: transform 0.2s ease-in-out;
+}

@@ -16,11 +16,21 @@ import {
   Redo,
   BarChart3,
   GitBranch,
-  Sparkles
+  Sparkles,
+  ArrowRight,
+  Clock,
+  Fish,
+  Braces,
+  Users,
+  Lightbulb,
+  Zap,
+  Brain
 } from 'lucide-react';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '../ui/dropdown-menu';
 import { cn } from '@/lib/utils';
 import { ServiceSwitcher } from '../ui/logo';
 import ThemeSelector from './ThemeSelector';
+import { LayoutType } from '../../utils/graphEngine/types';
 
 interface MindMapToolbarProps {
   onAddNode: () => void;
@@ -30,7 +40,8 @@ interface MindMapToolbarProps {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onFitView: () => void;
-  onLayoutChange: (layout: 'radial' | 'tree-horizontal' | 'tree-vertical' | 'hierarchical' | 'force-directed' | 'organic') => void;
+  onLayoutChange: (layout: LayoutType) => void;
+  onAISuggest?: () => void;
   onUndo: () => void;
   onRedo: () => void;
   onClearAll: () => void;
@@ -44,6 +55,8 @@ interface MindMapToolbarProps {
   customTheme?: any;
   setCustomTheme?: (theme: any) => void;
   className?: string;
+  onExportAsPNG: () => void;
+  onExportAsPDF: () => void;
 }
 
 const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
@@ -55,6 +68,7 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   onZoomOut,
   onFitView,
   onLayoutChange,
+  onAISuggest,
   onUndo,
   onRedo,
   onClearAll,
@@ -67,12 +81,29 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   customThemes,
   customTheme,
   setCustomTheme,
-  className
+  className,
+  onExportAsPNG,
+  onExportAsPDF
 }) => {
   const layoutOptions = [
-    { id: 'radial', label: 'Radial', icon: Circle },
-    { id: 'tree-horizontal', label: 'Tree', icon: GitBranch },
-    { id: 'hierarchical', label: 'Hierarchy', icon: BarChart3 },
+    { id: 'radial' as LayoutType, label: 'Radial', icon: Circle },
+    { id: 'tree-horizontal' as LayoutType, label: 'Tree', icon: GitBranch },
+    { id: 'tree-vertical' as LayoutType, label: 'Tree Vertical', icon: BarChart3 },
+    { id: 'hierarchical' as LayoutType, label: 'Hierarchical', icon: BarChart3 },
+    { id: 'organic' as LayoutType, label: 'Organic', icon: Fish },
+    { id: 'spiral' as LayoutType, label: 'Spiral', icon: RotateCcw },
+    { id: 'force-directed' as LayoutType, label: 'Force-Directed', icon: Zap },
+    { id: 'hexagonal' as LayoutType, label: 'Hexagonal', icon: Braces },
+    { id: 'fractal' as LayoutType, label: 'Fractal', icon: Sparkles },
+    { id: 'galaxy' as LayoutType, label: 'Galaxy', icon: Sparkles },
+    { id: 'neural' as LayoutType, label: 'Neural', icon: Brain },
+    { id: 'molecular' as LayoutType, label: 'Molecular', icon: Sparkles },
+    { id: 'flowchart' as LayoutType, label: 'Flowchart', icon: ArrowRight },
+    { id: 'timeline' as LayoutType, label: 'Timeline', icon: Clock },
+    { id: 'fishbone' as LayoutType, label: 'Fishbone', icon: Fish },
+    { id: 'brace' as LayoutType, label: 'Brace', icon: Braces },
+    { id: 'org-chart' as LayoutType, label: 'Org Chart', icon: Users },
+    { id: 'freeform' as LayoutType, label: 'Freeform', icon: Sparkles },
   ];
 
   return (
@@ -122,55 +153,72 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
         </div>
 
         {/* Center Section - Layout Controls */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <span className="text-xs font-medium text-gray-600 dark:text-gray-400 mr-1.5">Layout:</span>
-          <div className="flex items-center gap-0.5 bg-white dark:bg-gray-800 rounded p-0.5 border border-gray-200 dark:border-gray-700">
-            {layoutOptions.map(({ id, label, icon: Icon }) => (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button
-                key={id}
-                onClick={() => onLayoutChange(id as any)}
-                variant={currentLayout === id ? "default" : "ghost"}
+                variant="outline"
                 size="sm"
-                className={cn(
-                  "h-5 px-1.5 text-xs",
-                  currentLayout === id 
-                    ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white" 
-                    : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400"
-                )}
+                className="h-6 px-2 bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"
               >
-                <Icon className="w-3 h-3 mr-0.5" />
-                <span className="hidden sm:inline">{label}</span>
+                {(() => {
+                  const currentOption = layoutOptions.find(opt => opt.id === currentLayout);
+                  const Icon = currentOption?.icon || Circle;
+                  return (
+                    <>
+                      <Icon className="w-3 h-3 mr-1" />
+                      <span className="text-xs">{currentOption?.label || 'Layout'}</span>
+                    </>
+                  );
+                })()}
               </Button>
-            ))}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="center" className="w-48">
+              {layoutOptions.map(({ id, label, icon: Icon }) => (
+                <DropdownMenuItem
+                  key={id}
+                  onClick={() => onLayoutChange(id)}
+                  className={cn(
+                    "flex items-center gap-2",
+                    currentLayout === id && "bg-blue-50 dark:bg-blue-900/20"
+                  )}
+                >
+                  <Icon className="w-4 h-4" />
+                  <span>{label}</span>
+                  {currentLayout === id && (
+                    <div className="ml-auto w-2 h-2 bg-blue-600 rounded-full" />
+                  )}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          {/* AI Suggestion Button */}
+          {onAISuggest && (
             <Button
-              onClick={() => onLayoutChange('organic')}
-              variant={currentLayout === 'organic' ? "default" : "ghost"}
+              onClick={onAISuggest}
+              variant="outline"
               size="sm"
-              className={cn(
-                "h-5 px-1.5 text-xs",
-                currentLayout === 'organic'
-                  ? "bg-gradient-to-r from-purple-600 to-blue-600 text-white" 
-                  : "hover:bg-gray-50 dark:hover:bg-gray-700/50 text-gray-600 dark:text-gray-400"
-              )}
+              className="h-6 px-2 bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 text-yellow-700 hover:bg-yellow-100 dark:bg-yellow-900/20 dark:border-yellow-700 dark:text-yellow-300"
+              title="Get AI layout suggestions"
             >
-              <Sparkles className="w-3 h-3 mr-0.5" />
-              <span className="hidden lg:inline">Organic</span>
+              <Lightbulb className="w-3 h-3 mr-1" />
+              <span className="text-xs">AI Suggest</span>
             </Button>
-          </div>
+          )}
         </div>
 
         {/* Right Section - Compact Controls */}
         <div className="flex items-center gap-2">
-          {/* Luxury/Aesthetic Theme Dropdown */}
-          <div className="flex items-center">
-            <ThemeSelector
-              currentTheme={currentTheme}
-              onThemeChange={onThemeChange}
-              customThemes={customThemes}
-              customTheme={customTheme}
-              setCustomTheme={setCustomTheme}
-            />
-          </div>
+          {/* Theme Selector */}
+          <ThemeSelector
+            currentTheme={currentTheme}
+            onThemeChange={onThemeChange}
+            customThemes={customThemes}
+            customTheme={customTheme}
+            setCustomTheme={setCustomTheme}
+          />
           {/* View Controls */}
           <div className="flex items-center gap-0.5 bg-gray-50 dark:bg-gray-800/50 rounded p-0.5">
             <Button onClick={onZoomOut} variant="ghost" size="sm" className="h-5 w-5 p-0" title="Zoom Out">
@@ -215,15 +263,29 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
               <span className="hidden md:inline">Save</span>
             </Button>
             
-            <Button
-              onClick={onExport}
-              variant="outline"
-              size="sm"
-              className="h-6 px-1.5 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400"
-            >
-              <Download className="w-3 h-3 mr-0.5" />
-              <span className="hidden lg:inline">Export</span>
-            </Button>
+            {/* Export Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  size="sm"
+                  className="h-6 px-2.5 bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 text-white text-xs font-semibold shadow-md"
+                >
+                  <Download className="w-3 h-3 mr-1" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onExportAsPNG}>
+                  Export as PNG
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onExportAsPDF}>
+                  Export as PDF
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={onExport}>
+                  Export as JSON
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             
             <Button
               onClick={onImport}
