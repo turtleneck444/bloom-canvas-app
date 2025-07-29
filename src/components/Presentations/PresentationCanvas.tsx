@@ -2,20 +2,22 @@ import React, { useCallback, useRef, useEffect, useState } from 'react';
 import PresentationToolbar from './PresentationToolbar';
 import SlideEditor from './SlideEditor';
 import { Button } from '../ui/button';
-import { Plus, FileText, Download, Upload, Save, RotateCcw, Presentation, Trash2, Copy, Image as ImageIcon, Type, Palette, Quote, Settings, CheckCircle, Undo2 as UndoIcon, Redo2 as RedoIcon, Copy as CopyIcon, Pause as PasteIcon, Bug as BlurIcon, Layers as LayersIcon, Lock as LockIcon, AlignEndVertical as AlignVerticalIcon, AlignEndHorizontal as AlignHorizontalIcon, Image as ImageIconIcon, ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon, AlignLeft as AlignLeftIcon, AlignCenter as AlignCenterIcon, AlignRight as AlignRightIcon } from 'lucide-react';
+import { Plus, FileText, Download, Upload, Save, RotateCcw, Presentation, Trash2, Copy, Image as ImageIcon, Type, Palette, Quote, Settings, CheckCircle, Undo2 as UndoIcon, Redo2 as RedoIcon, Copy as CopyIcon, Pause as PasteIcon, Bug as BlurIcon, Layers as LayersIcon, Lock as LockIcon, AlignEndVertical as AlignVerticalIcon, AlignEndHorizontal as AlignHorizontalIcon, Image as ImageIconIcon, ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon, AlignLeft as AlignLeftIcon, AlignCenter as AlignCenterIcon, AlignRight as AlignRightIcon, Play, Pause } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import PptxGenJS from 'pptxgenjs';
+import ShineBorder from './ShineBorder';
+import PresentationsSidebar from './PresentationsSidebar';
 
 interface Slide {
   id: string;
   title: string;
   content: string;
   subtitle?: string;
-  template: 'title' | 'content' | 'two-column' | 'image-text' | 'conclusion' | 'quote' | 'bullets';
+  template: 'title' | 'content' | 'two-column' | 'image-text' | 'conclusion' | 'quote' | 'bullets' | 'aura';
   backgroundColor: string;
   backgroundImage?: string;
   textColor: string;
@@ -147,6 +149,17 @@ const templates: Template[] = [
     fontFamily: 'playfair',
     backgroundImage: backgroundImages[0], // Set the first geometric background as default
   },
+  {
+    id: 'aura',
+    name: 'Aura',
+    description: 'Animated shine border, inspired by 21st.dev',
+    preview: '✨',
+    primaryColor: '#7F5FFF',
+    secondaryColor: '#00E0FF',
+    accentColor: '#FF61A6',
+    fontFamily: 'poppins',
+    backgroundImage: undefined,
+  },
 ];
 
 const creativeTemplates = [
@@ -220,6 +233,11 @@ const PresentationCanvas: React.FC = () => {
   const [undoStack, setUndoStack] = useState<Slide[][]>([]); // Added for undo/redo
   const [redoStack, setRedoStack] = useState<Slide[][]>([]); // Added for undo/redo
   const [zoomLevel, setZoomLevel] = useState(1); // Added for zoom
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playInterval, setPlayInterval] = useState(5); // seconds
+  const playIntervals = [2, 5, 10];
+  const playTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialize with a default slide
   useEffect(() => {
@@ -236,7 +254,7 @@ const PresentationCanvas: React.FC = () => {
         fontFamily: selectedTemplate.fontFamily,
         titleSize: 'xl',
         contentSize: 'large',
-        alignment: 'center',
+        alignment: 'left',
         backgroundImage: backgroundImages[0], // Set the first geometric background as default
       };
       setSlides([defaultSlide]);
@@ -687,14 +705,119 @@ const PresentationCanvas: React.FC = () => {
         });
       }
     });
-    pptx.writeFile('presentation.pptx');
+    pptx.writeFile({ fileName: 'presentation.pptx' });
+  };
+
+  // Handle template selection from sidebar
+  const handleSidebarTemplateSelect = (template: Template) => {
+    setSelectedTemplate(template);
+    // Apply to all slides
+    setSlides(slides.map(slide => ({
+      ...slide,
+      backgroundColor: template.primaryColor,
+      accentColor: template.accentColor,
+      fontFamily: template.fontFamily,
+      backgroundImage: template.backgroundImage,
+    })));
+    toast.success(`Applied ${template.name} template to all slides`);
+  };
+
+  // Play/Pause logic
+  useEffect(() => {
+    if (isPlaying) {
+      // If at the end, reset to first slide
+      if (currentSlideIndex === slides.length - 1) {
+        setCurrentSlideIndex(0);
+      }
+      playTimerRef.current = setInterval(() => {
+        setCurrentSlideIndex(prev => {
+          if (prev < slides.length - 1) {
+            return prev + 1;
+          } else {
+            setIsPlaying(false);
+            return prev;
+          }
+        });
+      }, playInterval * 1000);
+    } else if (playTimerRef.current) {
+      clearInterval(playTimerRef.current);
+      playTimerRef.current = null;
+    }
+    return () => {
+      if (playTimerRef.current) {
+        clearInterval(playTimerRef.current);
+        playTimerRef.current = null;
+      }
+    };
+  }, [isPlaying, playInterval, slides.length]);
+
+  // If play is pressed after reaching the end, reset to first slide and start
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    } else {
+      if (currentSlideIndex === slides.length - 1) {
+        setCurrentSlideIndex(0);
+      }
+      setIsPlaying(true);
+    }
+  };
+
+  // Helper to render a thumbnail preview for a slide
+  const renderSlideThumbnail = (slide: Slide) => (
+    <div
+      className="w-full h-20 rounded-lg overflow-hidden border border-orange-200 dark:border-orange-700 bg-white dark:bg-gray-900 flex items-center justify-center relative"
+      style={{
+        background:
+          slide.backgroundImage && (slide.backgroundImage.startsWith('linear-gradient') || slide.backgroundImage.startsWith('radial-gradient'))
+            ? slide.backgroundImage
+            : undefined,
+        backgroundImage:
+          slide.backgroundImage && (slide.backgroundImage.startsWith('data:image') || slide.backgroundImage.startsWith('http'))
+            ? `url(${slide.backgroundImage})`
+            : undefined,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
+    >
+      <div className="absolute inset-0 bg-white/60 dark:bg-gray-900/60" style={{ opacity: 0.2 }} />
+      <div className="relative z-10 flex flex-col items-center justify-center w-full h-full px-2">
+        <span className="text-xs font-bold text-orange-900 dark:text-orange-100 truncate w-full text-center">
+          {slide.title || 'Untitled'}
+        </span>
+        {slide.subtitle && (
+          <span className="text-[10px] text-orange-700 dark:text-orange-200 truncate w-full text-center">
+            {slide.subtitle}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
+  // Handler for sidebar slide customization
+  const handleSidebarSlideEdit = (slideId: string, key: string, value: any) => {
+    setSlides(slides.map(slide =>
+      slide.id === slideId
+        ? { ...slide, [key]: value }
+        : slide
+    ));
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-white via-gray-100 to-gray-200 dark:from-black dark:via-gray-900 dark:to-gray-950 flex flex-col relative overflow-hidden">
-      {/* Enhanced Background */}
-      <div className="absolute inset-0 bg-gradient-mesh opacity-20 dark:opacity-10"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(25_95%_53%_/_0.15)_0%,transparent_30%),radial-gradient(circle_at_70%_80%,hsl(45_93%_58%_/_0.1)_0%,transparent_40%)]"></div>
+    <div className="h-screen w-full bg-gradient-to-br from-white via-gray-100 to-gray-200 dark:from-[#18131a] dark:via-[#1a141f] dark:to-[#0e0a13] flex flex-col relative overflow-hidden">
+      {/* Enhanced Luxury Dark Background */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {/* Subtle gold mesh and vignette for dark mode */}
+        <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,rgba(255,215,96,0.10)_0%,transparent_60%)]"></div>
+        <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_30%_80%,rgba(255,255,255,0.04)_0%,transparent_70%)]"></div>
+        <div className="hidden dark:block absolute inset-0 bg-gradient-to-br from-[#18131a]/80 via-[#1a141f]/90 to-[#0e0a13]/95"></div>
+        <div className="hidden dark:block absolute inset-0 border-t-2 border-b-2 border-[#ffd760]/10 rounded-b-3xl rounded-t-3xl pointer-events-none"></div>
+        {/* Glassmorphism effect */}
+        <div className="hidden dark:block absolute inset-0 backdrop-blur-[2.5px]" style={{ WebkitBackdropFilter: 'blur(2.5px)' }}></div>
+      </div>
+      {/* Existing light mode mesh backgrounds */}
+      <div className="absolute inset-0 bg-gradient-mesh opacity-20 dark:opacity-0"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(25_95%_53%_/_0.15)_0%,transparent_30%),radial-gradient(circle_at_70%_80%,hsl(45_93%_58%_/_0.1)_0%,transparent_40%)] dark:opacity-0"></div>
       {/* Toolbar */}
       <div className="h-16 flex-shrink-0 relative z-10">
         <PresentationToolbar
@@ -714,164 +837,31 @@ const PresentationCanvas: React.FC = () => {
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Enhanced Slide Navigator */}
         {!isPreviewMode && (
-          <div className="w-80 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl border-r border-orange-200/50 dark:border-orange-800/50 flex flex-col shadow-2xl">
-            <div className="p-4 border-b border-orange-200/50 dark:border-orange-800/50 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50">
-              <h3 className="font-bold text-orange-900 dark:text-orange-100 font-playfair">Slides</h3>
-              <div className="flex gap-2 mt-2 flex-wrap">
-                <Button onClick={() => handleAddSlide('title')} size="sm" className="h-6 px-2.5 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white text-xs font-semibold shadow-md rounded">
-                  <FileText className="w-3 h-3 mr-1" /> Title
-                </Button>
-                <Button onClick={() => handleAddSlide('bullets')} size="sm" className="h-6 px-2.5 border border-orange-400 text-orange-700 bg-white hover:bg-orange-50 text-xs font-semibold shadow-sm rounded">
-                  <Type className="w-3 h-3 mr-1" /> Bullets
-                </Button>
-                {creativeTemplates.map(opt => (
-                  <Button key={opt.id} onClick={() => handleAddSlide(opt.template as any, opt.customType)} size="sm" className={`h-6 px-2.5 border border-orange-300 text-orange-700 bg-white hover:bg-orange-50 text-xs font-semibold shadow-sm rounded flex items-center gap-1.5`}>
-                    <opt.icon className="w-3 h-3 mr-1" /> {opt.label}
-                  </Button>
-                ))}
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto p-3 space-y-3">
-              {slides.map((slide, index) => (
-                <motion.div
-                  key={slide.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={cn(
-                    "group relative p-3 rounded-xl cursor-pointer transition-all duration-300 border-2",
-                    currentSlideIndex === index
-                      ? "bg-gradient-to-br from-orange-100 to-amber-100 dark:from-orange-900/70 dark:to-amber-900/70 border-orange-500 shadow-lg transform scale-[1.02]"
-                      : "bg-white/70 dark:bg-gray-800/70 border-orange-200/50 dark:border-orange-700/50 hover:bg-orange-50/80 dark:hover:bg-orange-900/40 hover:border-orange-400/70 hover:shadow-md"
-                  )}
-                  onClick={() => setCurrentSlideIndex(index)}
-                >
-                  {/* Slide Preview */}
-                  <div className="aspect-video rounded-lg overflow-hidden mb-2 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800 relative">
-                    <div 
-                      className="w-full h-full p-2 flex flex-col justify-center"
-                      style={{ 
-                        backgroundColor: slide.backgroundColor,
-                        backgroundImage: slide.backgroundImage === 'gradient-mesh' ? 'var(--tw-gradient-mesh)' : slide.backgroundImage ? `url(${slide.backgroundImage})` : undefined,
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
-                      }}
-                    >
-                      {/* Overlay for text */}
-                      <div 
-                        className="absolute inset-0 bg-black/50 dark:bg-black/70"
-                        style={{ opacity: overlayStrength / 100 }}
-                      />
-                      {/* Render preview based on slide type */}
-                      {slide.template === 'title' && (
-                        <>
-                          <div className={cn('truncate font-bold', getTitleSizeClass(slide.titleSize))} style={{ color: slide.textColor }}>{slide.title}</div>
-                          {slide.subtitle && <div className={cn('truncate opacity-80', getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>{slide.subtitle}</div>}
-                        </>
-                      )}
-                      {slide.template === 'bullets' && (
-                        <>
-                          <div className={cn('truncate font-bold', getTitleSizeClass(slide.titleSize))} style={{ color: slide.textColor }}>{slide.title}</div>
-                          <ul className="mt-1 space-y-1">
-                            {(slide.bulletPoints || ['• ...']).slice(0, 3).map((bullet, i) => (
-                              <li key={i} className={cn('truncate flex items-center gap-1', getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>
-                                <span className="w-2 h-2 rounded-full inline-block mr-1" style={{ backgroundColor: slide.accentColor }}></span>
-                                {bullet}
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      )}
-                      {slide.template === 'quote' && (
-                        <>
-                          <div className={cn('italic truncate', getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>
-                            “{slide.content || 'Quote...'}”
-                          </div>
-                          {slide.subtitle && <div className={cn('truncate opacity-80 mt-1', getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>{slide.subtitle}</div>}
-                        </>
-                      )}
-                      {slide.template === 'two-column' && (
-                        <div className="flex gap-1">
-                          <div className={cn('truncate flex-1', getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>{slide.content?.split('\n')[0] || 'Left...'}</div>
-                          <div className={cn('truncate flex-1 opacity-80', getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>{slide.subtitle || 'Right...'}</div>
-                        </div>
-                      )}
-                      {slide.template === 'image-text' && (
-                        <>
-                          <div className={cn('truncate font-bold', getTitleSizeClass(slide.titleSize))} style={{ color: slide.textColor }}>{slide.title}</div>
-                          <div className={cn('truncate opacity-80', getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>{slide.content}</div>
-                        </>
-                      )}
-                      {/* Fallback for other types */}
-                      {['content', 'conclusion'].includes(slide.template) && (
-                        <>
-                          <div className={cn('truncate font-bold', getTitleSizeClass(slide.titleSize))} style={{ color: slide.textColor }}>{slide.title}</div>
-                          <div className={cn('truncate opacity-80', getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>{slide.content}</div>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  {/* Slide Info and Editable Title/Description */}
-                  <div className="text-sm font-semibold text-orange-900 dark:text-orange-100 truncate">
-                    {index + 1}. {currentSlideIndex === index ? (
-                      <input
-                        type="text"
-                        value={slide.title}
-                        onChange={e => handleSlideEdit(slide.id, 'title', e.target.value)}
-                        className="w-full bg-transparent border-b border-orange-200 dark:border-orange-700 focus:outline-none focus:border-orange-500 text-orange-900 dark:text-orange-100 font-bold"
-                        placeholder="Slide Title..."
-                        onSelect={() => { /* show formatting toolbar logic here */ }}
-                      />
-                    ) : slide.title}
-                  </div>
-                  <div className="text-xs text-orange-600 dark:text-orange-300 mt-1 truncate">
-                    {currentSlideIndex === index ? (
-                      <input
-                        type="text"
-                        value={slide.subtitle || ''}
-                        onChange={e => handleSlideEdit(slide.id, 'subtitle', e.target.value)}
-                        className="w-full bg-transparent border-b border-orange-100 dark:border-orange-800 focus:outline-none focus:border-orange-400 text-orange-600 dark:text-orange-300"
-                        placeholder="Description..."
-                        onSelect={() => { /* show formatting toolbar logic here */ }}
-                      />
-                    ) : slide.subtitle}
-                  </div>
-                  <div className="text-xs text-orange-600 dark:text-orange-300 mt-1 truncate">
-                    {slide.template} • {slide.fontFamily}
-                  </div>
-                  {/* Action Buttons */}
-                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDuplicateSlide(slide.id);
-                      }}
-                      size="sm"
-                      className="h-6 w-6 p-0 bg-blue-500 hover:bg-blue-600 text-white"
-                      title="Duplicate"
-                    >
-                      <Copy className="w-3 h-3" />
-                    </Button>
-                    <Button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteSlide(slide.id);
-                      }}
-                      size="sm"
-                      className="h-6 w-6 p-0 bg-red-500 hover:bg-red-600 text-white"
-                      title="Delete"
-                      disabled={slides.length <= 1}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+          <PresentationsSidebar
+            slides={slides}
+            currentSlideIndex={currentSlideIndex}
+            onAddSlide={handleAddSlide}
+            onDuplicateSlide={handleDuplicateSlide}
+            onDeleteSlide={handleDeleteSlide}
+            onSelectSlide={setCurrentSlideIndex}
+            onTemplateSelect={handleSidebarTemplateSelect}
+            onExport={handleExport}
+            onImport={handleImport}
+            onSave={handleSave}
+            isCollapsed={isSidebarCollapsed}
+            onToggleCollapse={() => setIsSidebarCollapsed((v) => !v)}
+            renderSlideThumbnail={renderSlideThumbnail}
+            onSlideEdit={handleSidebarSlideEdit}
+          />
         )}
         {/* Main Editor/Preview Area */}
-        <div className="flex-1 flex flex-col">
+        <div
+          className={cn(
+            'flex-1 flex flex-col items-center justify-center min-h-0 transition-all duration-300',
+            !isPreviewMode && !isSidebarCollapsed ? 'ml-96' : '',
+            !isPreviewMode && isSidebarCollapsed ? 'ml-20' : ''
+          )}
+        >
           {/* Template & Customization Panels */}
           <AnimatePresence>
             {(showTemplateSelector || showCustomization) && !isPreviewMode && (
@@ -1002,7 +992,7 @@ const PresentationCanvas: React.FC = () => {
                         <input type="color" value={overlayColor} onChange={e => setOverlayColor(e.target.value)} className="w-7 h-7 p-0 border-none rounded shadow" title="Overlay Color" />
                         <input type="range" min="0" max="100" value={overlayStrength} onChange={e => setOverlayStrength(Number(e.target.value))} className="w-full" title="Overlay Strength" />
                         <span className="text-xs text-orange-700">{overlayStrength}%</span>
-                      </div>
+                          </div>
                       {/* Actions */}
                       <div className="flex flex-row items-center gap-1 min-w-[120px] bg-orange-50/40 dark:bg-orange-900/20 rounded-lg px-2 py-1">
                         <button title="Undo" className="p-1 rounded hover:bg-orange-100" onClick={handleUndo}><UndoIcon /></button>
@@ -1028,29 +1018,47 @@ const PresentationCanvas: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
-          {/* Slide Canvas */}
-          <div className="flex-1 p-8 overflow-auto flex flex-col items-center justify-center">
-            <div className="max-w-7xl w-full mx-auto p-12 md:p-16 rounded-3xl shadow-2xl bg-white/80 dark:bg-gray-900/80 transition-all duration-300">
+          {/* Slide Canvas with zoom and containment */}
+          <div className="flex-1 flex flex-col items-center justify-center w-full px-2 py-8 md:py-16 overflow-auto">
+            <div
+              className="max-w-4xl w-full mx-auto p-8 md:p-14 rounded-3xl shadow-2xl bg-white/80 dark:bg-gray-900/80 glass-card transition-all duration-300 relative"
+              style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center', minHeight: 400, maxHeight: '70vh' }}
+            >
               {currentSlide && (
-                <SlideEditor
-                  slide={currentSlide}
-                  onSlideEdit={handleSlideEdit}
-                  isPreviewMode={isPreviewMode}
-                />
+                <div className="slide-preview-content">
+                  {currentSlide.template === 'aura' ? (
+                    <ShineBorder>
+                      <div className="flex flex-col items-center justify-center min-h-[300px]">
+                        <h1 className="text-3xl font-bold mb-2">{currentSlide.title}</h1>
+                        {currentSlide.subtitle && <p className="text-lg opacity-80 mb-4">{currentSlide.subtitle}</p>}
+                        <div className="prose dark:prose-invert max-w-none text-center">
+                          {currentSlide.content}
+                        </div>
+                      </div>
+                    </ShineBorder>
+                  ) : (
+                    <SlideEditor
+                      slide={currentSlide}
+                      onSlideEdit={handleSlideEdit}
+                      isPreviewMode={isPreviewMode}
+                    />
+                  )}
+                </div>
               )}
             </div>
           </div>
-          {/* Enhanced Slide Navigation Controls */}
-          <div className="p-4 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-t border-orange-200/50 dark:border-orange-800/50 flex justify-center items-center space-x-4 shadow-lg">
+          {/* Enhanced Slide Navigation Controls - sticky footer */}
+          <div className="sticky bottom-0 left-0 w-full flex justify-center items-center z-20">
+            <div className="mx-auto my-6 px-8 py-4 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/60 dark:to-amber-900/60 rounded-2xl border border-orange-200 dark:border-orange-700 shadow-2xl flex items-center space-x-6">
             <Button
               onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
-              disabled={currentSlideIndex === 0}
+                disabled={currentSlideIndex === 0 || isPlaying}
               variant="outline"
               className="border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-300"
             >
               Previous
             </Button>
-            <div className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/50 dark:to-amber-900/50 rounded-xl border border-orange-200 dark:border-orange-700">
+              <div className="flex items-center space-x-2 px-6 py-3 bg-white/80 dark:bg-gray-900/80 rounded-xl border border-orange-200 dark:border-orange-700 shadow">
               <Presentation className="w-4 h-4 text-orange-600 dark:text-orange-300" />
               <span className="text-orange-900 dark:text-orange-100 font-semibold">
                 {currentSlideIndex + 1} of {slides.length}
@@ -1058,12 +1066,56 @@ const PresentationCanvas: React.FC = () => {
             </div>
             <Button
               onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
-              disabled={currentSlideIndex === slides.length - 1}
+                disabled={currentSlideIndex === slides.length - 1 || isPlaying}
               variant="outline"
               className="border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-300"
             >
               Next
             </Button>
+              {/* Play/Pause and Timer */}
+              <div className="flex items-center gap-2 ml-6">
+                <Button
+                  onClick={handlePlayPause}
+                  variant="outline"
+                  className={cn('border-orange-200 text-orange-700 dark:border-orange-700 dark:text-orange-300', isPlaying && 'bg-orange-200/60 dark:bg-orange-800/60')}
+                  disabled={slides.length <= 1}
+                  title={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
+                >
+                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                </Button>
+                <select
+                  value={playInterval}
+                  onChange={e => setPlayInterval(Number(e.target.value))}
+                  disabled={isPlaying}
+                  className="rounded-lg border border-orange-200 dark:border-orange-700 px-2 py-1 text-sm bg-white dark:bg-gray-900 text-orange-700 dark:text-orange-200"
+                  title="Slide Interval (seconds)"
+                >
+                  {playIntervals.map(sec => (
+                    <option key={sec} value={sec}>{sec}s</option>
+                  ))}
+                </select>
+              </div>
+              {/* Zoom controls */}
+              <div className="flex items-center gap-2 ml-6">
+                <Button
+                  onClick={() => setZoomLevel(z => Math.max(0.5, z - 0.1))}
+                  variant="outline"
+                  className="border-orange-200 text-orange-700 dark:border-orange-700 dark:text-orange-300"
+                  title="Zoom Out"
+                >
+                  -
+                </Button>
+                <span className="text-orange-900 dark:text-orange-100 font-semibold">{Math.round(zoomLevel * 100)}%</span>
+                <Button
+                  onClick={() => setZoomLevel(z => Math.min(2, z + 0.1))}
+                  variant="outline"
+                  className="border-orange-200 text-orange-700 dark:border-orange-700 dark:text-orange-300"
+                  title="Zoom In"
+                >
+                  +
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

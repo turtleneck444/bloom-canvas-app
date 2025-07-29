@@ -16,7 +16,7 @@ import {
   Type
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Logo from '@/components/ui/logo';
+import { ServiceSwitcher } from '../ui/logo';
 
 interface ToolbarAction {
   icon: React.ReactNode;
@@ -39,7 +39,7 @@ interface PresentationToolbarProps {
   isPreviewMode: boolean;
   className?: string;
   accentColor?: string; // NEW: custom accent color
-  customTitle?: string; // NEW: custom title for branding
+  customTitle?: React.ReactNode; // Accept ReactNode for branding
   customActions?: ToolbarAction[]; // NEW: custom action buttons for the left section
   customRightActions?: ToolbarAction[]; // NEW: right section
 }
@@ -71,12 +71,7 @@ const PresentationToolbar: React.FC<PresentationToolbarProps> = ({
         
         {/* Left Section - Logo and Core Actions */}
         <div className="flex items-center gap-3">
-          <div className={`flex items-center gap-2 border-r border-${accent}-200 dark:border-${accent}-700 pr-3`}>
-            <Logo size="sm" variant="minimal" />
-            <div className={`flex items-center gap-1 text-xs text-${accent}-600 dark:text-${accent}-400`}>
-              <span className="font-semibold">{customTitle || <><Presentation className="w-3 h-3" /> {slideCount}</>}</span>
-            </div>
-          </div>
+          {customTitle ? customTitle : <ServiceSwitcher current="presentations" />}
           
           <div className="flex items-center gap-1.5">
             {customActions ? (
@@ -94,35 +89,15 @@ const PresentationToolbar: React.FC<PresentationToolbarProps> = ({
               ))
             ) : (
               <>
-                {/* Default: Add Slide, Templates, Customize */}
-                <Button
-                  onClick={onAddSlide}
-                  size="sm"
-                  className="h-6 px-2.5 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white text-xs font-semibold shadow-md"
-                >
-                  <Plus className="w-3 h-3 mr-1" />
-                  Add Slide
-                </Button>
-                <Button
-                  onClick={onTemplateSelect}
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-2.5 text-xs border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400"
-                  title="Select Template"
-                >
-                  <Palette className="w-3 h-3 mr-1" />
-                  Templates
-                </Button>
-                <Button
-                  onClick={onCustomize}
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-2.5 text-xs border-amber-200 text-amber-700 hover:bg-amber-50 dark:border-amber-700 dark:text-amber-400"
-                  title="Customize Slide"
-                >
-                  <Type className="w-3 h-3 mr-1" />
-                  Customize
-                </Button>
+                {/* Default: Add Slide */}
+            <Button
+              onClick={onAddSlide}
+              size="sm"
+              className="h-6 px-2.5 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-700 hover:to-amber-600 text-white text-xs font-semibold shadow-md"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              Add Slide
+            </Button>
               </>
             )}
           </div>
@@ -154,73 +129,73 @@ const PresentationToolbar: React.FC<PresentationToolbarProps> = ({
           ) : (
             <>
               {/* Default: Preview, Theme, File Actions */}
-              {/* Preview Toggle */}
-              <Button
-                onClick={onPreviewToggle}
-                variant={isPreviewMode ? "default" : "outline"}
-                size="sm"
-                className={cn(
-                  "h-6 px-2.5 text-xs",
-                  isPreviewMode 
-                    ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white" 
-                    : "border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400"
-                )}
-              >
-                {isPreviewMode ? <EyeOff className="w-3 h-3 mr-1" /> : <Eye className="w-3 h-3 mr-1" />}
-                {isPreviewMode ? 'Edit' : 'Preview'}
-              </Button>
+          {/* Preview Toggle */}
+          <Button
+            onClick={onPreviewToggle}
+            variant={isPreviewMode ? "default" : "outline"}
+            size="sm"
+            className={cn(
+              "h-6 px-2.5 text-xs",
+              isPreviewMode 
+                ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white" 
+                : "border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400"
+            )}
+          >
+            {isPreviewMode ? <EyeOff className="w-3 h-3 mr-1" /> : <Eye className="w-3 h-3 mr-1" />}
+            {isPreviewMode ? 'Edit' : 'Preview'}
+          </Button>
 
-              {/* Theme Toggle */}
-              <Button
-                onClick={() => {
-                  const isDark = document.documentElement.classList.contains('dark');
-                  if (isDark) {
-                    document.documentElement.classList.remove('dark');
-                  } else {
-                    document.documentElement.classList.add('dark');
-                  }
-                }}
-                variant="outline"
-                size="sm"
-                className="h-6 w-6 p-0 border-orange-200 hover:bg-orange-50 dark:border-orange-700 dark:hover:bg-orange-800/50"
-                title="Toggle Theme"
-              >
-                <Sun className="w-3 h-3 block dark:hidden" />
-                <Moon className="w-3 h-3 hidden dark:block" />
-              </Button>
+          {/* Theme Toggle */}
+          <Button
+            onClick={() => {
+              const isDark = document.documentElement.classList.contains('dark');
+              if (isDark) {
+                document.documentElement.classList.remove('dark');
+              } else {
+                document.documentElement.classList.add('dark');
+              }
+            }}
+            variant="outline"
+            size="sm"
+            className="h-6 w-6 p-0 border-orange-200 hover:bg-orange-50 dark:border-orange-700 dark:hover:bg-orange-800/50"
+            title="Toggle Theme"
+          >
+            <Sun className="w-3 h-3 block dark:hidden" />
+            <Moon className="w-3 h-3 hidden dark:block" />
+          </Button>
 
-              {/* File Actions */}
-              <div className="flex items-center gap-0.5 border-l border-orange-200 dark:border-orange-700 pl-2">
-                <Button
-                  onClick={onSave}
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-1.5 text-xs border-green-200 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-400"
-                >
-                  <Save className="w-3 h-3 mr-0.5" />
-                  Save
-                </Button>
-                
-                <Button
-                  onClick={onExport}
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-1.5 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400"
-                >
-                  <Download className="w-3 h-3 mr-0.5" />
-                  Export
-                </Button>
-                
-                <Button
-                  onClick={onImport}
-                  variant="outline"
-                  size="sm"
-                  className="h-6 px-1.5 text-xs border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400"
-                >
-                  <Upload className="w-3 h-3 mr-0.5" />
-                  Import
-                </Button>
-              </div>
+          {/* File Actions */}
+          <div className="flex items-center gap-0.5 border-l border-orange-200 dark:border-orange-700 pl-2">
+            <Button
+              onClick={onSave}
+              variant="outline"
+              size="sm"
+              className="h-6 px-1.5 text-xs border-green-200 text-green-700 hover:bg-green-50 dark:border-green-700 dark:text-green-400"
+            >
+              <Save className="w-3 h-3 mr-0.5" />
+              Save
+            </Button>
+            
+            <Button
+              onClick={onExport}
+              variant="outline"
+              size="sm"
+              className="h-6 px-1.5 text-xs border-blue-200 text-blue-700 hover:bg-blue-50 dark:border-blue-700 dark:text-blue-400"
+            >
+              <Download className="w-3 h-3 mr-0.5" />
+              Export
+            </Button>
+            
+            <Button
+              onClick={onImport}
+              variant="outline"
+              size="sm"
+              className="h-6 px-1.5 text-xs border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-400"
+            >
+              <Upload className="w-3 h-3 mr-0.5" />
+              Import
+            </Button>
+          </div>
             </>
           )}
         </div>

@@ -182,7 +182,7 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
 
   if (isMinimized) {
     return (
-      <div className="fixed left-0 top-4 z-50">
+      <div className="fixed left-0 top-16 z-50">
         <Button
           onClick={() => setIsMinimized(false)}
           className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg rounded-l-none"
@@ -197,7 +197,7 @@ const AIToolbar: React.FC<AIToolbarProps> = ({
 
   return (
     <div className={cn(
-      "fixed left-0 top-12 bottom-0 w-96 bg-white/98 dark:bg-gray-900/98 backdrop-blur-md border-r border-emerald-200 dark:border-emerald-800 shadow-2xl overflow-hidden z-40",
+      "fixed left-0 top-16 bottom-0 w-96 bg-white/98 dark:bg-gray-900/98 backdrop-blur-md border-r border-emerald-200 dark:border-emerald-800 shadow-2xl overflow-hidden z-40",
       !isExpanded && "w-16"
     )}>
       {/* Header */}

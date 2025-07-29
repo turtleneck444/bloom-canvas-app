@@ -4,12 +4,12 @@ import { cn } from '@/lib/utils';
 import { Presentation } from 'lucide-react'; // Added for the new template indicator
 import { Toolbar } from './toolbar';
 
-interface Slide {
+export interface Slide {
   id: string;
   title: string;
   content: string;
   subtitle?: string;
-  template: 'title' | 'content' | 'two-column' | 'image-text' | 'conclusion' | 'quote' | 'bullets';
+  template: 'title' | 'content' | 'two-column' | 'image-text' | 'conclusion' | 'quote' | 'bullets' | 'aura';
   backgroundColor: string;
   backgroundImage?: string;
   textColor: string;
@@ -22,6 +22,18 @@ interface Slide {
   imageUrl?: string;
   quote?: string;
   quoteAuthor?: string;
+  letterSpacing?: number;
+  lineHeight?: number;
+  textShadow?: boolean;
+  textOpacity?: number;
+  textBgColor?: string;
+  textBorderColor?: string;
+  isLocked?: boolean;
+  isBackgroundBlur?: boolean;
+  overlayStrength?: number; // 0-1
+  overlayColor?: string; // CSS color
+  backgroundColorAlpha?: number; // For solid colors, to control opacity
+  textBorderColorAlpha?: number; // For solid colors, to control opacity
 }
 
 interface SlideEditorProps {
@@ -86,17 +98,61 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
     onSlideEdit(slide.id, 'bulletPoints', newBullets);
   };
 
-  const backgroundStyle = {
-    backgroundColor: slide.backgroundColor,
-    backgroundImage: slide.backgroundImage === 'gradient-mesh' 
-      ? 'radial-gradient(at 40% 20%, hsla(28,100%,74%,1) 0px, transparent 50%), radial-gradient(at 80% 0%, hsla(189,100%,56%,1) 0px, transparent 50%), radial-gradient(at 0% 50%, hsla(355,100%,93%,1) 0px, transparent 50%), radial-gradient(at 80% 50%, hsla(340,100%,76%,1) 0px, transparent 50%), radial-gradient(at 0% 100%, hsla(22,100%,77%,1) 0px, transparent 50%), radial-gradient(at 80% 100%, hsla(242,100%,70%,1) 0px, transparent 50%), radial-gradient(at 0% 0%, hsla(343,100%,76%,1) 0px, transparent 50%)'
-      : slide.backgroundImage 
-        ? `linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url(${slide.backgroundImage})`
-        : undefined,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
-    backgroundRepeat: 'no-repeat',
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
   };
+
+  const backgroundStyle = (() => {
+    // If it's a gradient string
+    if (slide.backgroundImage && slide.backgroundImage.startsWith('linear-gradient')) {
+      return {
+        background: slide.backgroundImage,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        ...(slide.textBorderColor ? { borderColor: slide.textBorderColor } : {}),
+      };
+    }
+    // If it's an image (jpeg, png, svg, data:image, http, etc)
+    if (slide.backgroundImage && (slide.backgroundImage.endsWith('.jpeg') || slide.backgroundImage.endsWith('.jpg') || slide.backgroundImage.endsWith('.png') || slide.backgroundImage.startsWith('data:image') || slide.backgroundImage.startsWith('http'))) {
+      return {
+        backgroundImage: `url(${slide.backgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        ...(slide.textBorderColor ? { borderColor: slide.textBorderColor } : {}),
+      };
+    }
+    // If it's a solid color
+    if (slide.backgroundColor) {
+      let alpha = typeof slide.backgroundColorAlpha === 'number' ? slide.backgroundColorAlpha / 100 : 1;
+      // Use hexToRgba if color is hex, else fallback
+      let color = slide.backgroundColor;
+      if (color.startsWith('#')) {
+        color = hexToRgba(color, alpha);
+      } else if (color.startsWith('rgba')) {
+        // Replace alpha
+        color = color.replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, `rgba($1,$2,$3,${alpha})`);
+      }
+      let borderColor = slide.textBorderColor;
+      if (borderColor && typeof slide.textBorderColorAlpha === 'number') {
+        if (borderColor.startsWith('#')) {
+          borderColor = hexToRgba(borderColor, slide.textBorderColorAlpha / 100);
+        } else if (borderColor.startsWith('rgba')) {
+          borderColor = borderColor.replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, `rgba($1,$2,$3,${slide.textBorderColorAlpha / 100})`);
+        }
+      }
+      return {
+        background: color,
+        ...(borderColor ? { borderColor } : {}),
+      };
+    }
+    // Fallback
+    return {};
+  })();
 
   // Refactor renderSlideContent so that for ALL slide types, the title and subtitle/description are always rendered at the top of the slide, both in edit and preview mode.
   // For all cases, render:
@@ -105,72 +161,80 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
   // - Content area (textarea/input in edit mode, content in preview mode)
 
   const renderSlideContent = () => {
-        return (
-          <div className={cn(
-        "h-full flex flex-col justify-center p-16",
-            getFontClass(slide.fontFamily),
-            getAlignmentClass(slide.alignment)
-          )}>
-            {!isPreviewMode ? (
-              <>
-                <input
-                  type="text"
-                  value={slide.title}
-                  onChange={(e) => onSlideEdit(slide.id, 'title', e.target.value)}
-                  className={cn(
+    return (
+      <div className={cn(
+        "h-full flex flex-col justify-center items-stretch p-16 text-[1.5rem]",
+        getFontClass(slide.fontFamily),
+        getAlignmentClass(slide.alignment)
+      )}
+      style={{
+        textAlign: slide.alignment,
+        alignItems: slide.alignment === 'left' ? 'flex-start' : slide.alignment === 'center' ? 'center' : 'flex-end',
+      }}
+      >
+        {/* Only render intended content: title, subtitle, content, bullets, etc. No toolbars or sliders here. */}
+        {!isPreviewMode ? (
+          <>
+            <input
+              type="text"
+              value={slide.title}
+              onChange={(e) => onSlideEdit(slide.id, 'title', e.target.value)}
+              className={cn(
                 "bg-transparent border-none outline-none w-full placeholder-white/70 font-bold mb-4 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                    getTitleSizeClass(slide.titleSize)
-                  )}
-                  style={{ color: slide.textColor }}
-                  placeholder="Enter slide title..."
-                />
-                {slide.subtitle !== undefined && (
-                  <input
-                    type="text"
-                    value={slide.subtitle}
-                    onChange={(e) => onSlideEdit(slide.id, 'subtitle', e.target.value)}
-                    className={cn(
+                getTitleSizeClass(slide.titleSize),
+                slide.textShadow && 'drop-shadow-lg'
+              )}
+              style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}
+              placeholder="Enter slide title..."
+            />
+            {slide.subtitle !== undefined && (
+              <input
+                type="text"
+                value={slide.subtitle}
+                onChange={(e) => onSlideEdit(slide.id, 'subtitle', e.target.value)}
+                className={cn(
                   "bg-transparent border-none outline-none w-full placeholder-white/70 opacity-90 mb-6 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                      getContentSizeClass(slide.contentSize)
-                    )}
-                    style={{ color: slide.textColor }}
-                placeholder="Enter description..."
-                  />
+                  getContentSizeClass(slide.contentSize),
+                  slide.textShadow && 'drop-shadow-md'
                 )}
-            {/* Content area for each slide type */}
+                style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}
+                placeholder="Enter description..."
+              />
+            )}
+            {/* Content area for each slide type (no toolbars or sliders) */}
             {slide.template === 'bullets' ? (
-                <div className="space-y-4">
-                  {slide.bulletPoints?.map((bullet, index) => (
-                    <div key={index} className="flex items-center gap-4">
+              <div className="space-y-4">
+                {slide.bulletPoints?.map((bullet, index) => (
+                  <div key={index} className="flex items-center gap-4">
                     <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: slide.accentColor }} />
-                      <input
-                        type="text"
-                        value={bullet}
-                        onChange={(e) => updateBulletPoint(index, e.target.value)}
-                        className={cn(
+                    <input
+                      type="text"
+                      value={bullet}
+                      onChange={(e) => updateBulletPoint(index, e.target.value)}
+                      className={cn(
                         "bg-transparent border-none outline-none flex-1 placeholder-white/70 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                          getContentSizeClass(slide.contentSize)
-                        )}
-                        style={{ color: slide.textColor }}
-                        placeholder="Enter bullet point..."
-                      />
+                        getContentSizeClass(slide.contentSize)
+                      )}
+                      style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}
+                      placeholder="Enter bullet point..."
+                    />
                     <button onClick={() => removeBulletPoint(index)} className="text-red-400 hover:text-red-300 opacity-70 hover:opacity-100 transition-opacity">×</button>
-                    </div>
-                  ))}
+                  </div>
+                ))}
                 <button onClick={addBulletPoint} className="flex items-center gap-2 text-white/70 hover:text-white/90 transition-colors mt-4">+ Add bullet point</button>
-                </div>
+              </div>
             ) : slide.template === 'two-column' ? (
               <div className="grid grid-cols-2 gap-12">
-                  <textarea
-                    value={slide.content}
-                    onChange={(e) => onSlideEdit(slide.id, 'content', e.target.value)}
-                    className={cn(
+                <textarea
+                  value={slide.content}
+                  onChange={(e) => onSlideEdit(slide.id, 'content', e.target.value)}
+                  className={cn(
                     "bg-transparent border-none outline-none w-full h-40 resize-none placeholder-white/70 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                      getContentSizeClass(slide.contentSize)
-                    )}
-                    style={{ color: slide.textColor }}
-                    placeholder="Enter content for left column..."
-                  />
+                    getContentSizeClass(slide.contentSize)
+                  )}
+                  style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}
+                  placeholder="Enter content for left column..."
+                />
                 <textarea
                   value={slide.subtitle || ''}
                   onChange={(e) => onSlideEdit(slide.id, 'subtitle', e.target.value)}
@@ -178,55 +242,69 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
                     "bg-transparent border-none outline-none w-full h-40 resize-none placeholder-white/70 transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
                     getContentSizeClass(slide.contentSize)
                   )}
-                  style={{ color: slide.textColor }}
+                  style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}
                   placeholder="Enter content for right column..."
                 />
               </div>
             ) : (
-                <textarea
-                  value={slide.content}
-                  onChange={(e) => onSlideEdit(slide.id, 'content', e.target.value)}
-                  className={cn(
-                  "bg-transparent border-none outline-none w-full flex-1 resize-none placeholder-white/70 leading-relaxed transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron",
-                    getContentSizeClass(slide.contentSize)
-                  )}
-                  style={{ color: slide.textColor }}
-                placeholder="Click to edit and add your content here"
-                />
+              <div
+                contentEditable={!isPreviewMode}
+                suppressContentEditableWarning={true}
+                onInput={e => onSlideEdit(slide.id, 'content', (e.target as HTMLDivElement).innerText)}
+                className={cn(
+                  "bg-transparent border-none outline-none w-full flex-1 placeholder-white/70 leading-relaxed transition-all duration-200 focus:ring-2 focus:ring-cyan-400 focus:shadow-neon-cyan hover:shadow-neon-cyan font-orbitron px-8 py-6 rounded-xl min-h-[5rem] max-w-[90%]",
+                  getContentSizeClass(slide.contentSize),
+                  slide.textShadow && 'drop-shadow-lg'
+                )}
+                style={{
+                  color: slide.textColor,
+                  letterSpacing: slide.letterSpacing,
+                  lineHeight: slide.lineHeight,
+                  minHeight: '5rem',
+                  maxHeight: 'none',
+                  overflow: 'visible',
+                  fontSize: '1.5rem',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                }}
+                data-placeholder="Click to edit and add your content here"
+              >
+                {slide.content}
+              </div>
             )}
-              </>
-            ) : (
-              <>
-            <h1 className={cn("font-bold mb-4", getTitleSizeClass(slide.titleSize))} style={{ color: slide.textColor }}>{slide.title}</h1>
+          </>
+        ) : (
+          <>
+            <h1 className={cn("font-bold mb-4", getTitleSizeClass(slide.titleSize), slide.textShadow && 'drop-shadow-lg')} style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}>{slide.title}</h1>
             {slide.subtitle && (
-              <p className={cn("opacity-90 mb-6", getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>{slide.subtitle}</p>
+              <p className={cn("opacity-90 mb-6", getContentSizeClass(slide.contentSize), slide.textShadow && 'drop-shadow-md')} style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}>{slide.subtitle}</p>
             )}
-            {/* Content area for each slide type */}
+            {/* Content area for each slide type (no toolbars or sliders) */}
             {slide.template === 'bullets' ? (
               <ul className="space-y-4">
                 {slide.bulletPoints?.map((bullet, index) => (
                   <li key={index} className="flex items-center gap-4">
                     <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: slide.accentColor }} />
-                    <span className={getContentSizeClass(slide.contentSize)} style={{ color: slide.textColor }}>{bullet}</span>
+                    <span className={cn(getContentSizeClass(slide.contentSize), slide.textShadow && 'drop-shadow')} style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}>{bullet}</span>
                   </li>
                 ))}
               </ul>
             ) : slide.template === 'two-column' ? (
               <div className="grid grid-cols-2 gap-12">
-                <div className={getContentSizeClass(slide.contentSize)} style={{ color: slide.textColor }}>{slide.content}</div>
-                <div className={getContentSizeClass(slide.contentSize)} style={{ color: slide.textColor }}>{slide.subtitle}</div>
+                <div className={cn(getContentSizeClass(slide.contentSize), slide.textShadow && 'drop-shadow')} style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}>{slide.content}</div>
+                <div className={cn(getContentSizeClass(slide.contentSize), slide.textShadow && 'drop-shadow')} style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}>{slide.subtitle}</div>
               </div>
             ) : (
-              <div className={cn("leading-relaxed", getContentSizeClass(slide.contentSize))} style={{ color: slide.textColor }}>
-                  {slide.content.split('\n').map((line, index) => (
-                    <p key={index} className="mb-4">{line}</p>
-                  ))}
-                </div>
+              <div className={cn("leading-relaxed", getContentSizeClass(slide.contentSize), slide.textShadow && 'drop-shadow')} style={{ color: slide.textColor, letterSpacing: slide.letterSpacing, lineHeight: slide.lineHeight }}>
+                {slide.content.split('\n').map((line, index) => (
+                  <p key={index} className="mb-4">{line}</p>
+                ))}
+              </div>
             )}
-              </>
-            )}
-          </div>
-        );
+          </>
+        )}
+      </div>
+    );
   };
 
   // Tag editing state
@@ -322,12 +400,18 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
-      className="aspect-video rounded-3xl shadow-2xl overflow-hidden relative border-4 border-white/20"
+      className="aspect-video rounded-3xl shadow-2xl overflow-hidden relative"
       style={backgroundStyle}
     >
       {/* Overlay for better text readability */}
-      {slide.backgroundImage && (
-        <div className="absolute inset-0 bg-black/20"></div>
+      {typeof slide.overlayStrength === 'number' && slide.overlayStrength > 0 && (
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundColor: slide.overlayColor || 'black',
+            opacity: slide.overlayStrength / 100,
+          }}
+        ></div>
       )}
       {/* Floating Toolbar (only when text is selected and not in preview mode) */}
       {!isPreviewMode && showToolbar && (

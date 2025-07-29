@@ -19,7 +19,7 @@ import {
   Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import Logo from '@/components/ui/logo';
+import { ServiceSwitcher } from '../ui/logo';
 import ThemeSelector from './ThemeSelector';
 
 interface MindMapToolbarProps {
@@ -77,20 +77,14 @@ const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
 
   return (
     <div className={cn(
-      "w-full h-12 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-blue-200/40 dark:border-blue-800/40 shadow-2xl z-30 sticky top-0 left-0 overflow-x-auto flex-shrink-0",
+      "w-full h-16 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-blue-200/40 dark:border-blue-800/40 shadow-2xl z-30 sticky top-0 left-0 overflow-x-auto flex-shrink-0",
       className
     )}>
       <div className="flex flex-row items-center justify-between px-2 sm:px-4 py-2 h-full gap-y-2 min-w-[320px] w-full">
         
         {/* Left Section - Logo and Core Actions */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 border-r border-gray-200 dark:border-gray-700 pr-3">
-            <Logo size="sm" variant="minimal" />
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
-              <div className="w-1 h-1 rounded-full bg-teal-500"></div>
-              <span className="font-semibold">{nodeCount}</span>
-            </div>
-          </div>
+          <ServiceSwitcher current="mindmaps" />
           
           <div className="flex items-center gap-1.5">
             <Button

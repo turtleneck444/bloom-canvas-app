@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import PresentationToolbar from '@/components/Presentations/PresentationToolbar';
 import { UserPlus, Link2, Info, PlusCircle, Video, Mic, MicOff, VideoOff, XCircle, Settings as SettingsIcon } from 'lucide-react';
 import { createMeetingRoom } from '@/services/meetingsService';
+import { ServiceSwitcher } from '../components/ui/logo';
 
 const DEFAULT_ROOM_URL = 'https://nov8.daily.co/NOV8';
 
@@ -99,7 +100,7 @@ const Meetings = () => {
           currentTemplate={"Meetings"}
           isPreviewMode={false}
           accentColor="blue"
-          customTitle="NOV8 Meetings"
+          customTitle={<ServiceSwitcher current="meetings" />}
           customActions={customActions}
           customRightActions={customRightActions}
         />
