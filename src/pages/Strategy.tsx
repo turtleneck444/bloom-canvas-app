@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
-import { Compass, Target, FileText, Calendar, Folder, Download, Plus, Settings, Lightbulb, Users, TrendingUp } from 'lucide-react';
+import React, { useState, useCallback } from 'react';
+import { Compass, Target, FileText, Calendar, Folder, Download, Plus, Settings, Lightbulb, Users, TrendingUp, Save, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Separator } from '@/components/ui/separator';
 import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 
 interface StrategyPlan {
   id: string;
@@ -36,7 +34,7 @@ interface StrategyPhase {
 const Strategy: React.FC = () => {
   const [activeTab, setActiveTab] = useState('navigator');
   const [currentPlan, setCurrentPlan] = useState<StrategyPlan | null>(null);
-  const [showNewPlanForm, setShowNewPlanForm] = useState(false);
+  const [showLayoutPanel, setShowLayoutPanel] = useState(false);
   const [newPlan, setNewPlan] = useState({
     title: '',
     domain: '',
@@ -53,10 +51,9 @@ const Strategy: React.FC = () => {
     { id: 'personal', title: 'Personal Development', description: 'Achieve your career goals', icon: Target },
   ];
 
-  const handleCreatePlan = () => {
+  const handleCreatePlan = useCallback(() => {
     if (!newPlan.title || !newPlan.domain || !newPlan.timeFrame) return;
 
-    // Simulate AI-generated strategy phases
     const mockPhases: StrategyPhase[] = [
       {
         id: '1',
@@ -98,14 +95,33 @@ const Strategy: React.FC = () => {
     };
 
     setCurrentPlan(plan);
-    setShowNewPlanForm(false);
     setNewPlan({ title: '', domain: '', budget: '', timeFrame: '', aiStyle: 'professional' });
-  };
+    toast.success('Strategic plan generated successfully!');
+  }, [newPlan]);
 
-  const generateWithAI = (phaseId: string) => {
-    // Simulate AI enhancement
-    console.log(`Enhancing phase ${phaseId} with AI...`);
-  };
+  const generateWithAI = useCallback((phaseId: string) => {
+    toast.success(`Enhancing phase ${phaseId} with AI...`);
+  }, []);
+
+  const handleSave = useCallback(() => {
+    if (currentPlan) {
+      toast.success('Strategy plan saved successfully!');
+    }
+  }, [currentPlan]);
+
+  const handleExport = useCallback(() => {
+    if (currentPlan) {
+      const data = { ...currentPlan, timestamp: new Date().toISOString() };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `strategy-plan-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('Strategy plan exported as JSON');
+    }
+  }, [currentPlan]);
 
   const renderStartScreen = () => (
     <div className="flex flex-col items-center justify-center h-full space-y-8 p-8">
@@ -125,7 +141,7 @@ const Strategy: React.FC = () => {
         </p>
       </motion.div>
 
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-md border border-gray-200">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="w-5 h-5 text-cyan-500" />
@@ -249,7 +265,7 @@ const Strategy: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="border-l-4 border-l-cyan-500">
+            <Card className="border-l-4 border-l-cyan-500 bg-white/95 backdrop-blur-md">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-lg">{phase.title}</CardTitle>
@@ -310,7 +326,7 @@ const Strategy: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {sampleBlueprints.map((blueprint) => (
-          <Card key={blueprint.id} className="hover:shadow-lg transition-shadow cursor-pointer group">
+          <Card key={blueprint.id} className="hover:shadow-lg transition-shadow cursor-pointer group bg-white/95 backdrop-blur-md">
             <CardHeader className="pb-3">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-100 to-cyan-100 dark:from-slate-800 dark:to-cyan-900 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -331,83 +347,150 @@ const Strategy: React.FC = () => {
     </div>
   );
 
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'navigator':
+        return currentPlan ? renderNavigator() : renderStartScreen();
+      case 'blueprints':
+        return renderBlueprints();
+      case 'goals':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Goals & Objectives</h2>
+            <p className="text-gray-600 dark:text-gray-400">Goal management coming soon...</p>
+          </div>
+        );
+      case 'timeline':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Timeline & Milestones</h2>
+            <p className="text-gray-600 dark:text-gray-400">Timeline visualization coming soon...</p>
+          </div>
+        );
+      case 'assets':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Generated Assets</h2>
+            <p className="text-gray-600 dark:text-gray-400">Asset management coming soon...</p>
+          </div>
+        );
+      case 'exports':
+        return (
+          <div className="p-6">
+            <h2 className="text-2xl font-bold mb-4">Export Options</h2>
+            <p className="text-gray-600 dark:text-gray-400">Export functionality coming soon...</p>
+          </div>
+        );
+      default:
+        return renderStartScreen();
+    }
+  };
+
   return (
-    <div className="flex h-screen bg-gradient-to-br from-slate-50 via-gray-50/30 to-cyan-50/30 dark:from-slate-900 dark:via-slate-800/30 dark:to-cyan-900/30">
-      {/* Sidebar */}
-      <div className="w-64 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-r border-gray-200 dark:border-slate-700 flex flex-col">
-        <div className="p-4 border-b border-gray-200 dark:border-slate-700">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-600 to-cyan-500 flex items-center justify-center">
-              <Compass className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h1 className="font-bold text-gray-900 dark:text-gray-100">Strategy Co-Pilot</h1>
-              <p className="text-xs text-gray-500 dark:text-gray-400">AI Strategy Workspace</p>
-            </div>
+    <div className="w-full h-screen flex flex-col bg-gradient-to-br from-slate-50 via-gray-50/30 to-cyan-50/30 dark:from-slate-900 dark:via-slate-800/30 dark:to-cyan-900/30">
+      {/* Top Toolbar */}
+      <div className="w-full h-16 bg-white/95 backdrop-blur-md border-b border-gray-200 dark:border-slate-700 z-30 sticky top-0 left-0">
+        <div className="flex items-center justify-between h-full px-4">
+          <div className="flex items-center gap-4">
+            <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">Strategy Co-Pilot</h1>
+            {currentPlan && (
+              <Badge variant="outline" className="bg-cyan-50 text-cyan-700 border-cyan-200">
+                {currentPlan.domain} • {currentPlan.timeFrame}
+              </Badge>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowLayoutPanel(!showLayoutPanel)}
+              className="bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+            >
+              <FileText className="w-4 h-4 mr-1" />
+              Sidebar
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSave}
+              disabled={!currentPlan}
+            >
+              <Save className="w-4 h-4 mr-1" />
+              Save
+            </Button>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExport}
+              disabled={!currentPlan}
+            >
+              <Download className="w-4 h-4 mr-1" />
+              Export
+            </Button>
           </div>
         </div>
-
-        <nav className="flex-1 p-4">
-          <div className="space-y-2">
-            {[
-              { id: 'navigator', label: 'Navigator', icon: Compass },
-              { id: 'goals', label: 'Goals', icon: Target },
-              { id: 'blueprints', label: 'Blueprints', icon: FileText },
-              { id: 'timeline', label: 'Timeline', icon: Calendar },
-              { id: 'assets', label: 'Assets', icon: Folder },
-              { id: 'exports', label: 'Exports', icon: Download },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
-                  activeTab === tab.id
-                    ? 'bg-gradient-to-r from-slate-100 to-cyan-100 dark:from-slate-700 dark:to-cyan-800 text-slate-700 dark:text-slate-200'
-                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800'
-                }`}
-              >
-                <tab.icon className="w-4 h-4" />
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        </nav>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {!currentPlan && activeTab === 'navigator' ? (
-          renderStartScreen()
-        ) : (
-          <div className="flex-1 overflow-auto">
-            {activeTab === 'navigator' && currentPlan && renderNavigator()}
-            {activeTab === 'blueprints' && renderBlueprints()}
-            {activeTab === 'goals' && (
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">Goals & Objectives</h2>
-                <p className="text-gray-600 dark:text-gray-400">Goal management coming soon...</p>
+      <div className="flex flex-1 min-h-0">
+        {/* Sidebar Panel */}
+        <AnimatePresence>
+          {showLayoutPanel && (
+            <motion.div
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 280, opacity: 1 }}
+              exit={{ width: 0, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white/95 backdrop-blur-md border-r border-gray-200 dark:border-slate-700 overflow-hidden"
+            >
+              <div className="p-4 border-b border-gray-200 dark:border-slate-700">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-600 to-cyan-500 flex items-center justify-center">
+                    <Compass className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="font-bold text-gray-900 dark:text-gray-100">Strategy Co-Pilot</h1>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">AI Strategy Workspace</p>
+                  </div>
+                </div>
               </div>
-            )}
-            {activeTab === 'timeline' && (
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">Timeline & Milestones</h2>
-                <p className="text-gray-600 dark:text-gray-400">Timeline visualization coming soon...</p>
-              </div>
-            )}
-            {activeTab === 'assets' && (
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">Generated Assets</h2>
-                <p className="text-gray-600 dark:text-gray-400">Asset management coming soon...</p>
-              </div>
-            )}
-            {activeTab === 'exports' && (
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">Export Options</h2>
-                <p className="text-gray-600 dark:text-gray-400">Export functionality coming soon...</p>
-              </div>
-            )}
-          </div>
-        )}
+
+              <nav className="flex-1 p-4">
+                <div className="space-y-2">
+                  {[
+                    { id: 'navigator', label: 'Navigator', icon: Compass },
+                    { id: 'goals', label: 'Goals', icon: Target },
+                    { id: 'blueprints', label: 'Blueprints', icon: FileText },
+                    { id: 'timeline', label: 'Timeline', icon: Calendar },
+                    { id: 'assets', label: 'Assets', icon: Folder },
+                    { id: 'exports', label: 'Exports', icon: Download },
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors ${
+                        activeTab === tab.id
+                          ? 'bg-gradient-to-r from-slate-100 to-cyan-100 dark:from-slate-700 dark:to-cyan-800 text-slate-700 dark:text-slate-200'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      <tab.icon className="w-4 h-4" />
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Canvas Area */}
+        <div className="flex-1 relative overflow-auto">
+          {renderTabContent()}
+        </div>
       </div>
     </div>
   );

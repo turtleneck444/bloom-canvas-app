@@ -43,21 +43,24 @@ const serviceStyles = {
   mindmaps: 'text-green-700 dark:text-green-300',
   presentations: 'text-orange-700 dark:text-orange-300',
   meetings: 'text-blue-700 dark:text-blue-400',
+  strategy: 'text-slate-700 dark:text-cyan-400',
 };
 
 const serviceNames = {
   mindmaps: 'Mind Maps',
   presentations: 'Presentations',
   meetings: 'Meetings',
+  strategy: 'Strategy Co-Pilot',
 };
 
 const serviceRoutes = {
   mindmaps: '/',
   presentations: '/presentations',
   meetings: '/meetings',
+  strategy: '/strategy',
 };
 
-export const ServiceSwitcher: React.FC<{ current: 'mindmaps' | 'presentations' | 'meetings' }> = ({ current }) => {
+export const ServiceSwitcher: React.FC<{ current: 'mindmaps' | 'presentations' | 'meetings' | 'strategy' }> = ({ current }) => {
   const navigate = useNavigate();
   const location = useLocation();
   return (
@@ -69,8 +72,8 @@ export const ServiceSwitcher: React.FC<{ current: 'mindmaps' | 'presentations' |
           <ChevronDown className="w-4 h-4 ml-0.5 text-gray-400 group-hover:text-gray-600 transition-all" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="rounded-xl shadow-2xl bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200 dark:border-gray-700 p-2 min-w-[180px]">
-        {(['mindmaps', 'presentations', 'meetings'] as const).map((key) => (
+      <DropdownMenuContent align="start" className="rounded-xl shadow-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-gray-200 dark:border-gray-700 p-2 min-w-[220px]">
+        {(['mindmaps', 'presentations', 'meetings', 'strategy'] as const).map((key) => (
           <DropdownMenuItem
             key={key}
             onClick={() => {
