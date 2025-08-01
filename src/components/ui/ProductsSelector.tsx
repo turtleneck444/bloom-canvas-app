@@ -46,7 +46,6 @@ const ProductsSelector: React.FC<ProductsSelectorProps> = ({
       
       <ActionSearchBar
         placeholder="Search products..."
-        currentValue={currentProductData?.label || 'Mind Maps'}
         actions={productActions}
         className="w-32 h-8 text-xs"
         compact={true}

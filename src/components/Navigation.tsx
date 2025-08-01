@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Brain, Presentation, LayoutGrid } from 'lucide-react';
+import { Brain, Presentation, LayoutGrid, Compass, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Navigation: React.FC = () => {
@@ -39,6 +39,22 @@ const Navigation: React.FC = () => {
           >
             <Presentation className="w-4 h-4 mr-2" />
             Presentations
+          </Button>
+        </Link>
+        
+        <Link to="/strategy">
+          <Button
+            variant={location.pathname === '/strategy' ? 'default' : 'ghost'}
+            size="sm"
+            className={cn(
+              "rounded-full px-4 py-2",
+              location.pathname === '/strategy'
+                ? "bg-gradient-to-r from-slate-600 to-cyan-500 hover:from-slate-700 hover:to-cyan-600 text-white" 
+                : "hover:bg-slate-50 dark:hover:bg-slate-900/20 text-slate-700 dark:text-slate-300"
+            )}
+          >
+            <Compass className="w-4 h-4 mr-2" />
+            Strategy Co-Pilot
           </Button>
         </Link>
         
