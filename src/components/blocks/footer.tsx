@@ -72,7 +72,7 @@ export const Footer = React.forwardRef<HTMLDivElement, FooterProps>(
             <div className="lg:col-span-4">
                           <div className="flex items-center space-x-3 mb-4">
               <img 
-                src="/src/assets/nov8white.png" 
+                src="/nov8white.png" 
                 alt="NOV8 Logo" 
                 className="h-8 w-auto"
               />

@@ -19,7 +19,7 @@ const Terms: React.FC = () => {
             </Link>
             <div className="flex items-center space-x-2">
               <img 
-                src="/src/assets/nov8black.png" 
+                src="/nov8black.png" 
                 alt="NOV8 Logo" 
                 className="h-8 w-auto"
               />
