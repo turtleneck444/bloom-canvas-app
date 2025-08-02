@@ -377,12 +377,12 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 
                 <Tabs defaultValue="mindmaps" className="w-full">
                   {/* Desktop Tabs */}
-                  <TabsList className="hidden sm:grid sm:grid-cols-3 lg:flex lg:flex-wrap w-full mb-8 bg-gray-100 p-2 rounded-2xl gap-2">
+                  <TabsList className="hidden sm:grid sm:grid-cols-3 lg:flex lg:flex-wrap w-full mb-8 bg-gray-100 p-3 rounded-2xl gap-3">
                     {platformImages.map((platform) => (
                       <TabsTrigger
                         key={platform.id}
                         value={platform.id}
-                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs lg:px-4 lg:py-3 lg:text-sm font-semibold flex-1 min-w-0 border-2 border-transparent data-[state=active]:border-current`}
+                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-3 py-3 text-xs lg:px-4 lg:py-3 lg:text-sm font-semibold flex-1 min-w-0 border-2 border-transparent data-[state=active]:border-current`}
                       >
                         <span className="truncate">{platform.name}</span>
                       </TabsTrigger>
@@ -390,12 +390,12 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                   </TabsList>
                   
                   {/* Mobile Tabs - 3 Columns */}
-                  <TabsList className="sm:hidden mb-8 bg-gray-100 p-2 rounded-2xl grid grid-cols-3 gap-2">
+                  <TabsList className="sm:hidden mb-8 bg-gray-100 p-3 rounded-2xl grid grid-cols-3 gap-3">
                     {platformImages.map((platform) => (
                       <TabsTrigger
                         key={platform.id}
                         value={platform.id}
-                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-1 py-2 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}
+                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}
                       >
                         <span className="truncate text-center">{platform.name}</span>
                       </TabsTrigger>
