@@ -4,7 +4,6 @@ import { ChevronRight } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from "react-router-dom"
 import { Brain, Presentation, Video, Target, Network, Palette } from "lucide-react"
-import { RotatingText } from "@/components/ui/rotating-text"
 import { NOV8GlowCard } from "@/components/ui/spotlight-card"
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
@@ -338,25 +337,9 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                   NOV8
                 </span>
                 {" "}
-                <div className="inline-flex items-center">
-                  <RotatingText
-                    texts={rotatingTexts}
-                    mainClassName={mainClassName}
-                    staggerFrom="last"
-                    initial={{ y: "100%", opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: "-120%", opacity: 0 }}
-                    staggerDuration={0.08}
-                    splitLevelClassName="overflow-hidden pb-1 sm:pb-2 md:pb-3"
-                    transition={{ type: "spring", damping: 40, stiffness: 800 }}
-                    rotationInterval={4000}
-                    auto={true}
-                    loop={true}
-                    onNext={(index) => {
-                      setCurrentService(rotatingTexts[index]);
-                    }}
-                  />
-                </div>
+                <span className={mainClassName}>
+                  Platform
+                </span>
               </h1>
 
               {/* Subtitle */}
@@ -464,33 +447,9 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 </Badge>
                 <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                   Services designed to help you{' '}
-                  <div className="inline-flex items-center">
-                    <RotatingText
-                      texts={[
-                        "grow",
-                        "strategize", 
-                        "collaborate",
-                        "innovate",
-                        "succeed",
-                        "transform",
-                        "create",
-                        "execute",
-                        "scale",
-                        "thrive"
-                      ]}
-                      mainClassName="px-3 sm:px-4 md:px-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-gray-900 dark:text-white text-4xl lg:text-5xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm border border-blue-200/50 dark:border-purple-700/50"
-                      staggerFrom="last"
-                      initial={{ y: "100%", opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: "-120%", opacity: 0 }}
-                      staggerDuration={0.08}
-                      splitLevelClassName="overflow-hidden pb-1 sm:pb-2 md:pb-3"
-                      transition={{ type: "spring", damping: 40, stiffness: 800 }}
-                      rotationInterval={3000}
-                      auto={true}
-                      loop={true}
-                    />
-                  </div>
+                  <span className="px-3 sm:px-4 md:px-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-gray-900 dark:text-white text-4xl lg:text-5xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm border border-blue-200/50 dark:border-purple-700/50">
+                    succeed
+                  </span>
                 </h2>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
                   Six powerful tools designed to transform how teams work together, from initial ideas to final execution.

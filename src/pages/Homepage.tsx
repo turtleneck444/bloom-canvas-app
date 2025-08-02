@@ -41,6 +41,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { HeroSection } from '@/components/blocks/hero-section-dark';
 import VideoDemo from '@/components/VideoDemo';
 import { NOV8Pricing } from '@/components/ui/pricing-section-with-comparison';
 import { Footer } from '@/components/blocks/footer';
@@ -141,79 +142,8 @@ const Homepage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-950 dark:to-gray-900">
-      {/* Simple Hero Section */}
-      <section className="relative w-full bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.03)_1px,transparent_0)] bg-[length:20px_20px]" />
-        
-        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-              NOV8 Platform
-            </h1>
-            <p className="text-xl lg:text-2xl text-gray-300 mb-8 max-w-3xl mx-auto">
-              The complete toolkit for modern teams to create, collaborate, and innovate.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link to="/mindmaps">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                  <Brain className="w-5 h-5 mr-2" />
-                  Mind Maps
-                </Button>
-              </Link>
-              <Link to="/presentations">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-gray-900">
-                  <Presentation className="w-5 h-5 mr-2" />
-                  Presentations
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Services Grid */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-              Our Platform
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Everything you need to create, collaborate, and innovate in one powerful platform.
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <Card key={service.name} className="hover:shadow-lg transition-all duration-300">
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                    <div className={`w-12 h-12 bg-gradient-to-br ${service.color} rounded-lg flex items-center justify-center`}>
-                      <service.icon className="w-6 h-6 text-white" />
-                    </div>
-                    <CardTitle>{service.name}</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">{service.description}</p>
-                  <div className="flex justify-between items-center">
-                    <Link to={service.route}>
-                      <Button variant="outline" size="sm">
-                        Open {service.name}
-                      </Button>
-                    </Link>
-                    <Link to={`${service.route}/docs`}>
-                      <Button variant="ghost" size="sm">
-                        Documentation
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Hero Section */}
+      <HeroSection />
 
       {/* Pricing Section */}
       <NOV8Pricing />
