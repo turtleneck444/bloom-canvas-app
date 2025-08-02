@@ -1344,8 +1344,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Clean Professional 1-2-3 Process Section */}
-        <section className="py-20 bg-white dark:bg-gray-900 overflow-hidden relative">
+        {/* Enhanced Professional 1-2-3 Process Section */}
+        <section className="py-16 bg-white dark:bg-gray-900 overflow-hidden relative">
           {/* Animated Background Line */}
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
@@ -1357,21 +1357,21 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
             />
           </div>
           
-          {/* Floating Background Elements */}
+          {/* Enhanced Floating Background Elements */}
           <div className="absolute inset-0 overflow-hidden">
             <motion.div
-              className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/20 rounded-full"
-              animate={{ y: [0, -20, 0], opacity: [0.2, 0.6, 0.2] }}
+              className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/30 rounded-full"
+              animate={{ y: [0, -20, 0], opacity: [0.3, 0.8, 0.3] }}
               transition={{ duration: 3, repeat: Infinity }}
             />
             <motion.div
-              className="absolute top-3/4 right-1/4 w-1 h-1 bg-teal-400/30 rounded-full"
-              animate={{ y: [0, 15, 0], opacity: [0.3, 0.7, 0.3] }}
+              className="absolute top-3/4 right-1/4 w-1 h-1 bg-teal-400/40 rounded-full"
+              animate={{ y: [0, 15, 0], opacity: [0.4, 0.9, 0.4] }}
               transition={{ duration: 2.5, repeat: Infinity, delay: 1 }}
             />
             <motion.div
-              className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-gray-400/20 rounded-full"
-              animate={{ y: [0, -10, 0], opacity: [0.2, 0.5, 0.2] }}
+              className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-emerald-400/25 rounded-full"
+              animate={{ y: [0, -10, 0], opacity: [0.3, 0.7, 0.3] }}
               transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
             />
           </div>
@@ -1382,7 +1382,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mb-16"
+              className="text-center mb-12"
             >
               <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                 Get Started in 3 Simple Steps
@@ -1392,7 +1392,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               </p>
             </motion.div>
 
-            <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {/* Step 1 */}
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
@@ -1401,21 +1401,21 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 viewport={{ once: true }}
                 className="relative group"
               >
-                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
+                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-blue-200 dark:group-hover:border-blue-700">
                   {/* Step Number */}
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
-                    <span className="text-white dark:text-gray-900 font-bold text-lg">1</span>
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
+                    <span className="text-white font-bold text-sm">1</span>
                   </div>
                   
-                  {/* Icon */}
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors duration-300">
-                    <svg className="w-8 h-8 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {/* Enhanced Icon */}
+                  <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-all duration-300">
+                    <svg className="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Sign Up</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center">Sign Up</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm">
                     Create your account in under 30 seconds. No credit card required for your free trial.
                   </p>
                 </div>
@@ -1429,21 +1429,21 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 viewport={{ once: true }}
                 className="relative group"
               >
-                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
+                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-teal-200 dark:group-hover:border-teal-700">
                   {/* Step Number */}
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
-                    <span className="text-white dark:text-gray-900 font-bold text-lg">2</span>
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-400 dark:to-teal-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
+                    <span className="text-white font-bold text-sm">2</span>
                   </div>
                   
-                  {/* Icon */}
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:bg-teal-50 dark:group-hover:bg-teal-900/20 transition-colors duration-300">
-                    <svg className="w-8 h-8 text-gray-600 dark:text-gray-300 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {/* Enhanced Icon */}
+                  <div className="w-14 h-14 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-all duration-300">
+                    <svg className="w-7 h-7 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
                     </svg>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Choose Your Tools</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center">Choose Your Tools</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm">
                     Explore our suite of AI-powered tools. Start with mind maps, presentations, or strategy planning.
                   </p>
                 </div>
@@ -1457,36 +1457,36 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 viewport={{ once: true }}
                 className="relative group"
               >
-                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
+                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-200 dark:group-hover:border-emerald-700">
                   {/* Step Number */}
-                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
-                    <span className="text-white dark:text-gray-900 font-bold text-lg">3</span>
+                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
+                    <span className="text-white font-bold text-sm">3</span>
                   </div>
                   
-                  {/* Icon */}
-                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors duration-300">
-                    <svg className="w-8 h-8 text-gray-600 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {/* Enhanced Icon */}
+                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-all duration-300">
+                    <svg className="w-7 h-7 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
                   
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Start Creating</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center">Start Creating</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm">
                     Begin collaborating with your team immediately. Export, share, and scale your ideas effortlessly.
                   </p>
                 </div>
               </motion.div>
             </div>
 
-            {/* CTA Section */}
+            {/* Enhanced CTA Section */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mt-16"
+              className="text-center mt-12"
             >
-              <div className="inline-flex items-center space-x-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 transform shadow-lg">
+              <div className="inline-flex items-center space-x-4 bg-gradient-to-r from-blue-600 to-teal-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 transform shadow-xl hover:shadow-2xl">
                 <span>Start Your Free Trial</span>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -1499,20 +1499,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Final CTA Section */}
-        <section className="py-24 bg-gray-50">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8">
-              Ready to transform your collaboration?
-            </h2>
-            <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
-              Join thousands of teams that trust NOV8 to power their creative and strategic workflows
-            </p>
-            <button className="bg-gray-900 text-white px-16 py-6 rounded-xl font-semibold text-2xl transition-all duration-300 hover:bg-gray-800 transform hover:scale-105">
-              Start your free trial
-            </button>
-          </div>
-        </section>
+
 
 
       </div>
