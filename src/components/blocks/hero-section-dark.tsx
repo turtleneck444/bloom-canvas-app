@@ -151,8 +151,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
       {
         id: "mindmaps",
         name: "Mind Maps",
-        light: "/mindmaps.png",
-        dark: "/mindmaps.png",
+        light: "mindmaps.png",
+        dark: "mindmaps.png",
         route: "/mindmaps",
         description: "AI-powered mind mapping and brainstorming",
         color: "from-blue-500 to-cyan-500",
@@ -165,8 +165,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
       {
         id: "presentations",
         name: "Presentations",
-        light: "/presentations.png",
-        dark: "/presentations.png",
+        light: "presentations.png",
+        dark: "presentations.png",
         route: "/presentations",
         description: "Professional presentation creation and design",
         color: "from-purple-500 to-pink-500",
@@ -179,8 +179,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
       {
         id: "meetings",
         name: "Meetings",
-        light: "/meetings.png",
-        dark: "/meetings.png",
+        light: "meetings.png",
+        dark: "meetings.png",
         route: "/meetings",
         description: "Real-time collaboration and video conferencing",
         color: "from-green-500 to-emerald-500",
@@ -193,8 +193,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
       {
         id: "strategy",
         name: "Strategy Co-Pilot",
-        light: "/strategy.png",
-        dark: "/strategy.png",
+        light: "strategy.png",
+        dark: "strategy.png",
         route: "/strategy",
         description: "AI-driven strategic planning and analysis",
         color: "from-orange-500 to-red-500",
@@ -207,8 +207,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
       {
         id: "simulation",
         name: "AI Simulation",
-        light: "/aisimulation.png",
-        dark: "/aisimulation.png",
+        light: "aisimulation.png",
+        dark: "aisimulation.png",
         route: "/simulation",
         description: "Scenario modeling and decision forecasting",
         color: "from-indigo-500 to-purple-500",
@@ -221,8 +221,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
       {
         id: "whiteboard",
         name: "Digital Whiteboard",
-        light: "/digitalwhiteboard.png",
-        dark: "/digitalwhiteboard.png",
+        light: "digitalwhiteboard.png",
+        dark: "digitalwhiteboard.png",
         route: "/whiteboard",
         description: "Real-time collaborative canvas and drawing",
         color: "from-cyan-500 to-teal-500",
@@ -297,7 +297,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 {/* Logo */}
                 <div className="flex items-center space-x-2">
                   <img 
-                    src="/nov8black.png" 
+                    src="/nov8black.png"
                     alt="NOV8 Logo" 
                     className="h-8 w-auto"
                   />
@@ -393,34 +393,29 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 
                 <Tabs defaultValue="mindmaps" className="w-full">
                   {/* Desktop Tabs */}
-                  <TabsList className="hidden sm:flex flex-wrap w-full mb-8 bg-gray-100 p-2 rounded-2xl gap-2">
+                  <TabsList className="hidden sm:grid sm:grid-cols-3 lg:flex lg:flex-wrap w-full mb-8 bg-gray-100 p-2 rounded-2xl gap-2">
                     {platformImages.map((platform) => (
                       <TabsTrigger
                         key={platform.id}
                         value={platform.id}
-                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-3 py-2 text-xs sm:px-4 sm:py-3 sm:text-sm font-semibold flex-1 min-w-0`}
+                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs lg:px-4 lg:py-3 lg:text-sm font-semibold flex-1 min-w-0 border-2 border-transparent data-[state=active]:border-current`}
                       >
                         <span className="truncate">{platform.name}</span>
                       </TabsTrigger>
                     ))}
                   </TabsList>
                   
-                  {/* Mobile Expandable Tabs */}
+                  {/* Mobile Tabs - 2 Columns */}
                   <div className="sm:hidden mb-8">
-                    <div className="bg-gray-100 p-2 rounded-2xl">
-                      {platformImages.map((platform, index) => (
-                        <MobileTab
+                    <div className="bg-gray-100 p-2 rounded-2xl grid grid-cols-2 gap-2">
+                      {platformImages.map((platform) => (
+                        <TabsTrigger
                           key={platform.id}
-                          platform={platform}
-                          isActive={index === 0} // You can make this dynamic based on selected tab
-                          onClick={() => {
-                            // Handle tab selection
-                            const tabsTrigger = document.querySelector(`[data-state="active"][value="${platform.id}"]`) as HTMLElement;
-                            if (tabsTrigger) {
-                              tabsTrigger.click();
-                            }
-                          }}
-                        />
+                          value={platform.id}
+                          className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}
+                        >
+                          <span className="truncate text-center">{platform.name}</span>
+                        </TabsTrigger>
                       ))}
                     </div>
                   </div>
