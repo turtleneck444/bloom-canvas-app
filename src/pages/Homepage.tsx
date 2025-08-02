@@ -176,172 +176,33 @@ const Homepage: React.FC = () => {
         </div>
       </section>
 
-      {/* Services Section */}
-      <section className="relative py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
+      {/* Animated Services Title Section */}
+      <section className="relative py-16 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.1)_1px,transparent_0)] bg-[length:32px_32px] opacity-50" />
         
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-
-          {/* Services Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {services.map((service, index) => (
-              <motion.div
-                key={service.name}
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
-                viewport={{ once: true }}
-                onMouseEnter={() => setHoveredService(index)}
-                onMouseLeave={() => setHoveredService(null)}
-                className="group relative"
-              >
-                <Link to={service.route}>
-                  <Card className={`h-full transition-all duration-500 cursor-pointer relative overflow-hidden
-                    ${hoveredService === index 
-                      ? 'scale-105 shadow-2xl border-transparent' 
-                      : 'hover:scale-[1.02] hover:shadow-xl border-gray-200/50'
-                    } 
-                    bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl`}
-                  >
-                    {/* Animated background gradient */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-500`} />
-                    
-                    {/* Floating orbs animation */}
-                    <div className="absolute inset-0 overflow-hidden">
-                      {Array.from({ length: 3 }).map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className={`absolute w-16 h-16 bg-gradient-to-br ${service.gradient} rounded-full opacity-20 blur-xl`}
-                          animate={{
-                            x: [0, 100, 0],
-                            y: [0, -50, 0],
-                            scale: [1, 1.2, 1],
-                          }}
-                          transition={{
-                            duration: 4 + i,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: i * 0.5,
-                          }}
-                          style={{
-                            left: `${20 + i * 30}%`,
-                            top: `${30 + i * 20}%`,
-                          }}
-                        />
-                      ))}
-                    </div>
-
-                    <CardHeader className="relative z-10 pb-4">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className={`p-3 rounded-xl bg-gradient-to-br ${service.gradient} shadow-lg group-hover:shadow-xl transition-shadow duration-300`}>
-                          <service.icon className="w-8 h-8 text-white" />
-                        </div>
-                        
-                        <motion.div
-                          animate={hoveredService === index ? { rotate: 45, scale: 1.1 } : { rotate: 0, scale: 1 }}
-                          transition={{ duration: 0.3 }}
-                          className={`p-2 rounded-full bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-                        >
-                          <ArrowRight className="w-5 h-5 text-white" />
-                        </motion.div>
-                      </div>
-                      
-                      <CardTitle className="text-xl font-bold text-gray-900 dark:text-white group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:from-gray-900 group-hover:to-gray-700 group-hover:bg-clip-text dark:group-hover:from-white dark:group-hover:to-gray-200 transition-all duration-300">
-                        {service.name}
-                      </CardTitle>
-                      
-                      <CardDescription className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                        {service.description}
-                      </CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="relative z-10 pt-0">
-                      {/* Interactive feature list */}
-                      <div className="space-y-2">
-                        {service.features.map((feature, featureIndex) => (
-                          <motion.div
-                            key={feature}
-                            initial={{ opacity: 0.7, x: -10 }}
-                            animate={hoveredService === index ? { opacity: 1, x: 0 } : { opacity: 0.7, x: -10 }}
-                            transition={{ duration: 0.3, delay: featureIndex * 0.1 }}
-                            className="flex items-center space-x-3 group/feature"
-                          >
-                            <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${service.gradient} opacity-60 group-hover/feature:opacity-100 transition-opacity duration-200`} />
-                            <span className="text-sm text-gray-600 dark:text-gray-300 group-hover/feature:text-gray-900 dark:group-hover/feature:text-white transition-colors duration-200">
-                              {feature}
-                            </span>
-                          </motion.div>
-                        ))}
-                      </div>
-
-                      {/* Interactive elements overlay */}
-                      <div className="mt-6 flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          <motion.div
-                            animate={hoveredService === index ? { scale: 1.1 } : { scale: 1 }}
-                            className={`w-3 h-3 rounded-full bg-gradient-to-r ${service.gradient}`}
-                          />
-                          <span className="text-xs font-medium text-gray-500 dark:text-gray-400 group-hover:text-gray-700 dark:group-hover:text-gray-200 transition-colors">
-                            {service.accentColor.toUpperCase()}
-                          </span>
-                        </div>
-                        
-                        <motion.div
-                          animate={hoveredService === index ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-                          className="flex items-center space-x-2 text-xs text-gray-500 dark:text-gray-400"
-                        >
-                          <MousePointer className="w-3 h-3" />
-                          <span>Interactive</span>
-                        </motion.div>
-                      </div>
-
-                      {/* Futuristic tech elements */}
-                      <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-30 transition-opacity duration-500">
-                        <div className="flex space-x-1">
-                          {Array.from({ length: 4 }).map((_, i) => (
-                            <motion.div
-                              key={i}
-                              className={`w-1 h-8 bg-gradient-to-t ${service.gradient} rounded-full`}
-                              animate={hoveredService === index ? {
-                                scaleY: [1, 1.5, 0.8, 1.2, 1],
-                                opacity: [0.3, 0.8, 0.4, 0.9, 0.3]
-                              } : {}}
-                              transition={{
-                                duration: 2,
-                                repeat: Infinity,
-                                delay: i * 0.2,
-                              }}
-                            />
-                          ))}
-                        </div>
-                      </div>
-
-                    </CardContent>
-
-                    {/* Border animation */}
-                    <div className={`absolute inset-0 rounded-lg bg-gradient-to-r ${service.gradient} opacity-0 group-hover:opacity-20 transition-opacity duration-300 pointer-events-none`} 
-                         style={{ background: `linear-gradient(90deg, transparent, ${service.gradient}, transparent)` }} />
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
+          <div className="text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <Badge variant="outline" className="mb-4 px-4 py-1 text-sm bg-blue-50/80 border-blue-200/50 text-blue-700 dark:bg-blue-900/20 dark:border-blue-700/50 dark:text-blue-300">
+                Our Services
+              </Badge>
+              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
+                Services designed to help you{' '}
+                <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  <RotatingWords />
+                </span>
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                Six powerful tools designed to transform how teams work together, from initial ideas to final execution.
+              </p>
+            </motion.div>
           </div>
-
-          {/* Bottom CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mt-16"
-          >
-            <div className="inline-flex items-center space-x-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 rounded-full px-6 py-3 shadow-lg">
-              <Layers className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-              <span className="text-gray-700 dark:text-gray-300 font-medium">All tools work seamlessly together</span>
-              <Wand2 className="w-5 h-5 text-purple-600 dark:text-purple-400" />
-            </div>
-          </motion.div>
         </div>
       </section>
 
