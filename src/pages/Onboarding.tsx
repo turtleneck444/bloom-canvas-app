@@ -9,6 +9,7 @@ import { HeroSection } from '@/components/blocks/hero-section-dark';
 import { Footer } from '@/components/blocks/footer';
 
 const Onboarding = () => {
+  console.log('Onboarding page rendered');
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
       {/* Header */}
