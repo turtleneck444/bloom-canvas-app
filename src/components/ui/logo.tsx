@@ -92,7 +92,7 @@ export const ServiceSwitcher: React.FC<{ current: 'mindmaps' | 'presentations' |
       <DropdownMenuTrigger asChild>
         <button className="flex items-center gap-2 font-bold text-base focus:outline-none group px-2 py-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-all">
           <img 
-            src="/src/assets/nov8black.png" 
+            src="src/assets/nov8black.png" 
             alt="NOV8 Logo" 
             className="h-5 w-auto"
           />
@@ -106,7 +106,7 @@ export const ServiceSwitcher: React.FC<{ current: 'mindmaps' | 'presentations' |
           <div className="flex items-center space-x-3">
             <div className="flex items-center space-x-2">
               <img 
-                src="/src/assets/nov8black.png" 
+                src="src/assets/nov8black.png" 
                 alt="NOV8 Logo" 
                 className="h-6 w-auto"
               />
