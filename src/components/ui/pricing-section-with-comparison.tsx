@@ -13,21 +13,21 @@ function NOV8Pricing() {
               Simple, transparent pricing
             </h2>
             <p className="text-lg leading-relaxed tracking-tight text-gray-600 max-w-xl text-center">
-              Try the full suite for $5, then choose the plan that fits your needs.
+              Start with our $10 plan, then choose the plan that fits your needs.
             </p>
           </div>
           <div className="grid text-left w-full grid-cols-2 lg:grid-cols-3 divide-x pt-12 border border-gray-200 rounded-2xl overflow-hidden">
             <div className="px-3 py-1 md:px-6 md:py-4 gap-2 flex flex-col bg-gray-50">
-              <p className="text-2xl font-semibold text-gray-900">Trial</p>
+              <p className="text-2xl font-semibold text-gray-900">Starter</p>
               <p className="text-sm text-gray-600">
-                Try the complete NOV8 suite for a few days. No data storage.
+                Perfect for individuals and small teams. No data storage.
               </p>
               <p className="flex flex-col lg:flex-row lg:items-center gap-2 text-xl mt-6">
-                <span className="text-4xl font-bold text-gray-900">$5</span>
-                <span className="text-sm text-gray-600"> / trial</span>
+                <span className="text-4xl font-bold text-gray-900">$10</span>
+                <span className="text-sm text-gray-600"> / month</span>
               </p>
               <Button variant="outline" className="gap-4 mt-6">
-                Start Trial <MoveRight className="w-4 h-4" />
+                Get Started <MoveRight className="w-4 h-4" />
               </Button>
             </div>
             <div className="px-3 py-1 md:px-6 md:py-4 gap-2 flex flex-col bg-blue-50 relative">

@@ -4,11 +4,16 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { CheckCircle, Clock, Users, Shield, Zap, Building2, ArrowRight, Star, Crown, Settings } from 'lucide-react';
+import { CheckCircle, Clock, Users, Shield, Zap, Building2, ArrowRight, Star, Crown, Settings, Map, Presentation, Video, Brain, FileText, Sparkles, Globe, MessageCircle, Target, Mail, HelpCircle } from 'lucide-react';
+import { HeroSection } from '@/components/blocks/hero-section-dark';
+import { Footer } from '@/components/blocks/footer';
 
 const Onboarding = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
+      {/* Header */}
+      <HeroSection />
+      
       {/* Hero Section */}
       <section className="py-20 bg-white dark:bg-slate-900">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -128,8 +133,8 @@ const Onboarding = () => {
             {[
               {
                 name: "Starter",
-                price: "$5",
-                period: "trial",
+                price: "$10",
+                period: "per month",
                 description: "Perfect for individuals and small teams getting started",
                 features: [
                   "Full suite access",
@@ -464,6 +469,60 @@ const Onboarding = () => {
           </motion.div>
         </div>
       </section>
+      
+      {/* Footer */}
+      <Footer
+        className="bg-black text-white"
+        brand={{
+          name: "NOV8",
+          description: "The complete toolkit for modern teams to create, collaborate, and innovate. From mind mapping to presentations, we empower teams to work smarter."
+        }}
+        socialLinks={[
+          { name: "Twitter", href: "#" },
+          { name: "LinkedIn", href: "#" },
+          { name: "GitHub", href: "#" },
+          { name: "YouTube", href: "#" }
+        ]}
+        columns={[
+          {
+            title: "Products",
+            links: [
+              { name: "Mind Maps", Icon: Map, href: "/mindmaps" },
+              { name: "Presentations", Icon: Presentation, href: "/presentations" },
+              { name: "Meetings", Icon: Video, href: "/meetings" },
+              { name: "Strategy Co-Pilot", Icon: Brain, href: "/strategy" }
+            ]
+          },
+          {
+            title: "Resources",
+            links: [
+              { name: "Documentation", Icon: FileText, href: "/docs" },
+              { name: "API Reference", Icon: Zap, href: "/api" },
+              { name: "Templates", Icon: Sparkles, href: "/templates" },
+              { name: "Integrations", Icon: Globe, href: "/integrations" }
+            ]
+          },
+          {
+            title: "Company",
+            links: [
+              { name: "About NOV8", Icon: Users, href: "/about" },
+              { name: "Blog & News", Icon: MessageCircle, href: "/blog" },
+              { name: "Careers", Icon: Target, href: "/careers" },
+              { name: "Contact Us", Icon: Mail, href: "/contact" }
+            ]
+          },
+          {
+            title: "Support",
+            links: [
+              { name: "Help Center", Icon: HelpCircle, href: "/help" },
+              { name: "Community", Icon: Users, href: "/community" },
+              { name: "Status Page", Icon: Zap, href: "/status" },
+              { name: "Security", Icon: Shield, href: "/security" }
+            ]
+          }
+        ]}
+        copyright="© 2025 NOV8. All rights reserved. Empowering teams worldwide."
+      />
     </div>
   );
 };
