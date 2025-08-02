@@ -18,7 +18,7 @@ function NOV8Pricing() {
         </div>
 
         {/* Mobile Pricing Cards */}
-        <div className="lg:hidden space-y-6">
+        <div className="lg:hidden space-y-8 px-4">
           {/* Starter Plan */}
           <div className="bg-gray-50 rounded-2xl p-6 border border-gray-200">
             <div className="text-center mb-6">

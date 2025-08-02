@@ -521,33 +521,33 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
         </section>
 
         {/* Services Grid Section - Proper 2x3 Layout */}
-        <section className="py-16 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+        <section className="py-12 sm:py-16 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             {/* Services Grid - 2 columns, 3 rows */}
-            <div className="grid lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
               
               {/* Column 1: Mind Maps, Strategy Co-Pilot, AI Simulation */}
               <div className="space-y-6">
                 {/* Mind Maps */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Brain className="w-6 h-6 text-white" />
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Mind Maps</h3>
-                      <p className="text-blue-600 text-sm font-medium">AI-Powered Visual Thinking</p>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Mind Maps</h3>
+                      <p className="text-blue-600 text-xs sm:text-sm font-medium">AI-Powered Visual Thinking</p>
                     </div>
                   </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
+                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
                     Transform ideas into visual workflows with AI-powered suggestions and real-time collaboration. Organize thoughts, brainstorm concepts, and create structured visual representations of complex information.
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Link to="/mindmaps">
-                        <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <Link to="/mindmaps" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
                           Start Mapping
                         </button>
                       </Link>
@@ -563,23 +563,23 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 </div>
                 
                 {/* Strategy Co-Pilot */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Target className="w-6 h-6 text-white" />
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Target className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Strategy Co-Pilot</h3>
-                      <p className="text-green-600 text-sm font-medium">AI-Powered Strategic Intelligence</p>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Strategy Co-Pilot</h3>
+                      <p className="text-green-600 text-xs sm:text-sm font-medium">AI-Powered Strategic Intelligence</p>
                     </div>
                   </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
+                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
                     AI-driven strategic planning and analysis tools that help teams make better decisions. Leverage advanced frameworks, competitive analysis, and data-driven insights to develop comprehensive strategic roadmaps.
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Link to="/strategy">
-                        <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <Link to="/strategy" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
                           Plan Strategy
                         </button>
                       </Link>
@@ -595,23 +595,23 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 </div>
                 
                 {/* AI Simulation */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <Network className="w-6 h-6 text-white" />
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <Network className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">AI Simulation</h3>
-                      <p className="text-purple-600 text-sm font-medium">Scenario Modeling & Forecasting</p>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">AI Simulation</h3>
+                      <p className="text-purple-600 text-xs sm:text-sm font-medium">Scenario Modeling & Forecasting</p>
                     </div>
                   </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
+                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
                     Advanced scenario modeling and decision forecasting with comprehensive analytics. Test different outcomes, assess risks, and optimize strategies through sophisticated AI-powered simulation environments.
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Link to="/simulation">
-                        <button className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <Link to="/simulation" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
                           Run Simulation
                         </button>
                       </Link>
@@ -630,23 +630,23 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               {/* Column 2: Presentations, Meetings, Digital Whiteboard */}
               <div className="space-y-6">
                 {/* Presentations */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Presentation className="w-6 h-6 text-white" />
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Presentation className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Presentations</h3>
-                      <p className="text-orange-600 text-sm font-medium">AI-Powered Design Studio</p>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Presentations</h3>
+                      <p className="text-orange-600 text-xs sm:text-sm font-medium">AI-Powered Design Studio</p>
                     </div>
                   </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
+                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
                     Create stunning presentations with AI assistance, smart templates, and seamless collaboration. Design professional slides with intelligent layout suggestions and real-time team editing capabilities.
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Link to="/presentations">
-                        <button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <Link to="/presentations" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
                           Create Presentation
                         </button>
                       </Link>
@@ -662,23 +662,23 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 </div>
                 
                 {/* Meetings */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Video className="w-6 h-6 text-white" />
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Video className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Meetings</h3>
-                      <p className="text-blue-600 text-sm font-medium">AI-Powered Video Collaboration</p>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Meetings</h3>
+                      <p className="text-blue-600 text-xs sm:text-sm font-medium">AI-Powered Video Collaboration</p>
                     </div>
                   </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
+                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
                     Real-time collaboration and video conferencing with AI-powered features and transcription. Host high-quality meetings with intelligent note-taking, action item tracking, and seamless screen sharing capabilities.
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Link to="/meetings">
-                        <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <Link to="/meetings" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
                           Join Meeting
                         </button>
                       </Link>
@@ -694,23 +694,23 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 </div>
                 
                 {/* Digital Whiteboard */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-teal-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <Palette className="w-6 h-6 text-white" />
+                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-teal-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                     </div>
                     <div>
-                      <h3 className="text-xl font-bold text-gray-900">Digital Whiteboard</h3>
-                      <p className="text-teal-600 text-sm font-medium">Real-time Collaborative Canvas</p>
+                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Digital Whiteboard</h3>
+                      <p className="text-teal-600 text-xs sm:text-sm font-medium">Real-time Collaborative Canvas</p>
                     </div>
                   </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
+                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
                     Real-time collaborative canvas with advanced drawing and design tools for teams to brainstorm, sketch ideas, and create visual workflows together seamlessly.
                   </p>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Link to="/whiteboard">
-                        <button className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                      <Link to="/whiteboard" className="w-full sm:w-auto">
+                        <button className="w-full sm:w-auto bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
                           Start Drawing
                         </button>
                       </Link>
