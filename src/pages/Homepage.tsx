@@ -46,6 +46,7 @@ import VideoDemo from '@/components/VideoDemo';
 import { NOV8Pricing } from '@/components/ui/pricing-section-with-comparison';
 import { Footer } from '@/components/blocks/footer';
 
+
 const services = [
   {
     name: 'Mind Maps',

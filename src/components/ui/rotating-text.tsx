@@ -67,7 +67,6 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
     const [currentTextIndex, setCurrentTextIndex] = useState<number>(0);
 
     const splitIntoCharacters = (text: string): string[] => {
-      // Use a simpler approach that works across all browsers
       return Array.from(text);
     };
 
@@ -100,62 +99,54 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
     }, [texts, currentTextIndex, splitBy]);
 
     const getStaggerDelay = useCallback(
-      (index: number, totalChars: number): number => {
-        const total = totalChars;
+      (index: number, total: number) => {
+        if (staggerDuration === 0) return 0;
         if (staggerFrom === "first") return index * staggerDuration;
-        if (staggerFrom === "last")
-          return (total - 1 - index) * staggerDuration;
+        if (staggerFrom === "last") return (total - 1 - index) * staggerDuration;
         if (staggerFrom === "center") {
           const center = Math.floor(total / 2);
-          return Math.abs(center - index) * staggerDuration;
+          return Math.abs(index - center) * staggerDuration;
         }
         if (staggerFrom === "random") {
-          const randomIndex = Math.floor(Math.random() * total);
-          return Math.abs(randomIndex - index) * staggerDuration;
+          return Math.random() * staggerDuration;
         }
-        return Math.abs((staggerFrom as number) - index) * staggerDuration;
+        if (typeof staggerFrom === "number") {
+          return Math.abs(index - staggerFrom) * staggerDuration;
+        }
+        return 0;
       },
-      [staggerFrom, staggerDuration]
+      [staggerDuration, staggerFrom]
     );
 
     const handleIndexChange = useCallback(
-      (newIndex: number) => {
-        setCurrentTextIndex(newIndex);
-        if (onNext) onNext(newIndex);
+      (index: number) => {
+        const validIndex = Math.max(0, Math.min(index, texts.length - 1));
+        setCurrentTextIndex(validIndex);
+        onNext?.(validIndex);
       },
-      [onNext]
+      [texts.length, onNext]
     );
 
     const next = useCallback(() => {
-      const nextIndex =
-        currentTextIndex === texts.length - 1
-          ? loop
-            ? 0
-            : currentTextIndex
-          : currentTextIndex + 1;
-      if (nextIndex !== currentTextIndex) {
-        handleIndexChange(nextIndex);
+      if (currentTextIndex < texts.length - 1) {
+        handleIndexChange(currentTextIndex + 1);
+      } else if (loop) {
+        handleIndexChange(0);
       }
     }, [currentTextIndex, texts.length, loop, handleIndexChange]);
 
     const previous = useCallback(() => {
-      const prevIndex =
-        currentTextIndex === 0
-          ? loop
-            ? texts.length - 1
-            : currentTextIndex
-          : currentTextIndex - 1;
-      if (prevIndex !== currentTextIndex) {
-        handleIndexChange(prevIndex);
+      if (currentTextIndex > 0) {
+        handleIndexChange(currentTextIndex - 1);
+      } else if (loop) {
+        handleIndexChange(texts.length - 1);
       }
     }, [currentTextIndex, texts.length, loop, handleIndexChange]);
 
     const jumpTo = useCallback(
       (index: number) => {
         const validIndex = Math.max(0, Math.min(index, texts.length - 1));
-        if (validIndex !== currentTextIndex) {
-          handleIndexChange(validIndex);
-        }
+        handleIndexChange(validIndex);
       },
       [texts.length, currentTextIndex, handleIndexChange]
     );
@@ -183,68 +174,20 @@ const RotatingText = forwardRef<RotatingTextRef, RotatingTextProps>(
       return () => clearInterval(intervalId);
     }, [next, rotationInterval, auto]);
 
+    // Simplified version to avoid focus group issues
     return (
-      <motion.span
-        className={cn(
-          "flex flex-wrap whitespace-pre-wrap relative",
-          mainClassName
-        )}
-        {...rest}
-        layout
-        transition={transition}
-      >
-        <span className="sr-only">{texts[currentTextIndex]}</span>
-        <AnimatePresence
-          mode={animatePresenceMode}
-          initial={animatePresenceInitial}
-        >
-          <motion.div
+      <motion.span className={cn("flex items-center", mainClassName)} {...rest}>
+        <AnimatePresence mode={animatePresenceMode} initial={animatePresenceInitial}>
+          <motion.span
             key={currentTextIndex}
-            className={cn(
-              splitBy === "lines"
-                ? "flex flex-col w-full"
-                : "flex flex-wrap whitespace-pre-wrap relative"
-            )}
-            layout
-            aria-hidden="true"
+            initial={initial}
+            animate={animate}
+            exit={exit}
+            transition={transition}
+            className="inline-block"
           >
-            {elements.map((wordObj, wordIndex, array) => {
-              const previousCharsCount = array
-                .slice(0, wordIndex)
-                .reduce((sum, word) => sum + word.characters.length, 0);
-              return (
-                <span
-                  key={wordIndex}
-                  className={cn("inline-flex", splitLevelClassName)}
-                >
-                  {wordObj.characters.map((char, charIndex) => (
-                    <motion.span
-                      key={charIndex}
-                      initial={initial}
-                      animate={animate}
-                      exit={exit}
-                      transition={{
-                        ...transition,
-                        delay: getStaggerDelay(
-                          previousCharsCount + charIndex,
-                          array.reduce(
-                            (sum, word) => sum + word.characters.length,
-                            0
-                          )
-                        ),
-                      }}
-                      className={cn("inline-block", elementLevelClassName)}
-                    >
-                      {char}
-                    </motion.span>
-                  ))}
-                  {wordObj.needsSpace && (
-                    <span className="whitespace-pre"> </span>
-                  )}
-                </span>
-              );
-            })}
-          </motion.div>
+            {texts[currentTextIndex]}
+          </motion.span>
         </AnimatePresence>
       </motion.span>
     );
