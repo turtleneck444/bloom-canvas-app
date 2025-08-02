@@ -406,19 +406,17 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                   </TabsList>
                   
                   {/* Mobile Tabs - 2 Columns */}
-                  <div className="sm:hidden mb-8">
-                    <div className="bg-gray-100 p-2 rounded-2xl grid grid-cols-2 gap-2">
-                      {platformImages.map((platform) => (
-                        <TabsTrigger
-                          key={platform.id}
-                          value={platform.id}
-                          className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}
-                        >
-                          <span className="truncate text-center">{platform.name}</span>
-                        </TabsTrigger>
-                      ))}
-                    </div>
-                  </div>
+                  <TabsList className="sm:hidden mb-8 bg-gray-100 p-2 rounded-2xl grid grid-cols-2 gap-2">
+                    {platformImages.map((platform) => (
+                      <TabsTrigger
+                        key={platform.id}
+                        value={platform.id}
+                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}
+                      >
+                        <span className="truncate text-center">{platform.name}</span>
+                      </TabsTrigger>
+                    ))}
+                  </TabsList>
 
                   {platformImages.map((platform) => (
                     <TabsContent key={platform.id} value={platform.id} className="space-y-6 sm:space-y-8">
