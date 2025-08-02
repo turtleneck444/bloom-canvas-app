@@ -1344,35 +1344,19 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Enhanced Professional 1-2-3 Process Section */}
-        <section className="py-16 bg-white dark:bg-gray-900 overflow-hidden relative">
-          {/* Animated Background Line */}
+        {/* Luxury Fortune 500 Process Section */}
+        <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden relative">
+          {/* Sophisticated Background Pattern */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.08)_1px,transparent_0)] bg-[length:24px_24px]" />
+          
+          {/* Elegant Divider Line */}
           <div className="absolute inset-0 flex items-center justify-center">
             <motion.div
-              className="w-full max-w-6xl h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"
+              className="w-full max-w-5xl h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              transition={{ duration: 1.5, ease: "easeOut" }}
+              transition={{ duration: 2, ease: "easeOut" }}
               viewport={{ once: true }}
-            />
-          </div>
-          
-          {/* Enhanced Floating Background Elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <motion.div
-              className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/30 rounded-full"
-              animate={{ y: [0, -20, 0], opacity: [0.3, 0.8, 0.3] }}
-              transition={{ duration: 3, repeat: Infinity }}
-            />
-            <motion.div
-              className="absolute top-3/4 right-1/4 w-1 h-1 bg-teal-400/40 rounded-full"
-              animate={{ y: [0, 15, 0], opacity: [0.4, 0.9, 0.4] }}
-              transition={{ duration: 2.5, repeat: Infinity, delay: 1 }}
-            />
-            <motion.div
-              className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-emerald-400/25 rounded-full"
-              animate={{ y: [0, -10, 0], opacity: [0.3, 0.7, 0.3] }}
-              transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
             />
           </div>
           
@@ -1380,43 +1364,47 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
+              transition={{ duration: 1 }}
               viewport={{ once: true }}
-              className="text-center mb-12"
+              className="text-center mb-16"
             >
-              <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-                Get Started in 3 Simple Steps
+              <div className="inline-flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-full mb-6">
+                <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
+                <span className="text-sm font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Enterprise Process</span>
+              </div>
+              <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
+                Three-Step Implementation
               </h2>
-              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-                Experience NOV8's revolutionary platform in minutes, not hours
+              <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
+                Streamlined onboarding process designed for enterprise teams and Fortune 500 organizations
               </p>
             </motion.div>
 
-            <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
               {/* Step 1 */}
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
+                transition={{ duration: 1, delay: 0.2 }}
                 viewport={{ once: true }}
                 className="relative group"
               >
-                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-blue-200 dark:group-hover:border-blue-700">
+                <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
                   {/* Step Number */}
-                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
-                    <span className="text-white font-bold text-sm">1</span>
+                  <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
+                    <span className="text-white dark:text-slate-900 font-bold text-xs">01</span>
                   </div>
                   
-                  {/* Enhanced Icon */}
-                  <div className="w-14 h-14 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-all duration-300">
-                    <svg className="w-7 h-7 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  {/* Icon */}
+                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center mb-6 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors duration-300">
+                    <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center">Sign Up</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm">
-                    Create your account in under 30 seconds. No credit card required for your free trial.
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Account Setup</h3>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
+                    Enterprise-grade account creation with SSO integration and advanced security protocols
                   </p>
                 </div>
               </motion.div>
@@ -1425,26 +1413,26 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
+                transition={{ duration: 1, delay: 0.4 }}
                 viewport={{ once: true }}
                 className="relative group"
               >
-                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-teal-200 dark:group-hover:border-teal-700">
+                <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
                   {/* Step Number */}
-                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-teal-500 to-teal-600 dark:from-teal-400 dark:to-teal-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
-                    <span className="text-white font-bold text-sm">2</span>
+                  <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
+                    <span className="text-white dark:text-slate-900 font-bold text-xs">02</span>
                   </div>
                   
-                  {/* Enhanced Icon */}
-                  <div className="w-14 h-14 bg-gradient-to-br from-teal-50 to-teal-100 dark:from-teal-900/20 dark:to-teal-800/20 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-all duration-300">
-                    <svg className="w-7 h-7 text-teal-600 dark:text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                  {/* Icon */}
+                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center mb-6 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors duration-300">
+                    <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
                     </svg>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center">Choose Your Tools</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm">
-                    Explore our suite of AI-powered tools. Start with mind maps, presentations, or strategy planning.
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Platform Configuration</h3>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
+                    Customize your workspace with enterprise tools and team collaboration features
                   </p>
                 </div>
               </motion.div>
@@ -1453,47 +1441,47 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
+                transition={{ duration: 1, delay: 0.6 }}
                 viewport={{ once: true }}
                 className="relative group"
               >
-                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-2xl transition-all duration-500 group-hover:-translate-y-2 group-hover:border-emerald-200 dark:group-hover:border-emerald-700">
+                <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
                   {/* Step Number */}
-                  <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-10 h-10 bg-gradient-to-br from-emerald-500 to-emerald-600 dark:from-emerald-400 dark:to-emerald-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
-                    <span className="text-white font-bold text-sm">3</span>
+                  <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
+                    <span className="text-white dark:text-slate-900 font-bold text-xs">03</span>
                   </div>
                   
-                  {/* Enhanced Icon */}
-                  <div className="w-14 h-14 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 rounded-xl flex items-center justify-center mb-4 mx-auto group-hover:scale-110 transition-all duration-300">
-                    <svg className="w-7 h-7 text-emerald-600 dark:text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  {/* Icon */}
+                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center mb-6 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors duration-300">
+                    <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                   </div>
                   
-                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3 text-center">Start Creating</h3>
-                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed text-sm">
-                    Begin collaborating with your team immediately. Export, share, and scale your ideas effortlessly.
+                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Deployment</h3>
+                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
+                    Launch your team's productivity with enterprise-grade collaboration and analytics
                   </p>
                 </div>
               </motion.div>
             </div>
 
-            {/* Enhanced CTA Section */}
+            {/* Luxury CTA Section */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.8 }}
+              transition={{ duration: 1, delay: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mt-12"
+              className="text-center mt-16"
             >
-              <div className="inline-flex items-center space-x-4 bg-gradient-to-r from-blue-600 to-teal-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 transform shadow-xl hover:shadow-2xl">
-                <span>Start Your Free Trial</span>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="inline-flex items-center space-x-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 py-5 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 transform shadow-lg hover:shadow-xl">
+                <span>Begin Implementation</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-3">
-                No credit card required • 14-day free trial • Full access to all tools
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-4 tracking-wide">
+                Enterprise Security • 99.9% Uptime • 24/7 Support
               </p>
             </motion.div>
           </div>
