@@ -839,7 +839,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Strategy Co-Pilot Section - Enhanced with Green Accent */}
+
         <section className="py-12 bg-gradient-to-br from-green-50 via-white to-emerald-50 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(34,197,94,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
           <div className="absolute top-0 left-1/4 w-64 h-64 bg-green-500/6 rounded-full blur-2xl"></div>
@@ -974,7 +974,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Meetings Section - Enhanced with Blue Accent */}
+
         <section className="py-12 bg-gradient-to-br from-blue-50 via-white to-cyan-50 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
           <div className="absolute top-0 left-1/4 w-64 h-64 bg-blue-500/6 rounded-full blur-2xl"></div>
