@@ -2,18 +2,61 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { CheckCircle, Clock, Users, Shield, Zap, Building2, ArrowRight, Star, Crown, Settings, Map, Presentation, Video, Brain, FileText, Sparkles, Globe, MessageCircle, Target, Mail, HelpCircle } from 'lucide-react';
-import { HeroSection } from '@/components/blocks/hero-section-dark';
 import { Footer } from '@/components/blocks/footer';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 const Onboarding = () => {
   console.log('Onboarding page rendered');
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
-      {/* Header */}
-      <HeroSection />
+      {/* Custom Header */}
+      <header className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            {/* Logo */}
+            <Link to="/" className="flex items-center space-x-3">
+              <img 
+                src="/src/assets/nov8black.png" 
+                alt="NOV8 Logo" 
+                className="h-8 w-auto"
+              />
+            </Link>
+            
+            {/* Navigation */}
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link to="/mindmaps" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                Mind Maps
+              </Link>
+              <Link to="/presentations" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                Presentations
+              </Link>
+              <Link to="/meetings" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                Meetings
+              </Link>
+              <Link to="/strategy" className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors">
+                Strategy
+              </Link>
+            </nav>
+            
+            {/* CTA Buttons */}
+            <div className="flex items-center space-x-4">
+              <Link to="/book-demo">
+                <Button variant="outline" className="text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800">
+                  Book Demo
+                </Button>
+              </Link>
+              <Link to="/book-demo">
+                <Button className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 hover:bg-slate-800 dark:hover:bg-slate-100">
+                  Get Started
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </header>
       
       {/* Onboarding Hero Section */}
       <section className="py-20 bg-white dark:bg-slate-900">
@@ -25,13 +68,13 @@ const Onboarding = () => {
             className="text-center max-w-4xl mx-auto"
           >
             <Badge variant="outline" className="mb-6 px-4 py-2 text-sm bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
-              Enterprise Onboarding
+              Onboarding Process
             </Badge>
             <h1 className="text-4xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
-              Enterprise Implementation Guide
+              Work With Us
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
-              Everything you need to know about getting started with NOV8, from initial signup to enterprise deployment and custom workspace configuration.
+              Step-by-step guide to implementing NOV8 in your organization. From initial setup to enterprise deployment, we'll walk you through every step.
             </p>
           </motion.div>
         </div>
