@@ -408,7 +408,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                         "scale",
                         "thrive"
                       ]}
-                      mainClassName="px-3 sm:px-4 md:px-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white text-4xl lg:text-5xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm"
+                      mainClassName="px-3 sm:px-4 md:px-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-gray-900 dark:text-white text-4xl lg:text-5xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm border border-blue-200/50 dark:border-purple-700/50"
                       staggerFrom="last"
                       initial={{ y: "100%", opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
@@ -422,9 +422,107 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     />
                   </div>
                 </h2>
-                <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
+                <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
                   Six powerful tools designed to transform how teams work together, from initial ideas to final execution.
                 </p>
+                
+                {/* Beautiful Animated Arrow */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
+                  viewport={{ once: true }}
+                  className="flex justify-center"
+                >
+                  <motion.div
+                    animate={{ 
+                      y: [0, 10, 0],
+                      scale: [1, 1.1, 1]
+                    }}
+                    transition={{ 
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="relative"
+                  >
+                    {/* Main Arrow */}
+                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                      <motion.svg
+                        className="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        animate={{ 
+                          y: [0, 3, 0]
+                        }}
+                        transition={{ 
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut"
+                        }}
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                      </motion.svg>
+                    </div>
+                    
+                    {/* Pulsing Ring Effect */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full border-2 border-blue-400/30"
+                      animate={{
+                        scale: [1, 1.5, 1],
+                        opacity: [0.6, 0, 0.6]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeOut"
+                      }}
+                    />
+                    
+                    {/* Second Pulsing Ring */}
+                    <motion.div
+                      className="absolute inset-0 rounded-full border-2 border-purple-400/20"
+                      animate={{
+                        scale: [1, 1.8, 1],
+                        opacity: [0.4, 0, 0.4]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeOut",
+                        delay: 0.5
+                      }}
+                    />
+                    
+                    {/* Floating Particles */}
+                    <motion.div
+                      className="absolute -top-2 -right-2 w-3 h-3 bg-blue-400 rounded-full"
+                      animate={{
+                        y: [0, -10, 0],
+                        opacity: [0.8, 0, 0.8]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut"
+                      }}
+                    />
+                    <motion.div
+                      className="absolute -bottom-2 -left-2 w-2 h-2 bg-purple-400 rounded-full"
+                      animate={{
+                        y: [0, 10, 0],
+                        opacity: [0.6, 0, 0.6]
+                      }}
+                      transition={{
+                        duration: 2,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: 0.5
+                      }}
+                    />
+                  </motion.div>
+                </motion.div>
               </motion.div>
             </div>
           </div>
