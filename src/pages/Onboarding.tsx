@@ -15,7 +15,7 @@ const Onboarding = () => {
       {/* Header */}
       <HeroSection />
       
-      {/* Hero Section */}
+      {/* Onboarding Hero Section */}
       <section className="py-20 bg-white dark:bg-slate-900">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -28,7 +28,7 @@ const Onboarding = () => {
               Enterprise Onboarding
             </Badge>
             <h1 className="text-4xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
-              Complete Implementation Guide
+              Enterprise Implementation Guide
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed">
               Everything you need to know about getting started with NOV8, from initial signup to enterprise deployment and custom workspace configuration.
