@@ -543,15 +543,15 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Services Grid Section - Paired Layout */}
+        {/* Services Grid Section - Proper 2x3 Layout */}
         <section className="py-16 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* Services Grid */}
+            {/* Services Grid - 2 columns, 3 rows */}
             <div className="grid lg:grid-cols-2 gap-8">
               
-              {/* Mind Maps & Presentations Row */}
+              {/* Column 1: Mind Maps, Strategy Co-Pilot, AI Simulation */}
               <div className="space-y-6">
                 {/* Mind Maps */}
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
@@ -580,36 +580,6 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                   </div>
                 </div>
                 
-                {/* Presentations */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Presentation className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">Presentations</h3>
-                      <p className="text-orange-600 text-sm font-medium">AI-Powered Design Studio</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
-                    Create stunning presentations with AI assistance, smart templates, and seamless collaboration.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <Link to="/presentations">
-                      <button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Create Presentation
-                      </button>
-                    </Link>
-                    <div className="flex space-x-2">
-                      <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">Templates</span>
-                      <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">AI Design</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Strategy Co-Pilot & Meetings Row */}
-              <div className="space-y-6">
                 {/* Strategy Co-Pilot */}
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
                   <div className="flex items-center space-x-4 mb-4">
@@ -637,36 +607,6 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                   </div>
                 </div>
                 
-                {/* Meetings */}
-                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Video className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-900">Meetings</h3>
-                      <p className="text-blue-600 text-sm font-medium">AI-Powered Video Collaboration</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed mb-4">
-                    Real-time collaboration and video conferencing with AI-powered features and transcription.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <Link to="/meetings">
-                      <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Join Meeting
-                      </button>
-                    </Link>
-                    <div className="flex space-x-2">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">HD Video</span>
-                      <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">AI Transcribe</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* AI Simulation & Digital Whiteboard Row */}
-              <div className="space-y-6">
                 {/* AI Simulation */}
                 <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
                   <div className="flex items-center space-x-4 mb-4">
@@ -690,6 +630,63 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     <div className="flex space-x-2">
                       <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">What-if</span>
                       <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">Forecasting</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Column 2: Presentations, Meetings, Digital Whiteboard */}
+              <div className="space-y-6">
+                {/* Presentations */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Presentation className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Presentations</h3>
+                      <p className="text-orange-600 text-sm font-medium">AI-Powered Design Studio</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Create stunning presentations with AI assistance, smart templates, and seamless collaboration.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Link to="/presentations">
+                      <button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Create Presentation
+                      </button>
+                    </Link>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">Templates</span>
+                      <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">AI Design</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Meetings */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Video className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Meetings</h3>
+                      <p className="text-blue-600 text-sm font-medium">AI-Powered Video Collaboration</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Real-time collaboration and video conferencing with AI-powered features and transcription.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Link to="/meetings">
+                      <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Join Meeting
+                      </button>
+                    </Link>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">HD Video</span>
+                      <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">AI Transcribe</span>
                     </div>
                   </div>
                 </div>
@@ -725,7 +722,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Presentations Section - Enhanced with Orange Accent */}
+
         <section className="py-12 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(249,115,22,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
           <div className="absolute top-0 left-1/4 w-64 h-64 bg-orange-500/6 rounded-full blur-2xl"></div>
