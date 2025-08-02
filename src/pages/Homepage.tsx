@@ -146,18 +146,17 @@ const Homepage: React.FC = () => {
       {/* Hero Section */}
       <HeroSection />
 
-      {/* Services Section */}
-      <section className="relative py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
+      {/* Animated Services Title Section */}
+      <section className="relative py-16 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.1)_1px,transparent_0)] bg-[length:32px_32px] opacity-50" />
         
         <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Section Header */}
-          <div className="text-center mb-16">
+          <div className="text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.8 }}
               viewport={{ once: true }}
             >
               <Badge variant="outline" className="mb-4 px-4 py-1 text-sm bg-blue-50/80 border-blue-200/50 text-blue-700 dark:bg-blue-900/20 dark:border-blue-700/50 dark:text-blue-300">
@@ -174,6 +173,15 @@ const Homepage: React.FC = () => {
               </p>
             </motion.div>
           </div>
+        </div>
+      </section>
+
+      {/* Services Section */}
+      <section className="relative py-24 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.1)_1px,transparent_0)] bg-[length:32px_32px] opacity-50" />
+        
+        <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* Services Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
