@@ -1,290 +1,249 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
-import { ChevronRight } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Link } from "react-router-dom"
-import { Brain, Presentation, Video, Target, Network, Palette } from "lucide-react"
-import { RotatingText } from "@/components/ui/rotating-text"
-import { NOV8GlowCard } from "@/components/ui/spotlight-card"
-import { useState, useEffect } from "react"
-import { motion } from "framer-motion"
-import { Badge } from "@/components/ui/badge"
-
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { ChevronRight } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Link } from "react-router-dom";
+import { Brain, Presentation, Video, Target, Network, Palette } from "lucide-react";
+import { RotatingText } from "@/components/ui/rotating-text";
+import { NOV8GlowCard } from "@/components/ui/spotlight-card";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
 interface HeroSectionProps extends React.HTMLAttributes<HTMLDivElement> {
-  title?: string
-  subtitle?: { regular: string; gradient: string }
-  description?: string
-  ctaText?: string
-  ctaHref?: string
-  bottomImage?: { light: string; dark: string }
+  title?: string;
+  subtitle?: {
+    regular: string;
+    gradient: string;
+  };
+  description?: string;
+  ctaText?: string;
+  ctaHref?: string;
+  bottomImage?: {
+    light: string;
+    dark: string;
+  };
   gridOptions?: {
-    angle?: number
-    cellSize?: number
-    opacity?: number
-    lightLineColor?: string
-    darkLineColor?: string
-  }
+    angle?: number;
+    cellSize?: number;
+    opacity?: number;
+    lightLineColor?: string;
+    darkLineColor?: string;
+  };
 }
-
 interface PlatformImage {
-  id: string
-  name: string
-  light: string
-  dark: string
-  route: string
-  description: string
-  color: string
-  textColor: string
-  activeTextColor: string
-  hoverTextColor: string
-  borderColor: string
-  tabColor: string
+  id: string;
+  name: string;
+  light: string;
+  dark: string;
+  route: string;
+  description: string;
+  color: string;
+  textColor: string;
+  activeTextColor: string;
+  hoverTextColor: string;
+  borderColor: string;
+  tabColor: string;
 }
 
 // Mobile Tab Component
-const MobileTab = ({ platform, isActive, onClick }: { platform: PlatformImage; isActive: boolean; onClick: () => void }) => {
+const MobileTab = ({
+  platform,
+  isActive,
+  onClick
+}: {
+  platform: PlatformImage;
+  isActive: boolean;
+  onClick: () => void;
+}) => {
   const [isExpanded, setIsExpanded] = useState(false);
-
-  return (
-    <motion.div
-      className={`mb-2 last:mb-0 overflow-hidden rounded-xl transition-all duration-300 ${
-        isActive ? 'bg-white shadow-lg' : 'bg-gray-50'
-      }`}
-      initial={false}
-      animate={{ height: isExpanded ? "auto" : "60px" }}
-      transition={{ duration: 0.3, ease: "easeInOut" }}
-    >
-      <button
-        onClick={() => {
-          setIsExpanded(!isExpanded);
-          onClick();
-        }}
-        className={`w-full px-4 py-3 text-left transition-all duration-300 ${
-          isActive ? 'text-gray-900' : 'text-gray-600'
-        }`}
-      >
+  return <motion.div className={`mb-2 last:mb-0 overflow-hidden rounded-xl transition-all duration-300 ${isActive ? 'bg-white shadow-lg' : 'bg-gray-50'}`} initial={false} animate={{
+    height: isExpanded ? "auto" : "60px"
+  }} transition={{
+    duration: 0.3,
+    ease: "easeInOut"
+  }}>
+      <button onClick={() => {
+      setIsExpanded(!isExpanded);
+      onClick();
+    }} className={`w-full px-4 py-3 text-left transition-all duration-300 ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
         <div className="flex items-center justify-between">
           <span className="font-semibold text-sm">{platform.name}</span>
-          <motion.svg
-            className="w-5 h-5"
-            animate={{ rotate: isExpanded ? 180 : 0 }}
-            transition={{ duration: 0.3 }}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
+          <motion.svg className="w-5 h-5" animate={{
+          rotate: isExpanded ? 180 : 0
+        }} transition={{
+          duration: 0.3
+        }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </motion.svg>
         </div>
       </button>
       
-      {isExpanded && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: "auto" }}
-          exit={{ opacity: 0, height: 0 }}
-          transition={{ duration: 0.3 }}
-          className="px-4 pb-3"
-        >
+      {isExpanded && <motion.div initial={{
+      opacity: 0,
+      height: 0
+    }} animate={{
+      opacity: 1,
+      height: "auto"
+    }} exit={{
+      opacity: 0,
+      height: 0
+    }} transition={{
+      duration: 0.3
+    }} className="px-4 pb-3">
           <p className="text-xs text-gray-500 leading-relaxed">
             {platform.description}
           </p>
-        </motion.div>
-      )}
-    </motion.div>
-  );
+        </motion.div>}
+    </motion.div>;
 };
-
-const RetroGrid = ({ 
-  angle = 65, 
-  cellSize = 60, 
-  opacity = 0.5, 
-  lightLineColor = "gray", 
-  darkLineColor = "gray", 
+const RetroGrid = ({
+  angle = 65,
+  cellSize = 60,
+  opacity = 0.5,
+  lightLineColor = "gray",
+  darkLineColor = "gray"
 }) => {
   const gridStyles = {
     "--grid-angle": `${angle}deg`,
     "--cell-size": `${cellSize}px`,
     "--opacity": opacity,
     "--light-line": lightLineColor,
-    "--dark-line": darkLineColor,
-  } as React.CSSProperties
-
-  return (
-    <div
-      className={cn(
-        "pointer-events-none absolute size-full overflow-hidden [perspective:200px]",
-        `opacity-[var(--opacity)]`,
-      )}
-      style={gridStyles}
-    >
+    "--dark-line": darkLineColor
+  } as React.CSSProperties;
+  return <div className={cn("pointer-events-none absolute size-full overflow-hidden [perspective:200px]", `opacity-[var(--opacity)]`)} style={gridStyles}>
       <div className="absolute inset-0 [transform:rotateX(var(--grid-angle))]">
         <div className="animate-grid [background-image:linear-gradient(to_right,var(--light-line)_1px,transparent_0),linear-gradient(to_bottom,var(--light-line)_1px,transparent_0)] [background-repeat:repeat] [background-size:var(--cell-size)_var(--cell-size)] [height:300vh] [inset:0%_0px] [margin-left:-200%] [transform-origin:100%_0_0] [width:600vw] dark:[background-image:linear-gradient(to_right,var(--dark-line)_1px,transparent_0),linear-gradient(to_bottom,var(--dark-line)_1px,transparent_0)]" />
       </div>
       <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent to-90% dark:from-black" />
-    </div>
-  )
-}
-
-const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
-  (
-    {
-      className,
-      title = "Build products for everyone",
-      subtitle = {
-        regular: "Designing your projects faster with ",
-        gradient: "the largest figma UI kit.",
-      },
-      description = "Sed ut perspiciatis unde omnis iste natus voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae.",
-      ctaText = "Browse courses",
-      ctaHref = "#",
-      bottomImage = {
-        light: "https://farmui.vercel.app/dashboard-light.png",
-        dark: "https://farmui.vercel.app/dashboard.png",
-      },
-      gridOptions,
-      ...props
-    },
-    ref,
-  ) => {
-    const platformImages: PlatformImage[] = [
-      {
-        id: "mindmaps",
-        name: "Mind Maps",
-        light: "mindmaps.png",
-        dark: "mindmaps.png",
-        route: "/mindmaps",
-        description: "AI-powered mind mapping and brainstorming",
-        color: "from-blue-500 to-cyan-500",
-        textColor: "text-blue-600",
-        activeTextColor: "text-blue-700",
-        hoverTextColor: "hover:text-blue-700",
-        borderColor: "border-blue-500",
-        tabColor: "tab-blue"
-      },
-      {
-        id: "presentations",
-        name: "Presentations",
-        light: "presentations.png",
-        dark: "presentations.png",
-        route: "/presentations",
-        description: "Professional presentation creation and design",
-        color: "from-purple-500 to-pink-500",
-        textColor: "text-purple-600",
-        activeTextColor: "text-purple-700",
-        hoverTextColor: "hover:text-purple-700",
-        borderColor: "border-purple-500",
-        tabColor: "tab-purple"
-      },
-      {
-        id: "meetings",
-        name: "Meetings",
-        light: "meetings.png",
-        dark: "meetings.png",
-        route: "/meetings",
-        description: "Real-time collaboration and video conferencing",
-        color: "from-green-500 to-emerald-500",
-        textColor: "text-green-600",
-        activeTextColor: "text-green-700",
-        hoverTextColor: "hover:text-green-700",
-        borderColor: "border-green-500",
-        tabColor: "tab-green"
-      },
-      {
-        id: "strategy",
-        name: "Strategy Co-Pilot",
-        light: "strategy.png",
-        dark: "strategy.png",
-        route: "/strategy",
-        description: "AI-driven strategic planning and analysis",
-        color: "from-orange-500 to-red-500",
-        textColor: "text-orange-600",
-        activeTextColor: "text-orange-700",
-        hoverTextColor: "hover:text-orange-700",
-        borderColor: "border-orange-500",
-        tabColor: "tab-orange"
-      },
-      {
-        id: "simulation",
-        name: "AI Simulation",
-        light: "aisimulation.png",
-        dark: "aisimulation.png",
-        route: "/simulation",
-        description: "Scenario modeling and decision forecasting",
-        color: "from-indigo-500 to-purple-500",
-        textColor: "text-indigo-600",
-        activeTextColor: "text-indigo-700",
-        hoverTextColor: "hover:text-indigo-700",
-        borderColor: "border-indigo-500",
-        tabColor: "tab-indigo"
-      },
-      {
-        id: "whiteboard",
-        name: "Digital Whiteboard",
-        light: "digitalwhiteboard.png",
-        dark: "digitalwhiteboard.png",
-        route: "/whiteboard",
-        description: "Real-time collaborative canvas and drawing",
-        color: "from-cyan-500 to-teal-500",
-        textColor: "text-cyan-600",
-        activeTextColor: "text-cyan-700",
-        hoverTextColor: "hover:text-cyan-700",
-        borderColor: "border-cyan-500",
-        tabColor: "tab-cyan"
-      }
-    ]
-
-    const [currentService, setCurrentService] = useState("Mind Maps");
-
-    useEffect(() => {
-      const serviceName = window.location.pathname.split('/').pop();
-      if (serviceName) {
-        setCurrentService(serviceName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
-      }
-    }, []);
-
-    const currentServiceData = platformImages.find(
-      (service) => service.name.toLowerCase().replace(/\s/g, '-') === currentService.toLowerCase().replace(/\s/g, '-')
-    );
-
-    const rotatingTexts = [
-      "Mind Maps",
-      "Presentations", 
-      "Meetings",
-      "Strategy Co-Pilot",
-      "AI Simulation",
-      "Digital Whiteboard"
-    ];
-
-    const getServiceColorClass = (serviceName: string) => {
-      const service = platformImages.find(
-        (s) => s.name.toLowerCase() === serviceName.toLowerCase()
-      );
-      
-      if (!service) return "from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200/50 dark:border-purple-700/50";
-      
-      switch (service.name) {
-        case "Mind Maps":
-          return "from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200/50 dark:border-cyan-700/50";
-        case "Presentations":
-          return "from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200/50 dark:border-pink-700/50";
-        case "Meetings":
-          return "from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200/50 dark:border-emerald-700/50";
-        case "Strategy Co-Pilot":
-          return "from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200/50 dark:border-red-700/50";
-        case "AI Simulation":
-          return "from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200/50 dark:border-purple-700/50";
-        case "Digital Whiteboard":
-          return "from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20 border-cyan-200/50 dark:border-teal-700/50";
-        default:
-          return "from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200/50 dark:border-purple-700/50";
-      }
-    };
-
-    const mainClassName = `px-3 sm:px-4 md:px-6 bg-gradient-to-r ${getServiceColorClass(currentService)} text-gray-900 dark:text-white text-4xl sm:text-5xl lg:text-7xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm rotating-text-clean rotating-text-${currentService.toLowerCase().replace(/\s+/g, '-')}`;
-
-    return (
-      <div className={cn("relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800", className)} ref={ref} {...props}>
+    </div>;
+};
+const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
+  className,
+  title = "Build products for everyone",
+  subtitle = {
+    regular: "Designing your projects faster with ",
+    gradient: "the largest figma UI kit."
+  },
+  description = "Sed ut perspiciatis unde omnis iste natus voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae.",
+  ctaText = "Browse courses",
+  ctaHref = "#",
+  bottomImage = {
+    light: "https://farmui.vercel.app/dashboard-light.png",
+    dark: "https://farmui.vercel.app/dashboard.png"
+  },
+  gridOptions,
+  ...props
+}, ref) => {
+  const platformImages: PlatformImage[] = [{
+    id: "mindmaps",
+    name: "Mind Maps",
+    light: "mindmaps.png",
+    dark: "mindmaps.png",
+    route: "/mindmaps",
+    description: "AI-powered mind mapping and brainstorming",
+    color: "from-blue-500 to-cyan-500",
+    textColor: "text-blue-600",
+    activeTextColor: "text-blue-700",
+    hoverTextColor: "hover:text-blue-700",
+    borderColor: "border-blue-500",
+    tabColor: "tab-blue"
+  }, {
+    id: "presentations",
+    name: "Presentations",
+    light: "presentations.png",
+    dark: "presentations.png",
+    route: "/presentations",
+    description: "Professional presentation creation and design",
+    color: "from-purple-500 to-pink-500",
+    textColor: "text-purple-600",
+    activeTextColor: "text-purple-700",
+    hoverTextColor: "hover:text-purple-700",
+    borderColor: "border-purple-500",
+    tabColor: "tab-purple"
+  }, {
+    id: "meetings",
+    name: "Meetings",
+    light: "meetings.png",
+    dark: "meetings.png",
+    route: "/meetings",
+    description: "Real-time collaboration and video conferencing",
+    color: "from-green-500 to-emerald-500",
+    textColor: "text-green-600",
+    activeTextColor: "text-green-700",
+    hoverTextColor: "hover:text-green-700",
+    borderColor: "border-green-500",
+    tabColor: "tab-green"
+  }, {
+    id: "strategy",
+    name: "Strategy Co-Pilot",
+    light: "strategy.png",
+    dark: "strategy.png",
+    route: "/strategy",
+    description: "AI-driven strategic planning and analysis",
+    color: "from-orange-500 to-red-500",
+    textColor: "text-orange-600",
+    activeTextColor: "text-orange-700",
+    hoverTextColor: "hover:text-orange-700",
+    borderColor: "border-orange-500",
+    tabColor: "tab-orange"
+  }, {
+    id: "simulation",
+    name: "AI Simulation",
+    light: "aisimulation.png",
+    dark: "aisimulation.png",
+    route: "/simulation",
+    description: "Scenario modeling and decision forecasting",
+    color: "from-indigo-500 to-purple-500",
+    textColor: "text-indigo-600",
+    activeTextColor: "text-indigo-700",
+    hoverTextColor: "hover:text-indigo-700",
+    borderColor: "border-indigo-500",
+    tabColor: "tab-indigo"
+  }, {
+    id: "whiteboard",
+    name: "Digital Whiteboard",
+    light: "digitalwhiteboard.png",
+    dark: "digitalwhiteboard.png",
+    route: "/whiteboard",
+    description: "Real-time collaborative canvas and drawing",
+    color: "from-cyan-500 to-teal-500",
+    textColor: "text-cyan-600",
+    activeTextColor: "text-cyan-700",
+    hoverTextColor: "hover:text-cyan-700",
+    borderColor: "border-cyan-500",
+    tabColor: "tab-cyan"
+  }];
+  const [currentService, setCurrentService] = useState("Mind Maps");
+  useEffect(() => {
+    const serviceName = window.location.pathname.split('/').pop();
+    if (serviceName) {
+      setCurrentService(serviceName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
+    }
+  }, []);
+  const currentServiceData = platformImages.find(service => service.name.toLowerCase().replace(/\s/g, '-') === currentService.toLowerCase().replace(/\s/g, '-'));
+  const rotatingTexts = ["Mind Maps", "Presentations", "Meetings", "Strategy Co-Pilot", "AI Simulation", "Digital Whiteboard"];
+  const getServiceColorClass = (serviceName: string) => {
+    const service = platformImages.find(s => s.name.toLowerCase() === serviceName.toLowerCase());
+    if (!service) return "from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200/50 dark:border-purple-700/50";
+    switch (service.name) {
+      case "Mind Maps":
+        return "from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200/50 dark:border-cyan-700/50";
+      case "Presentations":
+        return "from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200/50 dark:border-pink-700/50";
+      case "Meetings":
+        return "from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200/50 dark:border-emerald-700/50";
+      case "Strategy Co-Pilot":
+        return "from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200/50 dark:border-red-700/50";
+      case "AI Simulation":
+        return "from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200/50 dark:border-purple-700/50";
+      case "Digital Whiteboard":
+        return "from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20 border-cyan-200/50 dark:border-teal-700/50";
+      default:
+        return "from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200/50 dark:border-purple-700/50";
+    }
+  };
+  const mainClassName = `px-3 sm:px-4 md:px-6 bg-gradient-to-r ${getServiceColorClass(currentService)} text-gray-900 dark:text-white text-4xl sm:text-5xl lg:text-7xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm rotating-text-clean rotating-text-${currentService.toLowerCase().replace(/\s+/g, '-')}`;
+  return <div className={cn("relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800", className)} ref={ref} {...props}>
         {/* Subtle background pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.08)_1px,transparent_0)] bg-[length:24px_24px]" />
         
@@ -296,11 +255,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               <div className="flex items-center justify-between py-6">
                 {/* Logo */}
                 <div className="flex items-center space-x-2">
-                  <img 
-                    src="/nov8black.png"
-                    alt="NOV8 Logo" 
-                    className="h-8 w-auto"
-                  />
+                  <img src="/nov8black.png" alt="NOV8 Logo" className="h-8 w-auto" />
                 </div>
 
                 {/* Navigation */}
@@ -324,7 +279,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </header>
 
           {/* Hero Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-32">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-[50px]">
             <div className="text-center max-w-5xl mx-auto mb-20">
               {/* Announcement Badge */}
               <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 border border-blue-200 text-sm font-medium text-blue-700 mb-8">
@@ -378,38 +333,21 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 <Tabs defaultValue="mindmaps" className="w-full">
                   {/* Desktop Tabs */}
                   <TabsList className="hidden sm:grid sm:grid-cols-3 lg:flex lg:flex-wrap w-full mb-8 bg-gray-100 p-3 rounded-2xl gap-3">
-                    {platformImages.map((platform) => (
-                      <TabsTrigger
-                        key={platform.id}
-                        value={platform.id}
-                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-3 py-3 text-xs lg:px-4 lg:py-3 lg:text-sm font-semibold flex-1 min-w-0 border-2 border-transparent data-[state=active]:border-current`}
-                      >
+                    {platformImages.map(platform => <TabsTrigger key={platform.id} value={platform.id} className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-3 py-3 text-xs lg:px-4 lg:py-3 lg:text-sm font-semibold flex-1 min-w-0 border-2 border-transparent data-[state=active]:border-current`}>
                         <span className="truncate">{platform.name}</span>
-                      </TabsTrigger>
-                    ))}
+                      </TabsTrigger>)}
                   </TabsList>
                   
                   {/* Mobile Tabs - 3 Columns */}
                   <TabsList className="sm:hidden mb-8 bg-gray-100 p-3 rounded-2xl grid grid-cols-3 gap-3">
-                    {platformImages.map((platform) => (
-                      <TabsTrigger
-                        key={platform.id}
-                        value={platform.id}
-                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}
-                      >
+                    {platformImages.map(platform => <TabsTrigger key={platform.id} value={platform.id} className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}>
                         <span className="truncate text-center">{platform.name}</span>
-                      </TabsTrigger>
-                    ))}
+                      </TabsTrigger>)}
                   </TabsList>
 
-                  {platformImages.map((platform) => (
-                    <TabsContent key={platform.id} value={platform.id} className="space-y-6 sm:space-y-8">
+                  {platformImages.map(platform => <TabsContent key={platform.id} value={platform.id} className="space-y-6 sm:space-y-8">
                       <div className="relative group">
-                        <img
-                          src={platform.light}
-                          alt={platform.name}
-                          className="w-full h-auto rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl transition-all duration-500 group-hover:scale-105"
-                        />
+                        <img src={platform.light} alt={platform.name} className="w-full h-auto rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl transition-all duration-500 group-hover:scale-105" />
                         <div className="absolute top-3 right-3 sm:top-6 sm:right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                           <button className="bg-white/95 backdrop-blur-sm text-gray-900 px-3 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium shadow-lg sm:shadow-xl border border-gray-200 hover:bg-white transition-all duration-300">
                             Try {platform.name}
@@ -420,8 +358,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                         <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3 sm:mb-4">{platform.name}</h3>
                         <p className="text-sm sm:text-lg text-gray-600 max-w-3xl mx-auto">{platform.description}</p>
                       </div>
-                    </TabsContent>
-                  ))}
+                    </TabsContent>)}
                 </Tabs>
               </div>
             </div>
@@ -435,43 +372,37 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           
           <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                viewport={{ once: true }}
-              >
+              <motion.div initial={{
+            opacity: 0,
+            y: 20
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.8
+          }} viewport={{
+            once: true
+          }}>
                 <Badge variant="outline" className="mb-4 px-4 py-1 text-sm bg-blue-50/80 border-blue-200/50 text-blue-700 dark:bg-blue-900/20 dark:border-blue-700/50 dark:text-blue-300">
                   Our Services
                 </Badge>
                 <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                   Services designed to help you{' '}
                   <div className="inline-flex items-center">
-                    <RotatingText
-                      texts={[
-                        "grow",
-                        "strategize", 
-                        "collaborate",
-                        "innovate",
-                        "succeed",
-                        "transform",
-                        "create",
-                        "execute",
-                        "scale",
-                        "thrive"
-                      ]}
-                      mainClassName="px-3 sm:px-4 md:px-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-gray-900 dark:text-white text-4xl lg:text-5xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm border border-blue-200/50 dark:border-purple-700/50"
-                      staggerFrom="last"
-                      initial={{ y: "100%", opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      exit={{ y: "-120%", opacity: 0 }}
-                      staggerDuration={0.08}
-                      splitLevelClassName="overflow-hidden pb-1 sm:pb-2 md:pb-3"
-                      transition={{ type: "spring", damping: 40, stiffness: 800 }}
-                      rotationInterval={3000}
-                      auto={true}
-                      loop={true}
-                    />
+                    <RotatingText texts={["grow", "strategize", "collaborate", "innovate", "succeed", "transform", "create", "execute", "scale", "thrive"]} mainClassName="px-3 sm:px-4 md:px-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-gray-900 dark:text-white text-4xl lg:text-5xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm border border-blue-200/50 dark:border-purple-700/50" staggerFrom="last" initial={{
+                  y: "100%",
+                  opacity: 0
+                }} animate={{
+                  y: 0,
+                  opacity: 1
+                }} exit={{
+                  y: "-120%",
+                  opacity: 0
+                }} staggerDuration={0.08} splitLevelClassName="overflow-hidden pb-1 sm:pb-2 md:pb-3" transition={{
+                  type: "spring",
+                  damping: 40,
+                  stiffness: 800
+                }} rotationInterval={3000} auto={true} loop={true} />
                   </div>
                 </h2>
                 <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
@@ -479,38 +410,32 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 </p>
                 
                                 {/* Clean Animated Arrow */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.5 }}
-                  viewport={{ once: true }}
-                  className="flex justify-center"
-                >
-                  <motion.div
-                    animate={{ 
-                      y: [0, 8, 0]
-                    }}
-                    transition={{ 
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                    className="relative"
-                  >
-                    <motion.svg
-                      className="w-8 h-8 text-slate-600 dark:text-slate-300"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                      animate={{ 
-                        y: [0, 2, 0]
-                      }}
-                      transition={{ 
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    >
+                <motion.div initial={{
+              opacity: 0,
+              y: 20
+            }} whileInView={{
+              opacity: 1,
+              y: 0
+            }} transition={{
+              duration: 0.8,
+              delay: 0.5
+            }} viewport={{
+              once: true
+            }} className="flex justify-center">
+                  <motion.div animate={{
+                y: [0, 8, 0]
+              }} transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }} className="relative">
+                    <motion.svg className="w-8 h-8 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" animate={{
+                  y: [0, 2, 0]
+                }} transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}>
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </motion.svg>
                   </motion.div>
@@ -749,23 +674,30 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           
           {/* Elegant Divider Line */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div
-              className="w-full max-w-5xl h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent"
-              initial={{ scaleX: 0 }}
-              whileInView={{ scaleX: 1 }}
-              transition={{ duration: 2, ease: "easeOut" }}
-              viewport={{ once: true }}
-            />
+            <motion.div className="w-full max-w-5xl h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent" initial={{
+          scaleX: 0
+        }} whileInView={{
+          scaleX: 1
+        }} transition={{
+          duration: 2,
+          ease: "easeOut"
+        }} viewport={{
+          once: true
+        }} />
           </div>
           
           <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1 }}
-              viewport={{ once: true }}
-              className="text-center mb-16"
-            >
+            <motion.div initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 1
+        }} viewport={{
+          once: true
+        }} className="text-center mb-16">
               <div className="inline-flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-full mb-6">
                 <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
                 <span className="text-sm font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Enterprise Process</span>
@@ -780,13 +712,18 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
 
             <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
               {/* Step 1 */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.2 }}
-                viewport={{ once: true }}
-                className="relative group"
-              >
+              <motion.div initial={{
+            opacity: 0,
+            y: 40
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 1,
+            delay: 0.2
+          }} viewport={{
+            once: true
+          }} className="relative group">
                 <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
                   {/* Step Number */}
                   <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
@@ -808,13 +745,18 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               </motion.div>
 
               {/* Step 2 */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.4 }}
-                viewport={{ once: true }}
-                className="relative group"
-              >
+              <motion.div initial={{
+            opacity: 0,
+            y: 40
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 1,
+            delay: 0.4
+          }} viewport={{
+            once: true
+          }} className="relative group">
                 <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
                   {/* Step Number */}
                   <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
@@ -836,13 +778,18 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               </motion.div>
 
               {/* Step 3 */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 1, delay: 0.6 }}
-                viewport={{ once: true }}
-                className="relative group"
-              >
+              <motion.div initial={{
+            opacity: 0,
+            y: 40
+          }} whileInView={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 1,
+            delay: 0.6
+          }} viewport={{
+            once: true
+          }} className="relative group">
                 <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
                   {/* Step Number */}
                   <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
@@ -865,13 +812,18 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
             </div>
 
             {/* Luxury CTA Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, delay: 0.8 }}
-              viewport={{ once: true }}
-              className="text-center mt-16"
-            >
+            <motion.div initial={{
+          opacity: 0,
+          y: 30
+        }} whileInView={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 1,
+          delay: 0.8
+        }} viewport={{
+          once: true
+        }} className="text-center mt-16">
               <Link to="/onboarding" className="inline-block">
                 <div className="inline-flex items-center space-x-4 bg-black text-white px-8 py-4 rounded-lg font-semibold text-base transition-all duration-300 hover:scale-105 transform shadow-lg hover:shadow-xl">
                   <span>Get Started</span>
@@ -890,11 +842,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
 
 
 
-      </div>
-    )
-  },
-)
-
-HeroSection.displayName = "HeroSection"
-
-export { HeroSection } 
+      </div>;
+});
+HeroSection.displayName = "HeroSection";
+export { HeroSection };
