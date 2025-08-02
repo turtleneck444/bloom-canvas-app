@@ -52,7 +52,8 @@ interface StrategyNodeData extends Record<string, unknown> {
   type: 'goal' | 'strategy' | 'tactic' | 'milestone' | 'risk' | 'resource' | 'strength' | 'weakness' | 'opportunity' | 'threat' | 'rivalry' | 'suppliers' | 'customers' | 'entrants' | 'substitutes' | 'competitor' | 'market-size' | 'market-growth' | 'market-segments';
 }
 
-interface StrategyNodeProps extends NodeProps<StrategyNodeData> {
+interface StrategyNodeProps extends NodeProps {
+  data: StrategyNodeData;
   onSubmit?: (nodeId: string) => void;
 }
 
@@ -307,14 +308,14 @@ const StrategyNode: React.FC<StrategyNodeProps> = ({
             <div className="mb-3">
               <div className="flex justify-between text-xs text-gray-600 mb-1">
                 <span>Progress</span>
-                <span>{data.progress}%</span>
+                <span>{nodeData.progress}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className="h-2 rounded-full transition-all duration-300"
                   style={{
-                    width: `${data.progress}%`,
-                    backgroundColor: data.color
+                    width: `${nodeData.progress}%`,
+                    backgroundColor: nodeData.color
                   }}
                 />
               </div>
@@ -329,30 +330,30 @@ const StrategyNode: React.FC<StrategyNodeProps> = ({
                   exit={{ opacity: 0, height: 0 }}
                   className="space-y-2 pt-2 border-t border-gray-200"
                 >
-                  {data.assignedTo && (
+                  {nodeData.assignedTo && (
                     <div className="flex items-center gap-2 text-xs text-gray-600">
                       <Users className="w-3 h-3" />
-                      <span>{data.assignedTo}</span>
+                      <span>{nodeData.assignedTo}</span>
                     </div>
                   )}
                   
-                  {data.budget && (
+                  {nodeData.budget && (
                     <div className="flex items-center gap-2 text-xs text-gray-600">
                       <DollarSign className="w-3 h-3" />
-                      <span>${data.budget.toLocaleString()}</span>
+                      <span>${nodeData.budget.toLocaleString()}</span>
                     </div>
                   )}
                   
-                  {data.dueDate && (
+                  {nodeData.dueDate && (
                     <div className="flex items-center gap-2 text-xs text-gray-600">
                       <Calendar className="w-3 h-3" />
-                      <span>{data.dueDate.toLocaleDateString()}</span>
+                      <span>{nodeData.dueDate.toLocaleDateString()}</span>
                     </div>
                   )}
                   
-                  {data.tags.length > 0 && (
+                  {nodeData.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1">
-                      {data.tags.slice(0, 3).map((tag, index) => (
+                      {nodeData.tags.slice(0, 3).map((tag, index) => (
                         <Badge key={index} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>
@@ -364,10 +365,10 @@ const StrategyNode: React.FC<StrategyNodeProps> = ({
             </AnimatePresence>
 
             {/* Messages */}
-            {data.messages.length > 0 && (
+            {nodeData.messages.length > 0 && (
               <div className="mt-2 pt-2 border-t border-gray-200">
                 <p className="text-xs text-gray-600 line-clamp-2">
-                  {data.messages[0]}
+                  {nodeData.messages[0]}
                 </p>
               </div>
             )}

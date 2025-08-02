@@ -66,7 +66,7 @@ interface StrategyCanvasProps {
 
 const StrategyCanvasInner: React.FC<StrategyCanvasProps> = ({ className, onRef }) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
-  const [nodes, setNodes, onNodesChange] = useNodesState([
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<StrategyNodeData>>([
     {
       id: 'welcome-1',
       type: 'default',
@@ -98,7 +98,7 @@ const StrategyCanvasInner: React.FC<StrategyCanvasProps> = ({ className, onRef }
         label: 'Start Your Strategy',
         description: 'Use the AI toolbar on the left to generate comprehensive strategies',
         type: 'goal',
-        priority: 'high',
+        priority: 'high' as const,
         color: '#3B82F6',
         fontSize: 14,
         category: 'welcome',
