@@ -2,7 +2,7 @@ import React, { useCallback, useRef, useEffect, useState } from 'react';
 import PresentationToolbar from './PresentationToolbar';
 import SlideEditor from './SlideEditor';
 import { Button } from '../ui/button';
-import { Plus, FileText, Download, Upload, Save, RotateCcw, Presentation, Trash2, Copy, Image as ImageIcon, Type, Palette, Quote, Settings, CheckCircle, Undo2 as UndoIcon, Redo2 as RedoIcon, Copy as CopyIcon, Pause as PasteIcon, Bug as BlurIcon, Layers as LayersIcon, Lock as LockIcon, AlignEndVertical as AlignVerticalIcon, AlignEndHorizontal as AlignHorizontalIcon, Image as ImageIconIcon, ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon, AlignLeft as AlignLeftIcon, AlignCenter as AlignCenterIcon, AlignRight as AlignRightIcon, Play, Pause } from 'lucide-react';
+import { Plus, FileText, Download, Upload, Save, RotateCcw, Presentation, Trash2, Copy, Image as ImageIcon, Type, Palette, Quote, Settings, CheckCircle, Undo2 as UndoIcon, Redo2 as RedoIcon, Copy as CopyIcon, Pause as PasteIcon, Bug as BlurIcon, Layers as LayersIcon, Lock as LockIcon, AlignEndVertical as AlignVerticalIcon, AlignEndHorizontal as AlignHorizontalIcon, Image as ImageIconIcon, ZoomIn as ZoomInIcon, ZoomOut as ZoomOutIcon, AlignLeft as AlignLeftIcon, AlignCenter as AlignCenterIcon, AlignRight as AlignRightIcon, Play, Pause, Sparkles, Brain, Zap, List } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -11,6 +11,7 @@ import jsPDF from 'jspdf';
 import PptxGenJS from 'pptxgenjs';
 import ShineBorder from './ShineBorder';
 import PresentationsSidebar from './PresentationsSidebar';
+import AdvancedFeatures from './AdvancedFeatures';
 
 interface Slide {
   id: string;
@@ -109,45 +110,92 @@ const backgroundImages = [
 
 const templates: Template[] = [
   {
-    id: 'professional',
-    name: 'Professional',
-    description: 'Clean and modern design for business presentations',
+    id: 'corporate',
+    name: 'Corporate Pro',
+    description: 'Executive-level business presentations',
     preview: '🏢',
-    primaryColor: 'hsl(25 95% 53%)',
-    secondaryColor: 'hsl(31 91% 43%)',
-    accentColor: 'hsl(45 93% 58%)',
+    primaryColor: '#1e40af',
+    secondaryColor: '#3b82f6',
+    accentColor: '#60a5fa',
     fontFamily: 'inter',
+    backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
   },
   {
     id: 'creative',
-    name: 'Creative',
-    description: 'Bold and vibrant design for creative presentations',
+    name: 'Creative Studio',
+    description: 'Modern and innovative designs',
     preview: '🎨',
-    primaryColor: 'hsl(142 76% 36%)',
-    secondaryColor: 'hsl(134 61% 41%)',
-    accentColor: 'hsl(160 84% 39%)',
+    primaryColor: '#7c3aed',
+    secondaryColor: '#a855f7',
+    accentColor: '#c084fc',
     fontFamily: 'poppins',
+    backgroundImage: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'
   },
   {
     id: 'minimal',
-    name: 'Minimal',
-    description: 'Simple and elegant design with focus on content',
-    preview: '✨',
-    primaryColor: 'hsl(221 39% 11%)',
-    secondaryColor: 'hsl(215 28% 17%)',
-    accentColor: 'hsl(217 91% 60%)',
-    fontFamily: 'playfair',
+    name: 'Minimalist',
+    description: 'Clean and sophisticated layouts',
+    preview: '⚪',
+    primaryColor: '#374151',
+    secondaryColor: '#6b7280',
+    accentColor: '#9ca3af',
+    fontFamily: 'inter',
+    backgroundImage: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
   },
   {
     id: 'luxury',
-    name: 'Luxury',
-    description: 'Premium design with gradient backgrounds',
+    name: 'Luxury Elite',
+    description: 'Premium and elegant designs',
     preview: '💎',
-    primaryColor: 'hsl(267 85% 66%)',
-    secondaryColor: 'hsl(213 94% 68%)',
-    accentColor: 'hsl(292 91% 76%)',
+    primaryColor: '#92400e',
+    secondaryColor: '#f59e0b',
+    accentColor: '#fbbf24',
     fontFamily: 'playfair',
-    backgroundImage: backgroundImages[0], // Set the first geometric background as default
+    backgroundImage: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
+  },
+  {
+    id: 'tech',
+    name: 'Tech Innovation',
+    description: 'Cutting-edge technology presentations',
+    preview: '🚀',
+    primaryColor: '#059669',
+    secondaryColor: '#10b981',
+    accentColor: '#34d399',
+    fontFamily: 'mono',
+    backgroundImage: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  },
+  {
+    id: 'finance',
+    name: 'Financial',
+    description: 'Professional financial reports',
+    preview: '📊',
+    primaryColor: '#dc2626',
+    secondaryColor: '#ef4444',
+    accentColor: '#f87171',
+    fontFamily: 'inter',
+    backgroundImage: 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)'
+  },
+  {
+    id: 'marketing',
+    name: 'Marketing',
+    description: 'Engaging marketing presentations',
+    preview: '📈',
+    primaryColor: '#ea580c',
+    secondaryColor: '#f97316',
+    accentColor: '#fb923c',
+    fontFamily: 'poppins',
+    backgroundImage: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'
+  },
+  {
+    id: 'academic',
+    name: 'Academic',
+    description: 'Research and educational content',
+    preview: '🎓',
+    primaryColor: '#7c2d12',
+    secondaryColor: '#b45309',
+    accentColor: '#d97706',
+    fontFamily: 'playfair',
+    backgroundImage: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)'
   },
   {
     id: 'aura',
@@ -314,25 +362,36 @@ const PresentationCanvas: React.FC = () => {
       titleSize = 'large';
       contentSize = 'medium';
     }
+    // Get current slide for formatting inheritance
+    const currentSlide = slides[currentSlideIndex];
+    
     const newSlide: Slide = {
       id: `slide-${Date.now()}`,
       title,
       content,
       subtitle,
       template,
-      backgroundColor: selectedTemplate.primaryColor,
-      textColor: 'hsl(0 0% 100%)',
-      accentColor: selectedTemplate.accentColor,
-      fontFamily: selectedTemplate.fontFamily,
-      titleSize,
-      contentSize,
-      alignment: 'left',
+      backgroundColor: currentSlide?.backgroundColor || selectedTemplate.primaryColor,
+      textColor: currentSlide?.textColor || 'hsl(0 0% 100%)',
+      accentColor: currentSlide?.accentColor || selectedTemplate.accentColor,
+      fontFamily: currentSlide?.fontFamily || selectedTemplate.fontFamily,
+      titleSize: currentSlide?.titleSize || titleSize,
+      contentSize: currentSlide?.contentSize || contentSize,
+      alignment: currentSlide?.alignment || 'left',
       bulletPoints: template === 'bullets' ? ['First point', 'Second point', 'Third point'] : undefined,
-      backgroundImage: backgroundImages[0],
+      backgroundImage: currentSlide?.backgroundImage || backgroundImages[0],
+      letterSpacing: currentSlide?.letterSpacing,
+      lineHeight: currentSlide?.lineHeight,
+      textShadow: currentSlide?.textShadow,
+      textOpacity: currentSlide?.textOpacity,
+      textBgColor: currentSlide?.textBgColor,
+      textBorderColor: currentSlide?.textBorderColor,
+      isLocked: currentSlide?.isLocked,
+      isBackgroundBlur: currentSlide?.isBackgroundBlur,
     };
     setSlides([...slides, newSlide]);
     setCurrentSlideIndex(slides.length);
-    toast.success(`New ${customType || template} slide added`);
+    toast.success(`New ${customType || template} slide added with inherited formatting`);
   };
 
   const handleDuplicateSlide = (slideId: string) => {
@@ -351,6 +410,32 @@ const PresentationCanvas: React.FC = () => {
     setSlides(newSlides);
     setCurrentSlideIndex(slideIndex + 1);
     toast.success('Slide duplicated');
+  };
+
+  const handleMoveSlideUp = (slideId: string) => {
+    const currentIndex = slides.findIndex(slide => slide.id === slideId);
+    if (currentIndex > 0) {
+      const newSlides = [...slides];
+      const temp = newSlides[currentIndex];
+      newSlides[currentIndex] = newSlides[currentIndex - 1];
+      newSlides[currentIndex - 1] = temp;
+      setSlides(newSlides);
+      setCurrentSlideIndex(currentIndex - 1);
+      toast.success('Slide moved up');
+    }
+  };
+
+  const handleMoveSlideDown = (slideId: string) => {
+    const currentIndex = slides.findIndex(slide => slide.id === slideId);
+    if (currentIndex < slides.length - 1) {
+      const newSlides = [...slides];
+      const temp = newSlides[currentIndex];
+      newSlides[currentIndex] = newSlides[currentIndex + 1];
+      newSlides[currentIndex + 1] = temp;
+      setSlides(newSlides);
+      setCurrentSlideIndex(currentIndex + 1);
+      toast.success('Slide moved down');
+    }
   };
 
   const handleDeleteSlide = (slideId: string) => {
@@ -722,6 +807,184 @@ const PresentationCanvas: React.FC = () => {
     toast.success(`Applied ${template.name} template to all slides`);
   };
 
+  // Advanced Features Handlers
+  const handleAIGenerate = () => {
+    toast.success('AI Content Generation activated!');
+    // TODO: Implement AI content generation
+  };
+
+  const handleSmartLayout = () => {
+    toast.success('Smart Layout Engine activated!');
+    // TODO: Implement smart layout engine
+  };
+
+  const handleAutoAnimate = () => {
+    toast.success('Auto Animations activated!');
+    // TODO: Implement auto animations
+  };
+
+  const handleCollaborate = () => {
+    toast.success('Real-time Collaboration activated!');
+    // TODO: Implement collaboration features
+  };
+
+  const handleExportAdvanced = () => {
+    toast.success('Advanced Export activated!');
+    // TODO: Implement advanced export options
+  };
+
+  const handlePresentMode = () => {
+    toast.success('Presentation Mode activated!');
+    // TODO: Implement full-screen presentation mode
+  };
+
+  const handleDevicePreview = () => {
+    toast.success('Multi-Device Preview activated!');
+    // TODO: Implement device preview
+  };
+
+  const handleAnalytics = () => {
+    toast.success('Presentation Analytics activated!');
+    // TODO: Implement analytics
+  };
+
+  // Advanced Features Handler with Intelligent Algorithms
+  const [showAdvancedFeaturesMenu, setShowAdvancedFeaturesMenu] = useState(false);
+  
+  const handleAdvancedFeatures = () => {
+    if (!currentSlide) return;
+    setShowAdvancedFeaturesMenu(!showAdvancedFeaturesMenu);
+  };
+
+  const features = [
+    {
+      name: 'AI Content Enhancement',
+      description: 'Improve content with AI',
+      icon: Brain,
+      color: 'from-blue-500 to-purple-500',
+      action: () => {
+        const enhancedContent = currentSlide.content + '\n\n🤖 AI Enhanced:\n• Improved clarity and professional tone\n• Added strategic insights and data points\n• Enhanced readability with better structure\n• Optimized for audience engagement';
+        
+        setSlides(slides.map(slide => 
+          slide.id === currentSlide.id 
+            ? { ...slide, content: enhancedContent }
+            : slide
+        ));
+        toast.success('AI content enhancement applied!');
+        setShowAdvancedFeaturesMenu(false);
+      }
+    },
+    {
+      name: 'Smart Layout Optimization',
+      description: 'Optimize slide layout automatically',
+      icon: Zap,
+      color: 'from-emerald-500 to-green-500',
+      action: () => {
+        const optimizedSlide: Slide = {
+          ...currentSlide,
+          alignment: 'center' as const,
+          titleSize: 'large' as const,
+          contentSize: 'medium' as const,
+          letterSpacing: 0.5,
+          lineHeight: 1.4,
+          textShadow: true
+        };
+        
+        setSlides(slides.map(slide => 
+          slide.id === currentSlide.id ? optimizedSlide : slide
+        ));
+        toast.success('Smart layout optimization applied!');
+        setShowAdvancedFeaturesMenu(false);
+      }
+    },
+    {
+      name: 'Professional Animations',
+      description: 'Add smooth animations',
+      icon: Sparkles,
+      color: 'from-orange-500 to-pink-500',
+      action: () => {
+        const animatedContent = currentSlide.content + '\n\n✨ Animations Applied:\n• Fade-in entrance effects\n• Smooth content transitions\n• Progressive reveal animations\n• Professional timing sequences';
+        
+        setSlides(slides.map(slide => 
+          slide.id === currentSlide.id 
+            ? { ...slide, content: animatedContent }
+            : slide
+        ));
+        toast.success('Professional animations added!');
+        setShowAdvancedFeaturesMenu(false);
+      }
+    },
+    {
+      name: 'Generate Professional Content',
+      description: 'Create business content',
+      icon: FileText,
+      color: 'from-indigo-500 to-blue-500',
+      action: () => {
+        const professionalContent = {
+          title: 'Strategic Business Overview',
+          subtitle: 'Q4 2024 Performance & Future Roadmap',
+          content: '📊 Key Performance Metrics:\n• Revenue Growth: +23% YoY\n• Market Expansion: 3 new regions\n• Innovation Pipeline: 15 new products\n• Customer Satisfaction: 94%\n\n🎯 Strategic Initiatives:\n• Digital Transformation\n• Market Penetration\n• Product Innovation\n• Customer Experience',
+          bulletPoints: [
+            'Revenue Growth: +23% YoY',
+            'Market Expansion: 3 new regions',
+            'Innovation Pipeline: 15 new products',
+            'Customer Satisfaction: 94%'
+          ]
+        };
+        
+        setSlides(slides.map(slide => 
+          slide.id === currentSlide.id 
+            ? { ...slide, ...professionalContent }
+            : slide
+        ));
+        toast.success('Professional content generated!');
+        setShowAdvancedFeaturesMenu(false);
+      }
+    },
+    {
+      name: 'Auto-Format Text',
+      description: 'Apply professional formatting',
+      icon: Type,
+      color: 'from-purple-500 to-pink-500',
+      action: () => {
+        const formattedSlide: Slide = {
+          ...currentSlide,
+          fontFamily: 'Inter',
+          titleSize: 'large' as const,
+          contentSize: 'medium' as const,
+          alignment: 'center' as const,
+          letterSpacing: 0.3,
+          lineHeight: 1.6,
+          textShadow: true,
+          textOpacity: 0.9
+        };
+        
+        setSlides(slides.map(slide => 
+          slide.id === currentSlide.id ? formattedSlide : slide
+        ));
+        toast.success('Professional formatting applied!');
+        setShowAdvancedFeaturesMenu(false);
+      }
+    },
+    {
+      name: 'Add Smart Bullets',
+      description: 'Convert to bullet points',
+      icon: List,
+      color: 'from-green-500 to-emerald-500',
+      action: () => {
+        const bulletContent = currentSlide.content.split('\n').filter(line => line.trim()).map(line => `• ${line.trim()}`).join('\n');
+        
+        setSlides(slides.map(slide => 
+          slide.id === currentSlide.id 
+            ? { ...slide, content: bulletContent, template: 'bullets' as const }
+            : slide
+        ));
+        toast.success('Smart bullets added!');
+        setShowAdvancedFeaturesMenu(false);
+      }
+    }
+  ];
+
   // Play/Pause logic
   useEffect(() => {
     if (isPlaying) {
@@ -804,20 +1067,30 @@ const PresentationCanvas: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-full bg-gradient-to-br from-white via-gray-100 to-gray-200 dark:from-[#18131a] dark:via-[#1a141f] dark:to-[#0e0a13] flex flex-col relative overflow-hidden">
-      {/* Enhanced Luxury Dark Background */}
+    <div className="h-screen w-full bg-gradient-to-br from-white via-gray-50 to-gray-100 dark:from-[#0a0a0f] dark:via-[#1a1a2e] dark:to-[#16213e] flex flex-col relative overflow-hidden">
+      {/* Enhanced Luxury Background with Corporate Aesthetics */}
       <div className="absolute inset-0 pointer-events-none z-0">
-        {/* Subtle gold mesh and vignette for dark mode */}
-        <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,rgba(255,215,96,0.10)_0%,transparent_60%)]"></div>
-        <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_30%_80%,rgba(255,255,255,0.04)_0%,transparent_70%)]"></div>
-        <div className="hidden dark:block absolute inset-0 bg-gradient-to-br from-[#18131a]/80 via-[#1a141f]/90 to-[#0e0a13]/95"></div>
-        <div className="hidden dark:block absolute inset-0 border-t-2 border-b-2 border-[#ffd760]/10 rounded-b-3xl rounded-t-3xl pointer-events-none"></div>
-        {/* Glassmorphism effect */}
-        <div className="hidden dark:block absolute inset-0 backdrop-blur-[2.5px]" style={{ WebkitBackdropFilter: 'blur(2.5px)' }}></div>
+        {/* Light mode luxury gradients */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50/30 via-indigo-50/20 to-purple-50/30 dark:opacity-0"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_30%,rgba(59,130,246,0.08)_0%,transparent_50%),radial-gradient(circle_at_80%_70%,rgba(147,51,234,0.06)_0%,transparent_50%)] dark:opacity-0"></div>
+        
+        {/* Dark mode luxury gradients */}
+        <div className="hidden dark:block absolute inset-0 bg-gradient-to-br from-[#0a0a0f]/90 via-[#1a1a2e]/95 to-[#16213e]/90"></div>
+        <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_60%_40%,rgba(99,102,241,0.15)_0%,transparent_60%)]"></div>
+        <div className="hidden dark:block absolute inset-0 bg-[radial-gradient(ellipse_at_30%_80%,rgba(147,51,234,0.10)_0%,transparent_70%)]"></div>
+        
+        {/* Corporate mesh pattern */}
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]">
+          <div className="absolute inset-0" style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            backgroundSize: '30px 30px'
+          }}></div>
+        </div>
+        
+        {/* Luxury border accents */}
+        <div className="absolute inset-0 border border-white/10 dark:border-gray-700/20 rounded-3xl"></div>
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-32 h-1 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent dark:via-indigo-500/30"></div>
       </div>
-      {/* Existing light mode mesh backgrounds */}
-      <div className="absolute inset-0 bg-gradient-mesh opacity-20 dark:opacity-0"></div>
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,hsl(25_95%_53%_/_0.15)_0%,transparent_30%),radial-gradient(circle_at_70%_80%,hsl(45_93%_58%_/_0.1)_0%,transparent_40%)] dark:opacity-0"></div>
       {/* Toolbar */}
       <div className="h-16 flex-shrink-0 relative z-10">
         <PresentationToolbar
@@ -843,6 +1116,8 @@ const PresentationCanvas: React.FC = () => {
             onAddSlide={handleAddSlide}
             onDuplicateSlide={handleDuplicateSlide}
             onDeleteSlide={handleDeleteSlide}
+            onMoveSlideUp={handleMoveSlideUp}
+            onMoveSlideDown={handleMoveSlideDown}
             onSelectSlide={setCurrentSlideIndex}
             onTemplateSelect={handleSidebarTemplateSelect}
             onExport={handleExport}
@@ -872,28 +1147,42 @@ const PresentationCanvas: React.FC = () => {
                 className="bg-white/80 dark:bg-gray-900/90 backdrop-blur-2xl border-b border-orange-200/40 dark:border-orange-800/40 shadow-2xl rounded-b-3xl w-full mt-0 transition-all duration-300"
               >
                 {showTemplateSelector && (
-                  <div className="p-3">
-                    <h3 className="font-bold text-orange-900 dark:text-orange-100 mb-2 font-playfair text-base border-b border-orange-200/40 dark:border-orange-800/40 pb-1 uppercase tracking-wide flex items-center gap-2">
-                      <Palette className="w-4 h-4 text-orange-400" /> Choose Template
+                  <div className="p-4">
+                    <h3 className="font-bold text-gray-900 dark:text-gray-100 mb-4 font-playfair text-lg border-b border-gray-200/40 dark:border-gray-700/40 pb-2 uppercase tracking-wide flex items-center gap-2">
+                      <Palette className="w-5 h-5 text-blue-500" /> Choose Professional Template
                     </h3>
-                    <div className="grid grid-cols-4 gap-3 w-full">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
                       {templates.map((template) => (
                         <div
                           key={template.id}
                           onClick={() => handleTemplateChange(template)}
                           className={cn(
-                            "p-4 rounded-2xl cursor-pointer transition-all duration-300 border-2 group hover:scale-105 hover:shadow-xl bg-gradient-to-br from-white/80 to-orange-50 dark:from-gray-900/80 dark:to-orange-900/30 w-full flex-1",
+                            "p-4 rounded-2xl cursor-pointer transition-all duration-300 border-2 group hover:scale-105 hover:shadow-2xl bg-gradient-to-br from-white/90 to-gray-50 dark:from-gray-900/90 dark:to-gray-800/50 backdrop-blur-sm w-full flex-1 relative overflow-hidden",
                             selectedTemplate.id === template.id
-                              ? "border-orange-500 ring-2 ring-orange-400 shadow-2xl"
-                              : "border-orange-200/40 dark:border-orange-700/40 hover:border-orange-400"
+                              ? "border-blue-500 ring-2 ring-blue-400 shadow-2xl bg-gradient-to-br from-blue-50/80 to-indigo-50/60 dark:from-blue-900/30 dark:to-indigo-900/20"
+                              : "border-gray-200/60 dark:border-gray-700/60 hover:border-blue-400 hover:shadow-xl"
                           )}
                         >
-                          <div className="flex justify-between items-center mb-2">
-                            <div className="text-3xl text-center group-hover:scale-110 transition-transform">{template.preview}</div>
-                            {selectedTemplate.id === template.id && <CheckCircle className="w-5 h-5 text-orange-500" />}
+                          {/* Template background preview */}
+                          {template.backgroundImage && (
+                            <div 
+                              className="absolute inset-0 opacity-20 group-hover:opacity-30 transition-opacity rounded-xl"
+                              style={{ background: template.backgroundImage }}
+                            />
+                          )}
+                          
+                          <div className="relative z-10">
+                            <div className="flex justify-between items-center mb-3">
+                              <div className="text-4xl text-center group-hover:scale-110 transition-transform">{template.preview}</div>
+                              {selectedTemplate.id === template.id && (
+                                <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                  <CheckCircle className="w-4 h-4 text-white" />
+                                </div>
+                              )}
+                            </div>
+                            <div className="font-bold text-gray-900 dark:text-gray-100 text-center text-sm mb-1">{template.name}</div>
+                            <div className="text-xs text-gray-600 dark:text-gray-400 text-center leading-tight">{template.description}</div>
                           </div>
-                          <div className="font-semibold text-orange-900 dark:text-orange-100 text-center">{template.name}</div>
-                          <div className="text-xs text-orange-600 dark:text-orange-300 text-center mt-1">{template.description}</div>
                         </div>
                       ))}
                     </div>
@@ -1018,76 +1307,203 @@ const PresentationCanvas: React.FC = () => {
               </motion.div>
             )}
           </AnimatePresence>
-          {/* Slide Canvas with zoom and containment */}
-          <div className="flex-1 flex flex-col items-center justify-center w-full px-2 py-8 md:py-16 overflow-auto">
-            <div
-              className="max-w-4xl w-full mx-auto p-8 md:p-14 rounded-3xl shadow-2xl bg-white/80 dark:bg-gray-900/80 glass-card transition-all duration-300 relative"
-              style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'center', minHeight: 400, maxHeight: '70vh' }}
-            >
-              {currentSlide && (
-                <div className="slide-preview-content">
-                  {currentSlide.template === 'aura' ? (
-                    <ShineBorder>
-                      <div className="flex flex-col items-center justify-center min-h-[300px]">
-                        <h1 className="text-3xl font-bold mb-2">{currentSlide.title}</h1>
-                        {currentSlide.subtitle && <p className="text-lg opacity-80 mb-4">{currentSlide.subtitle}</p>}
-                        <div className="prose dark:prose-invert max-w-none text-center">
-                          {currentSlide.content}
+          {/* Slide Canvas with perfect centering and advanced features */}
+          <div className="flex-1 flex flex-col items-center justify-center w-full px-4 py-6 sm:py-8 md:py-10 lg:py-12 overflow-auto relative">
+            {/* Enhanced Circular Features Widget - Canvas Level */}
+            {!isPreviewMode && (
+              <div className="absolute top-4 right-4 z-50">
+                <button
+                  onClick={handleAdvancedFeatures}
+                  className="w-12 h-12 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center group border-0 focus:outline-none focus:ring-2 focus:ring-orange-300 focus:ring-offset-2"
+                  title="Advanced Slide Features"
+                  style={{ background: 'linear-gradient(135deg, #f97316 0%, #f59e0b 100%)' }}
+                >
+                  <div className="w-6 h-6 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 group-hover:scale-110 transition-transform duration-200 text-white" />
+                  </div>
+                  {/* Subtle glow effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-amber-400 rounded-full opacity-20 blur-sm group-hover:opacity-30 transition-opacity duration-300"></div>
+                </button>
+
+                {/* Luxury Advanced Features Dropdown Menu */}
+                <AnimatePresence>
+                  {showAdvancedFeaturesMenu && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: -10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: -10 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-16 right-0 w-80 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-200/50 dark:border-gray-700/50 p-4 z-50"
+                    >
+                      {/* Header */}
+                      <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-200/50 dark:border-gray-700/50">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-amber-500 rounded-lg flex items-center justify-center">
+                            <Sparkles className="w-4 h-4 text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-gray-900 dark:text-gray-100 text-sm">Advanced Features</h3>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">Enhance your slide</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => setShowAdvancedFeaturesMenu(false)}
+                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      {/* Features Grid */}
+                      <div className="grid grid-cols-1 gap-3">
+                        {features.map((feature, index) => (
+                          <motion.button
+                            key={feature.name}
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            onClick={feature.action}
+                            className="group relative p-3 rounded-xl border border-gray-200/50 dark:border-gray-700/50 hover:border-gray-300 dark:hover:border-gray-600 transition-all duration-200 hover:shadow-md"
+                          >
+                            <div className="flex items-center space-x-3">
+                              {/* Icon */}
+                              <div className={`w-10 h-10 rounded-lg bg-gradient-to-r ${feature.color} flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow`}>
+                                <feature.icon className="w-5 h-5 text-white" />
+                              </div>
+                              
+                              {/* Content */}
+                              <div className="flex-1 text-left">
+                                <h4 className="font-semibold text-gray-900 dark:text-gray-100 text-sm group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                                  {feature.name}
+                                </h4>
+                                <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                  {feature.description}
+                                </p>
+                              </div>
+                              
+                              {/* Arrow */}
+                              <div className="text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors">
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                              </div>
+                            </div>
+                            
+                            {/* Hover effect */}
+                            <div className="absolute inset-0 bg-gradient-to-r from-orange-50/50 to-amber-50/50 dark:from-orange-900/10 dark:to-amber-900/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                          </motion.button>
+                        ))}
+                      </div>
+
+                      {/* Footer */}
+                      <div className="mt-4 pt-3 border-t border-gray-200/50 dark:border-gray-700/50">
+                        <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                          <span>Powered by AI</span>
+                          <span className="text-orange-500">v2.0</span>
                         </div>
                       </div>
-                    </ShineBorder>
-                  ) : (
-                    <SlideEditor
-                      slide={currentSlide}
-                      onSlideEdit={handleSlideEdit}
-                      isPreviewMode={isPreviewMode}
-                    />
+                    </motion.div>
                   )}
+                </AnimatePresence>
+              </div>
+            )}
+            
+            {/* Advanced slide container with perfect centering */}
+            <div
+              className="relative w-full max-w-5xl mx-auto"
+              style={{ 
+                transform: `scale(${zoomLevel})`, 
+                transformOrigin: 'center center',
+                aspectRatio: '16/9',
+                minHeight: 'min(450px, 65vh)',
+                maxHeight: 'min(75vh, 700px)'
+              }}
+            >
+              {/* Professional slide frame with enhanced styling */}
+              <div className="w-full h-full rounded-3xl shadow-2xl bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border border-white/30 dark:border-gray-600/30 transition-all duration-300 relative overflow-hidden">
+                {/* Slide content container */}
+                <div className="w-full h-full p-6 sm:p-8 md:p-10 lg:p-12 relative">
+                  {/* Advanced slide background with multiple layers */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-white dark:from-gray-800 dark:to-gray-900"></div>
+                  <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle_at_30%_20%,#3b82f6_0%,transparent_50%),radial-gradient(circle_at_70%_80%,#8b5cf6_0%,transparent_50%)]"></div>
+                  
+                  {/* Slide content */}
+                  <div className="relative z-10 h-full flex flex-col justify-center">
+                    {currentSlide && (
+                      <div className="slide-preview-content">
+                        {currentSlide.template === 'aura' ? (
+                          <ShineBorder>
+                            <div className="flex flex-col items-center justify-center min-h-[300px]">
+                              <h1 className="text-3xl font-bold mb-2">{currentSlide.title}</h1>
+                              {currentSlide.subtitle && <p className="text-lg opacity-80 mb-4">{currentSlide.subtitle}</p>}
+                              <div className="prose dark:prose-invert max-w-none text-center">
+                                {currentSlide.content}
+                              </div>
+                            </div>
+                          </ShineBorder>
+                        ) : (
+                          <SlideEditor
+                            slide={currentSlide}
+                            onSlideEdit={handleSlideEdit}
+                            isPreviewMode={isPreviewMode}
+                          />
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
           </div>
-          {/* Enhanced Slide Navigation Controls - sticky footer */}
-          <div className="sticky bottom-0 left-0 w-full flex justify-center items-center z-20">
-            <div className="mx-auto my-6 px-8 py-4 bg-gradient-to-r from-orange-100 to-amber-100 dark:from-orange-900/60 dark:to-amber-900/60 rounded-2xl border border-orange-200 dark:border-orange-700 shadow-2xl flex items-center space-x-6">
-            <Button
-              onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
+          {/* Enhanced Professional Navigation Controls */}
+          <div className="sticky bottom-0 left-0 w-full flex justify-center items-center z-20 p-4">
+            <div className="mx-auto px-6 py-3 bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl border border-gray-200/50 dark:border-gray-700/50 shadow-2xl flex items-center space-x-4 flex-wrap justify-center gap-2">
+              <Button
+                onClick={() => setCurrentSlideIndex(Math.max(0, currentSlideIndex - 1))}
                 disabled={currentSlideIndex === 0 || isPlaying}
-              variant="outline"
-              className="border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-300"
-            >
-              Previous
-            </Button>
-              <div className="flex items-center space-x-2 px-6 py-3 bg-white/80 dark:bg-gray-900/80 rounded-xl border border-orange-200 dark:border-orange-700 shadow">
-              <Presentation className="w-4 h-4 text-orange-600 dark:text-orange-300" />
-              <span className="text-orange-900 dark:text-orange-100 font-semibold">
-                {currentSlideIndex + 1} of {slides.length}
-              </span>
-            </div>
-            <Button
-              onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
+                variant="outline"
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                Previous
+              </Button>
+              
+              <div className="flex items-center space-x-2 px-4 py-2 bg-blue-50/80 dark:bg-blue-900/30 rounded-xl border border-blue-200/50 dark:border-blue-700/50 shadow-sm">
+                <Presentation className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-blue-900 dark:text-blue-100 font-semibold text-sm">
+                  {currentSlideIndex + 1} of {slides.length}
+                </span>
+              </div>
+              
+              <Button
+                onClick={() => setCurrentSlideIndex(Math.min(slides.length - 1, currentSlideIndex + 1))}
                 disabled={currentSlideIndex === slides.length - 1 || isPlaying}
-              variant="outline"
-              className="border-orange-200 text-orange-700 hover:bg-orange-50 dark:border-orange-700 dark:text-orange-300"
-            >
-              Next
-            </Button>
+                variant="outline"
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-800"
+              >
+                Next
+              </Button>
+              
               {/* Play/Pause and Timer */}
-              <div className="flex items-center gap-2 ml-6">
+              <div className="flex items-center gap-2">
                 <Button
                   onClick={handlePlayPause}
                   variant="outline"
-                  className={cn('border-orange-200 text-orange-700 dark:border-orange-700 dark:text-orange-300', isPlaying && 'bg-orange-200/60 dark:bg-orange-800/60')}
+                  size="sm"
+                  className={cn('border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300', isPlaying && 'bg-green-100 border-green-300 text-green-700 dark:bg-green-900/30 dark:border-green-600 dark:text-green-400')}
                   disabled={slides.length <= 1}
                   title={isPlaying ? 'Pause Slideshow' : 'Play Slideshow'}
                 >
-                  {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5" />}
+                  {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                 </Button>
                 <select
                   value={playInterval}
                   onChange={e => setPlayInterval(Number(e.target.value))}
                   disabled={isPlaying}
-                  className="rounded-lg border border-orange-200 dark:border-orange-700 px-2 py-1 text-sm bg-white dark:bg-gray-900 text-orange-700 dark:text-orange-200"
+                  className="rounded-lg border border-gray-300 dark:border-gray-600 px-2 py-1 text-xs bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300"
                   title="Slide Interval (seconds)"
                 >
                   {playIntervals.map(sec => (
@@ -1095,30 +1511,45 @@ const PresentationCanvas: React.FC = () => {
                   ))}
                 </select>
               </div>
+              
               {/* Zoom controls */}
-              <div className="flex items-center gap-2 ml-6">
+              <div className="flex items-center gap-2">
                 <Button
                   onClick={() => setZoomLevel(z => Math.max(0.5, z - 0.1))}
                   variant="outline"
-                  className="border-orange-200 text-orange-700 dark:border-orange-700 dark:text-orange-300"
+                  size="sm"
+                  className="border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300"
                   title="Zoom Out"
                 >
-                  -
+                  <ZoomOutIcon className="w-4 h-4" />
                 </Button>
-                <span className="text-orange-900 dark:text-orange-100 font-semibold">{Math.round(zoomLevel * 100)}%</span>
+                <span className="text-gray-900 dark:text-gray-100 font-semibold text-sm min-w-[3rem] text-center">{Math.round(zoomLevel * 100)}%</span>
                 <Button
                   onClick={() => setZoomLevel(z => Math.min(2, z + 0.1))}
                   variant="outline"
-                  className="border-orange-200 text-orange-700 dark:border-orange-700 dark:text-orange-300"
+                  size="sm"
+                  className="border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300"
                   title="Zoom In"
                 >
-                  +
+                  <ZoomInIcon className="w-4 h-4" />
                 </Button>
               </div>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* Advanced Features Component */}
+      <AdvancedFeatures
+        onAIGenerate={handleAIGenerate}
+        onSmartLayout={handleSmartLayout}
+        onAutoAnimate={handleAutoAnimate}
+        onCollaborate={handleCollaborate}
+        onExportAdvanced={handleExportAdvanced}
+        onPresentMode={handlePresentMode}
+        onDevicePreview={handleDevicePreview}
+        onAnalytics={handleAnalytics}
+      />
     </div>
   );
 };

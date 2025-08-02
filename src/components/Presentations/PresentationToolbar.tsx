@@ -142,7 +142,7 @@ const PresentationToolbar: React.FC<PresentationToolbarProps> = ({
             )}
           >
             {isPreviewMode ? <EyeOff className="w-3 h-3 mr-1" /> : <Eye className="w-3 h-3 mr-1" />}
-            {isPreviewMode ? 'Edit' : 'Preview'}
+            {isPreviewMode ? 'Edit' : 'Present'}
           </Button>
 
           {/* Theme Toggle */}

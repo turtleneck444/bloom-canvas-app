@@ -3,12 +3,19 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Homepage from "./pages/Homepage";
 import Index from "./pages/Index";
 import Presentations from "./pages/Presentations";
 import NotFound from "./pages/NotFound";
 import Meetings from "./pages/Meetings";
 import LayoutDemo from "./pages/LayoutDemo";
 import Strategy from "./pages/Strategy";
+import Simulation from "./pages/Simulation";
+import Whiteboard from "./pages/Whiteboard";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Security from "./pages/Security";
+import BookDemo from "./pages/BookDemo";
 
 const queryClient = new QueryClient();
 
@@ -19,11 +26,18 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<Homepage />} />
+          <Route path="/mindmaps" element={<Index />} />
           <Route path="/presentations" element={<Presentations />} />
           <Route path="/meetings" element={<Meetings />} />
           <Route path="/strategy" element={<Strategy />} />
+          <Route path="/simulation" element={<Simulation />} />
+          <Route path="/whiteboard" element={<Whiteboard />} />
           <Route path="/layout-demo" element={<LayoutDemo />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/security" element={<Security />} />
+          <Route path="/book-demo" element={<BookDemo />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

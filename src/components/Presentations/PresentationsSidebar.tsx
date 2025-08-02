@@ -11,6 +11,8 @@ interface PresentationsSidebarProps {
   onAddSlide: (type?: string) => void;
   onDuplicateSlide: (slideId: string) => void;
   onDeleteSlide: (slideId: string) => void;
+  onMoveSlideUp: (slideId: string) => void;
+  onMoveSlideDown: (slideId: string) => void;
   onSelectSlide: (index: number) => void;
   onTemplateSelect: (template: any) => void;
   onExport: () => void;
@@ -105,6 +107,8 @@ const PresentationsSidebar: React.FC<PresentationsSidebarProps> = ({
   onAddSlide,
   onDuplicateSlide,
   onDeleteSlide,
+  onMoveSlideUp,
+  onMoveSlideDown,
   onSelectSlide,
   onTemplateSelect,
   onExport,
@@ -224,7 +228,7 @@ const PresentationsSidebar: React.FC<PresentationsSidebarProps> = ({
                 <div
                   key={slide.id}
                   className={cn(
-                    'group flex flex-col items-center justify-center cursor-pointer transition-all duration-200 bg-white/80 dark:bg-gray-900/80 rounded-xl border border-orange-100 dark:border-orange-800 shadow-md hover:shadow-xl hover:-translate-y-0.5 hover:ring-2 hover:ring-orange-200/60',
+                    'group relative flex flex-col items-center justify-center cursor-pointer transition-all duration-200 bg-white/80 dark:bg-gray-900/80 rounded-xl border border-orange-100 dark:border-orange-800 shadow-md hover:shadow-xl hover:-translate-y-0.5 hover:ring-2 hover:ring-orange-200/60',
                     currentSlideIndex === index
                       ? 'ring-2 ring-orange-500 border-orange-400 shadow-lg scale-105 z-10'
                       : 'hover:ring-1',
@@ -233,6 +237,66 @@ const PresentationsSidebar: React.FC<PresentationsSidebarProps> = ({
                   title={slide.title || 'Untitled'}
                   style={{ background: 'none', padding: 0, marginBottom: 10, minHeight: 0, minWidth: 0 }}
                 >
+                  {/* Slide Actions Overlay */}
+                  {!isCollapsed && (
+                    <div className="absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1">
+                      {/* Move Up Button */}
+                      {index > 0 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onMoveSlideUp(slide.id);
+                          }}
+                          className="p-1 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-colors duration-200"
+                          title="Move Up"
+                        >
+                          ↑
+                        </button>
+                      )}
+                      
+                      {/* Move Down Button */}
+                      {index < slides.length - 1 && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onMoveSlideDown(slide.id);
+                          }}
+                          className="p-1 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-colors duration-200"
+                          title="Move Down"
+                        >
+                          ↓
+                        </button>
+                      )}
+                      
+                      {/* Duplicate Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDuplicateSlide(slide.id);
+                        }}
+                        className="p-1 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-lg transition-colors duration-200"
+                        title="Duplicate Slide"
+                      >
+                        <Copy className="w-3 h-3" />
+                      </button>
+                      
+                      {/* Delete Button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (slides.length > 1) {
+                            onDeleteSlide(slide.id);
+                          }
+                        }}
+                        className="p-1 bg-red-500 hover:bg-red-600 text-white rounded-full shadow-lg transition-colors duration-200"
+                        title="Delete Slide"
+                        disabled={slides.length <= 1}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-center w-full p-3">
                     <div className="relative w-[160px] h-[90px] aspect-video rounded-lg overflow-hidden flex items-center justify-center bg-white dark:bg-gray-900 border border-orange-100 dark:border-orange-800">
                       <div style={{ transform: 'scale(0.22)', transformOrigin: 'center', width: '700px', height: '393px', pointerEvents: 'none', position: 'absolute', left: '50%', top: '50%', translate: '-50% -50%' }}>

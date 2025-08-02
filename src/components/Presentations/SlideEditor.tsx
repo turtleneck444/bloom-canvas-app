@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Presentation } from 'lucide-react'; // Added for the new template indicator
+import { Presentation, Sparkles } from 'lucide-react'; // Added for the new template indicator
 import { Toolbar } from './toolbar';
+import { toast } from 'sonner';
 
 export interface Slide {
   id: string;
@@ -78,6 +79,11 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
       case 'center': return 'text-center';
       default: return 'text-left';
     }
+  };
+
+  // Enhanced features widget handler
+  const handleFeaturesClick = () => {
+    toast.success('Advanced slide features coming soon!');
   };
 
   const addBulletPoint = () => {
@@ -451,9 +457,11 @@ const SlideEditor: React.FC<SlideEditorProps> = ({ slide, onSlideEdit, isPreview
       <div className="relative z-10 h-full flex flex-col items-center justify-center p-16">
         {renderSlideContent()}
       </div>
+
+
       {/* Slide Template Indicator */}
       {!isPreviewMode && (
-        <div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
+        <div className="absolute top-4 left-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm">
           {slide.template}
         </div>
       )}

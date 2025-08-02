@@ -9,6 +9,166 @@ import {
 
 export class MindMapLayoutEngine implements LayoutEngine {
   
+  // Enhanced collision detection with better distance calculation
+  private checkCollision(pos1: { x: number; y: number }, pos2: { x: number; y: number }, minDistance: number = 250): boolean {
+    const dx = pos1.x - pos2.x;
+    const dy = pos1.y - pos2.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+    return distance < minDistance;
+  }
+
+  // Enhanced safe position finder with better distribution
+  private findSafePosition(
+    desiredPosition: { x: number; y: number },
+    existingNodes: Node<BaseNodeData>[],
+    minDistance: number = 250,
+    maxAttempts: number = 200
+  ): { x: number; y: number } {
+    let currentPosition = { ...desiredPosition };
+    let attempts = 0;
+    
+    // Dynamic minimum distance based on node density
+    const nodeCount = existingNodes.length;
+    const densityFactor = Math.max(0.6, Math.min(1.4, 1 - (nodeCount / 100)));
+    const dynamicMinDistance = Math.max(200, Math.min(350, minDistance * densityFactor));
+    
+    // Expanded viewport bounds for better distribution
+    const bounds = {
+      minX: 50,
+      maxX: 2500,
+      minY: 50,
+      maxY: 2000
+    };
+    
+    while (attempts < maxAttempts) {
+      let hasCollision = false;
+      
+      for (const node of existingNodes) {
+        if (this.checkCollision(currentPosition, node.position, dynamicMinDistance)) {
+          hasCollision = true;
+          break;
+        }
+      }
+      
+      const withinBounds = currentPosition.x >= bounds.minX && 
+                          currentPosition.x <= bounds.maxX && 
+                          currentPosition.y >= bounds.minY && 
+                          currentPosition.y <= bounds.maxY;
+      
+      if (!hasCollision && withinBounds) {
+        return currentPosition;
+      }
+      
+      // Improved spiral search with better distribution
+      const angle = (attempts * 0.3) * Math.PI;
+      const radius = dynamicMinDistance + (attempts * 20);
+      currentPosition = {
+        x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + Math.cos(angle) * radius)),
+        y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + Math.sin(angle) * radius)),
+      };
+      attempts++;
+    }
+    
+    // Enhanced fallback: try random positions in expanding circles
+    for (let i = 0; i < 30; i++) {
+      const randomAngle = Math.random() * 2 * Math.PI;
+      const randomRadius = dynamicMinDistance + Math.random() * 300;
+      const fallbackPosition = {
+        x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + Math.cos(randomAngle) * randomRadius)),
+        y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + Math.sin(randomAngle) * randomRadius)),
+      };
+      
+      let isSafe = true;
+      for (const node of existingNodes) {
+        if (this.checkCollision(fallbackPosition, node.position, dynamicMinDistance)) {
+          isSafe = false;
+          break;
+        }
+      }
+      
+      if (isSafe) {
+        return fallbackPosition;
+      }
+    }
+    
+    // Final fallback: offset in bounds with maximum separation
+    return {
+      x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + (Math.random() - 0.5) * dynamicMinDistance * 2)),
+      y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + (Math.random() - 0.5) * dynamicMinDistance * 2)),
+    };
+  }
+
+  // Enhanced node positioning with collision avoidance
+  private positionNodeSafely(
+    node: Node<BaseNodeData>,
+    desiredPosition: { x: number; y: number },
+    existingNodes: Node<BaseNodeData>[]
+  ): void {
+    const safePosition = this.findSafePosition(desiredPosition, existingNodes);
+    node.position = safePosition;
+  }
+
+  // Enhanced overlap resolution for all nodes
+  private resolveOverlaps(nodes: Node<BaseNodeData>[]): Node<BaseNodeData>[] {
+    const nodeCount = nodes.length;
+    const densityFactor = Math.max(0.7, Math.min(1.3, 1 - (nodeCount / 80)));
+    const MIN_DISTANCE = Math.max(220, Math.min(320, 260 * densityFactor));
+    
+    let iterations = 0;
+    const maxIterations = Math.min(15, Math.max(5, Math.floor(nodeCount / 8)));
+    
+    while (iterations < maxIterations) {
+      let hasOverlaps = false;
+      
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i];
+          const b = nodes[j];
+          
+          if (this.checkCollision(a.position, b.position, MIN_DISTANCE)) {
+            hasOverlaps = true;
+            
+            // Calculate separation vector
+            const dx = b.position.x - a.position.x;
+            const dy = b.position.y - a.position.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            const moveDist = (MIN_DISTANCE - dist) / 2 + 10;
+            
+            // Apply separation with damping for stability
+            const damping = 0.7;
+            const moveX = (dx / dist) * moveDist * damping;
+            const moveY = (dy / dist) * moveDist * damping;
+            
+            // Move nodes apart
+            b.position.x += moveX;
+            b.position.y += moveY;
+            a.position.x -= moveX;
+            a.position.y -= moveY;
+            
+            // Keep nodes within bounds
+            const bounds = {
+              minX: 50,
+              maxX: 2500,
+              minY: 50,
+              maxY: 2000
+            };
+            
+            a.position.x = Math.max(bounds.minX, Math.min(bounds.maxX, a.position.x));
+            a.position.y = Math.max(bounds.minY, Math.min(bounds.maxY, a.position.y));
+            b.position.x = Math.max(bounds.minX, Math.min(bounds.maxX, b.position.x));
+            b.position.y = Math.max(bounds.minY, Math.min(bounds.maxY, b.position.y));
+          }
+        }
+      }
+      
+      if (!hasOverlaps) break;
+      iterations++;
+    }
+    
+    console.log(`🔧 Resolved overlaps in ${iterations} iterations`);
+    return nodes;
+  }
+
   // Calculate positions for different layout types
   calculatePositions(nodes: Node<BaseNodeData>[], edges: Edge[], config: LayoutConfig): Node<BaseNodeData>[] {
     console.log('🎯 Layout engine called with:', { 
@@ -18,12 +178,14 @@ export class MindMapLayoutEngine implements LayoutEngine {
       spacing: config.spacing 
     });
     
-    // Use more reasonable default spacing
+    // Dynamic spacing based on node count
+    const nodeCount = nodes.length;
+    const densityFactor = Math.max(0.6, Math.min(1.4, 1 - (nodeCount / 50)));
     const { 
       type, 
-      spacing = 80, // Reduced from 100
+      spacing = Math.max(80, Math.min(150, 100 * densityFactor)),
       nodeSize = { width: 200, height: 100 }, 
-      padding = 30 // Reduced from 50
+      padding = Math.max(30, Math.min(60, 40 * densityFactor))
     } = config;
     
     // Validate input
@@ -96,22 +258,19 @@ export class MindMapLayoutEngine implements LayoutEngine {
           break;
         case 'freeform':
           console.log('🎨 Freeform layout - no positioning applied');
-          result = nodes; // Freeform doesn't change positions
+          result = [...nodes];
           break;
         default:
-          console.warn(`⚠️ Unknown layout type: ${type}, returning original nodes`);
-          result = nodes;
+          console.warn(`⚠️ Unknown layout type: ${type}, using radial as fallback`);
+          result = this.calculateRadialLayout(nodes, edges, spacing, nodeSize, padding);
       }
       
-      console.log(`✅ Layout ${type} completed, positioned ${result.length} nodes`);
-      
-      // Validate result
-      if (result.length !== nodes.length) {
-        console.error(`❌ Layout engine lost nodes! Input: ${nodes.length}, Output: ${result.length}`);
-        console.log('Missing nodes:', nodes.filter(n => !result.find(r => r.id === n.id)).map(n => n.id));
-        return nodes; // Return original nodes if we lost any
+      // Apply overlap resolution to all layouts except freeform
+      if (type !== 'freeform') {
+        result = this.resolveOverlaps(result);
       }
       
+      console.log(`✅ Layout ${type} applied successfully to ${result.length} nodes`);
       return result;
       
     } catch (error) {
@@ -221,9 +380,15 @@ export class MindMapLayoutEngine implements LayoutEngine {
     console.log('🌐 Radial layout called with:', { nodes: nodes.length, edges: edges.length, spacing });
     
     const updatedNodes = [...nodes];
-    const centerX = 400;
-    const centerY = 300;
-    const baseRadius = Math.min(spacing, 120); // Reasonable radius
+    const centerX = 800;
+    const centerY = 600;
+    
+    // Enhanced dynamic radius calculation based on node count and density
+    const nodeCount = nodes.length;
+    const densityFactor = Math.max(0.6, Math.min(1.4, 1 - (nodeCount / 100)));
+    const baseRadius = Math.max(120, Math.min(300, spacing * (1 + nodeCount / 15) * densityFactor));
+    const ringSpacing = Math.max(50, Math.min(120, spacing * 0.6 * densityFactor));
+    const nodesPerRing = Math.max(8, Math.min(16, Math.floor(Math.sqrt(nodeCount) * 2)));
 
     // Find the most connected node as root, or use the first node
     let rootNode = nodes[0];
@@ -253,26 +418,40 @@ export class MindMapLayoutEngine implements LayoutEngine {
       };
     }
 
-    // Position all other nodes in circles around root
+    // Position all other nodes in dynamic rings around root with collision avoidance
     const otherNodes = nodes.filter(n => n.id !== rootNode.id);
-    const angleStep = otherNodes.length > 0 ? (2 * Math.PI) / otherNodes.length : 0;
-
+    const positionedNodes: Node<BaseNodeData>[] = [rootNode];
+    
     otherNodes.forEach((node, index) => {
-      const angle = index * angleStep;
-      const radius = baseRadius + (Math.floor(index / 6) * 40); // Multiple rings
-      const x = centerX + radius * Math.cos(angle);
-      const y = centerY + radius * Math.sin(angle);
+      const ringIndex = Math.floor(index / nodesPerRing);
+      const positionInRing = index % nodesPerRing;
+      const radius = baseRadius + (ringIndex * ringSpacing);
+      
+      // Distribute nodes evenly around each ring with better spacing
+      const angleStep = (2 * Math.PI) / nodesPerRing;
+      const angle = positionInRing * angleStep + (ringIndex * 0.2); // Reduced offset between rings
+      
+      const desiredX = centerX + radius * Math.cos(angle);
+      const desiredY = centerY + radius * Math.sin(angle);
+
+      // Use safe positioning to avoid overlaps
+      const safePosition = this.findSafePosition(
+        { x: desiredX, y: desiredY },
+        positionedNodes,
+        Math.max(200, Math.min(350, 250 * densityFactor))
+      );
 
       const nodeIndex = updatedNodes.findIndex(n => n.id === node.id);
       if (nodeIndex !== -1) {
         updatedNodes[nodeIndex] = {
           ...updatedNodes[nodeIndex],
-          position: { x, y }
+          position: safePosition
         };
+        positionedNodes.push(updatedNodes[nodeIndex]);
       }
     });
 
-    console.log('✅ Radial layout completed, positioned', updatedNodes.length, 'nodes');
+    console.log('✅ Radial layout completed, positioned', updatedNodes.length, 'nodes in', Math.ceil(otherNodes.length / nodesPerRing), 'rings');
     return updatedNodes;
   }
 
@@ -751,7 +930,11 @@ export class MindMapLayoutEngine implements LayoutEngine {
 
     const centerX = 400;
     const centerY = 300;
-    const baseRadius = Math.min(spacing, 150);
+    
+    // Dynamic radius calculation based on node count
+    const nodeCount = nodes.length;
+    const baseRadius = Math.max(100, Math.min(250, spacing * (1 + nodeCount / 30)));
+    const clusterSpacing = Math.max(40, Math.min(100, spacing * 0.6));
 
     // Position root node at center
     const rootIndex = updatedNodes.findIndex(n => n.id === rootNode.id);
@@ -783,10 +966,10 @@ export class MindMapLayoutEngine implements LayoutEngine {
       const nodesPerCategory = categoryNodes.length;
 
       categoryNodes.forEach((node, categoryIndex) => {
-        const angle = currentAngle + (categoryIndex / Math.max(nodesPerCategory, 1)) * sectorAngle * 0.7;
-        const radius = baseRadius + (Math.random() * 30); // Smaller random offset
-        const offsetX = (Math.random() - 0.5) * 15;
-        const offsetY = (Math.random() - 0.5) * 15;
+        const angle = currentAngle + (categoryIndex / Math.max(nodesPerCategory, 1)) * sectorAngle * 0.8;
+        const radius = baseRadius + (Math.random() * clusterSpacing * 0.3);
+        const offsetX = (Math.random() - 0.5) * (clusterSpacing * 0.2);
+        const offsetY = (Math.random() - 0.5) * (clusterSpacing * 0.2);
 
         const nodeIndex = updatedNodes.findIndex(n => n.id === node.id);
         if (nodeIndex !== -1) {
@@ -1400,9 +1583,11 @@ export class MindMapLayoutEngine implements LayoutEngine {
     
     console.log('🎯 Root node:', rootNode.id, rootNode.data.label);
     
-    // Use more reasonable spacing values
-    const VERTICAL_SPACING = Math.min(nodeSize.height + spacing, 120);
-    const HORIZONTAL_SPACING = Math.min(nodeSize.width + spacing, 180);
+    // Dynamic spacing based on node count and density
+    const nodeCount = nodes.length;
+    const densityFactor = Math.max(0.5, Math.min(1.5, 1 - (nodeCount / 100)));
+    const VERTICAL_SPACING = Math.min(nodeSize.height + spacing * densityFactor, 100);
+    const HORIZONTAL_SPACING = Math.min(nodeSize.width + spacing * densityFactor, 150);
     const startX = 400;
     const startY = 200;
     

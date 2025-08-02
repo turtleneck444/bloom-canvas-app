@@ -1,9 +1,6 @@
-import React, { useCallback, useRef, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
-  Node,
-  Edge,
-  Connection,
   useNodesState,
   useEdgesState,
   addEdge,
@@ -14,23 +11,24 @@ import {
   useReactFlow,
   ReactFlowProvider,
   BackgroundVariant,
+  Node,
+  Edge,
+  NodeTypes,
+  EdgeTypes,
+  Connection
 } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-
+import { motion, AnimatePresence } from 'framer-motion';
+import { toast } from 'sonner';
 import MindMapNode, { NodeData } from './MindMapNode';
+import { layoutEngine } from '../../utils/graphEngine/layoutEngine';
+import { LayoutType, LayoutConfig } from '../../utils/graphEngine/types';
 import MindMapToolbar from './MindMapToolbar';
 import AIToolbar from './AIToolbar';
 import { Button } from '../ui/button';
 import { Brain, Sparkles, Plus, Wand2, LayoutGrid, GitBranch, BarChart3, ArrowRight, Fish } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { toast } from 'sonner';
 import { aiService, GeneratedNode, FundamentalNode } from '@/services/aiService';
 import AuraCard from '../ui/AuraCard';
-// 1. Import motion for animation
-import { motion, AnimatePresence } from 'framer-motion';
-// Import new layout engine
-import { layoutEngine } from '../../utils/graphEngine/layoutEngine';
-import { LayoutType, LayoutConfig, BaseNodeData } from '../../utils/graphEngine/types';
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '../ui/tooltip';
 import {
   createHandleUpdateNode,
@@ -329,18 +327,24 @@ const checkCollision = (pos1: { x: number; y: number }, pos2: { x: number; y: nu
 const findSafePosition = (
   desiredPosition: { x: number; y: number },
   existingNodes: Array<Node<NodeData>>,
-  maxAttempts: number = 72 // more attempts for dense clusters
+  maxAttempts: number = 200 // increased attempts for very dense clusters
 ): { x: number; y: number } => {
   let currentPosition = { ...desiredPosition };
   let attempts = 0;
-  const MIN_DISTANCE = 280; // increased minimum distance for clarity
-  // Define reasonable viewport bounds
+  
+  // Enhanced dynamic minimum distance based on node density
+  const nodeCount = existingNodes.length;
+  const densityFactor = Math.max(0.6, Math.min(1.4, 1 - (nodeCount / 100)));
+  const MIN_DISTANCE = Math.max(220, Math.min(380, 280 * densityFactor));
+  
+  // Expanded viewport bounds for better distribution
   const bounds = {
-    minX: VIEWPORT_PADDING,
-    maxX: 1600 - VIEWPORT_PADDING,
-    minY: VIEWPORT_PADDING,
-    maxY: 1200 - VIEWPORT_PADDING
+    minX: 50,
+    maxX: 2500,
+    minY: 50,
+    maxY: 2000
   };
+  
   while (attempts < maxAttempts) {
     let hasCollision = false;
     for (const node of existingNodes) {
@@ -356,19 +360,43 @@ const findSafePosition = (
     if (!hasCollision && withinBounds) {
       return currentPosition;
     }
-    // More aggressive spiral search
-    const angle = (attempts * 0.7) * Math.PI;
-    const radius = MIN_DISTANCE + (attempts * 18);
+    
+    // Improved spiral search with better distribution
+    const angle = (attempts * 0.3) * Math.PI;
+    const radius = MIN_DISTANCE + (attempts * 20);
     currentPosition = {
       x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + Math.cos(angle) * radius)),
       y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + Math.sin(angle) * radius)),
     };
     attempts++;
   }
-  // Fallback: offset in bounds
+  
+  // Enhanced fallback: try random positions in expanding circles
+  for (let i = 0; i < 30; i++) {
+    const randomAngle = Math.random() * 2 * Math.PI;
+    const randomRadius = MIN_DISTANCE + Math.random() * 300;
+    const fallbackPosition = {
+      x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + Math.cos(randomAngle) * randomRadius)),
+      y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + Math.sin(randomAngle) * randomRadius)),
+    };
+    
+    let isSafe = true;
+    for (const node of existingNodes) {
+      if (checkCollision(fallbackPosition, node.position)) {
+        isSafe = false;
+        break;
+      }
+    }
+    
+    if (isSafe) {
+      return fallbackPosition;
+    }
+  }
+  
+  // Final fallback: offset in bounds with maximum separation
   return {
-    x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + (Math.random() - 0.5) * MIN_DISTANCE)),
-    y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + (Math.random() - 0.5) * MIN_DISTANCE)),
+    x: Math.max(bounds.minX, Math.min(bounds.maxX, desiredPosition.x + (Math.random() - 0.5) * MIN_DISTANCE * 2)),
+    y: Math.max(bounds.minY, Math.min(bounds.maxY, desiredPosition.y + (Math.random() - 0.5) * MIN_DISTANCE * 2)),
   };
 };
 
@@ -787,9 +815,11 @@ const customThemes = {
 
 interface MindMapCanvasProps {
   className?: string;
+  // Add ref for exposing methods
+  onRef?: (ref: any) => void;
 }
 
-const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
+const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className, onRef }) => {
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
@@ -804,6 +834,43 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
   const [isAiProcessing, setIsAiProcessing] = useState(false);
   const [fundamentalNodes, setFundamentalNodes] = useState<FundamentalNode[]>([]);
   const { fitView, zoomIn, zoomOut } = useReactFlow();
+  
+  // Expose methods through ref - will be set after handlers are defined
+  const canvasRef = useRef<any>(null);
+  
+  useEffect(() => {
+    if (onRef) {
+      const canvasMethods = {
+        handleAddNode,
+        handleSave,
+        handleExport,
+        handleImport,
+        handleZoomIn: zoomIn,
+        handleZoomOut: zoomOut,
+        handleFitView: () => fitView(),
+        handleLayoutChange,
+        handleUndo,
+        handleRedo,
+        handleClearAll: handleClearCanvas,
+        handleThemeChange,
+        handleExportAsPNG,
+        handleExportAsPDF,
+        // State
+        nodes,
+        edges,
+        history,
+        historyIndex,
+        currentLayout,
+        currentTheme,
+        customTheme,
+        setCurrentLayout,
+        setCurrentTheme,
+        setCustomTheme
+      };
+      onRef(canvasMethods);
+    }
+  }, [onRef, nodes, edges, history, historyIndex, currentLayout, currentTheme, customTheme, reactFlowInstance]);
+
   const addToHistory = useCallback((newNodes: Node<NodeData>[], newEdges: Edge[]) => {
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push({ nodes: newNodes, edges: newEdges });
@@ -1464,7 +1531,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
                   isEditing: node.data.isEditing || false,
                   icon: node.data.icon
                 }
-              })) as Node<BaseNodeData>[];
+              })) as Node<NodeData>[];
               
               const updatedBaseNodes = layoutEngine.calculatePositions(baseNodes, newEdges, layoutConfig);
               
@@ -2208,7 +2275,11 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
   const handleLayoutChange = useCallback((layout) => {
     console.log('🔄 Layout change requested:', layout);
     console.log('📊 Current nodes:', nodes.length);
-    console.log('🔗 Current edges:', edges.length);
+    
+    if (nodes.length === 0) {
+      setCurrentLayout(layout);
+      return;
+    }
     
     setCurrentLayout(layout);
     setIsLayoutLoading(true);
@@ -2216,24 +2287,23 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
     
     if (layout !== 'freeform') {
       try {
-        console.log('🎯 Applying layout using layout engine:', layout);
+        console.log('🎯 Using layout engine for:', layout);
         
-        // Use the layout engine instead of local applyLayout function
-        const layoutConfig = {
-          type: layout,
-          spacing: 80, // Reduced from 150 for tighter layouts
+        // Use the layout engine properly
+        const layoutConfig: LayoutConfig = {
+          type: layout as LayoutType,
+          spacing: Math.max(80, Math.min(150, 100 * (1 - nodes.length / 100))),
           nodeSize: { width: 200, height: 100 },
           animation: true,
           autoFit: true,
-          padding: 30 // Reduced from 50
+          padding: Math.max(30, Math.min(60, 40 * (1 - nodes.length / 100)))
         };
         
-        // Convert nodes to BaseNodeData type for layout engine
+        // Convert nodes to the format expected by layout engine
         const baseNodes = nodes.map(node => ({
           ...node,
           data: {
             ...node.data,
-            // Ensure all required BaseNodeData properties are present
             label: node.data.label || 'Untitled',
             color: node.data.color,
             fontSize: node.data.fontSize,
@@ -2245,7 +2315,6 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
             isFundamental: node.data.isFundamental,
             importance: node.data.importance,
             centralityScore: node.data.centralityScore,
-            // Add any missing properties with defaults
             tags: node.data.tags || [],
             priority: node.data.priority || 'medium',
             isCompleted: node.data.isCompleted || false,
@@ -2262,25 +2331,27 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
             isEditing: node.data.isEditing || false,
             icon: node.data.icon
           }
-        })) as Node<BaseNodeData>[];
+        })) as Node<NodeData>[];
         
+        console.log('📋 Converted nodes for layout engine:', baseNodes.length);
+        
+        // Apply layout using the layout engine
         const updatedBaseNodes = layoutEngine.calculatePositions(baseNodes, edges, layoutConfig);
+        
+        console.log('✅ Layout engine returned:', updatedBaseNodes.length, 'nodes');
         
         // Validate that no nodes were lost
         if (updatedBaseNodes.length !== baseNodes.length) {
-          console.error('❌ Layout engine lost nodes!', {
+          console.error('Layout engine lost nodes!', {
             input: baseNodes.length,
-            output: updatedBaseNodes.length,
-            missing: baseNodes.filter(n => !updatedBaseNodes.find(u => u.id === n.id)).map(n => n.id)
+            output: updatedBaseNodes.length
           });
           toast.error(`Layout error: ${baseNodes.length - updatedBaseNodes.length} nodes lost`);
           setIsLayoutLoading(false);
           return;
         }
         
-        console.log('✅ Layout engine validation passed, all nodes preserved');
-        
-        // Convert back to NodeData type
+        // Convert back to NodeData format
         const updatedNodes = updatedBaseNodes.map(node => ({
           ...node,
           data: {
@@ -2313,10 +2384,10 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
             icon: node.data.icon
           }
         })) as Node<NodeData>[];
-        console.log('✅ Layout engine applied, updated nodes:', updatedNodes.length);
-        console.log('📍 Sample node positions:', updatedNodes.slice(0, 3).map(n => ({ id: n.id, position: n.position })));
         
-        // Set the updated nodes directly
+        console.log('🎯 Setting updated nodes:', updatedNodes.length);
+        
+        // Set the updated nodes
         setNodes(updatedNodes);
         addToHistory(updatedNodes, edges);
         
@@ -2329,7 +2400,7 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           toast.success(`Layout changed to ${layout} - ${updatedNodes.length} nodes organized`);
         }, 500);
       } catch (error) {
-        console.error('❌ Layout application failed:', error);
+        console.error('Layout application failed:', error);
         setIsLayoutLoading(false);
         toast.dismiss();
         toast.error(`Failed to apply ${layout} layout`);
@@ -2706,67 +2777,9 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
   };
 
   const nodeTypes = currentTheme === 'aura' ? AuraNodeTypes : DefaultNodeTypes;
+  
   return (
     <div className={cn("w-full h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20", className)}>
-      {/* Main Toolbar - Top */}
-      <div className="w-full h-16 bg-white/95 dark:bg-gray-900/95 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 z-30 sticky top-0 left-0">
-        <MindMapToolbar
-          onAddNode={handleAddNode}
-          onSave={handleSave}
-          onExport={handleExport}
-          onImport={handleImport}
-          onZoomIn={zoomIn}
-          onZoomOut={zoomOut}
-          onFitView={() => fitView()}
-          onLayoutChange={handleLayoutChange}
-          onUndo={handleUndo}
-          onRedo={handleRedo}
-          onClearAll={handleClearCanvas}
-          currentLayout={currentLayout}
-          canUndo={history.length > 1}
-          canRedo={false}
-          nodeCount={nodes.length}
-          currentTheme={currentTheme}
-          onThemeChange={(theme) => {
-            setCurrentTheme(theme);
-            if (theme === 'dark') {
-              setIsDarkMode(true);
-              document.documentElement.classList.add('dark');
-              setCustomTheme(customThemes['nov8-dark']);
-            } else if (theme === 'light') {
-              setIsDarkMode(false);
-              document.documentElement.classList.remove('dark');
-              setCustomTheme(customThemes['nov8-classic']);
-            } else if (customThemes[theme as keyof typeof customThemes]) {
-              const selectedTheme = customThemes[theme as keyof typeof customThemes];
-              setCustomTheme(selectedTheme);
-              // Update CSS variables for the theme
-              const root = document.documentElement;
-              root.style.setProperty('--nov8-primary', selectedTheme.colors.primary);
-              root.style.setProperty('--nov8-secondary', selectedTheme.colors.secondary);
-              root.style.setProperty('--nov8-accent', selectedTheme.colors.accent);
-              root.style.setProperty('--nov8-background', selectedTheme.colors.background);
-              root.style.setProperty('--nov8-surface', selectedTheme.colors.surface);
-              root.style.setProperty('--nov8-text', selectedTheme.colors.text);
-              if (theme.includes('dark') || theme === 'midnight-dark') {
-                setIsDarkMode(true);
-                document.documentElement.classList.add('dark');
-              } else {
-                setIsDarkMode(false);
-                document.documentElement.classList.remove('dark');
-              }
-            } else if (theme === 'aura') {
-              // Aura theme: keep dark mode as is, but set theme to aura
-              setCustomTheme(undefined);
-            }
-          }}
-          customThemes={customThemes}
-          customTheme={customTheme}
-          setCustomTheme={setCustomTheme}
-          onExportAsPNG={handleExportAsPNG}
-          onExportAsPDF={handleExportAsPDF}
-        />
-      </div>
       {/* Main Content: flex row, left = AI toolbar, right = canvas */}
       <div className="flex flex-1 min-h-0">
         {/* AI Toolbar - Left Sidebar */}
@@ -2779,123 +2792,75 @@ const MindMapCanvasInner: React.FC<MindMapCanvasProps> = ({ className }) => {
           isProcessing={isAiProcessing}
           fundamentalNodesCount={fundamentalNodes.length}
         />
-      {/* ReactFlow Canvas - Main area with perfect positioning */}
+        {/* ReactFlow Canvas - Main area with perfect positioning */}
         <div className="flex-1 relative flex items-center justify-center">
-        {/* Beautiful Empty State */}
-        {nodes.length === 0 && (
+          {/* Beautiful Empty State */}
+          {nodes.length === 0 && (
             <div className="absolute inset-0 flex items-center justify-center z-10 bg-gradient-to-br from-white/90 to-purple-50/60 dark:from-gray-900/90 dark:to-purple-900/60 backdrop-blur-sm" style={{ marginLeft: '24rem' }}>
               <div className="text-center space-y-6 p-8 max-w-md mx-auto">
-              <div className="relative">
-                <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl">
-                  <Brain className="w-12 h-12 text-white" />
+                <div className="relative">
+                  <div className="w-24 h-24 mx-auto bg-gradient-to-br from-purple-600 to-blue-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                    <Brain className="w-12 h-12 text-white" />
+                  </div>
+                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
+                    <Sparkles className="w-4 h-4 text-yellow-900" />
+                  </div>
                 </div>
-                <div className="absolute -top-2 -right-2 w-8 h-8 bg-yellow-400 rounded-full flex items-center justify-center animate-pulse">
-                  <Sparkles className="w-4 h-4 text-yellow-900" />
+                <div className="space-y-3">
+                  <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
+                    Welcome to NOV8 AI Mind Mapping
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                    Create powerful mind maps with revolutionary AI assistance. Start by adding a node or generating an intelligent mind map.
+                  </p>
                 </div>
-              </div>
-              <div className="space-y-3">
-                <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                  Welcome to NOV8 AI Mind Mapping
-                </h2>
-                <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Create powerful mind maps with revolutionary AI assistance. Start by adding a node or generating an intelligent mind map.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
-                  onClick={() => setTimeout(() => handleAddNode(), 0)}
-                  className="bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 font-semibold"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add First Node
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const aiToolbar = document.querySelector('.ai-toolbar-topic-input') as HTMLInputElement;
-                    if (aiToolbar) {
-                      aiToolbar.focus();
-                    }
-                  }}
-                  className="border-purple-200 text-purple-700 hover:bg-purple-50 px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
-                >
-                  <Wand2 className="w-4 h-4 mr-2" />
-                  Generate AI Map
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button
+                    onClick={() => setTimeout(() => handleAddNode(), 0)}
+                    className="bg-gradient-to-r from-teal-600 to-cyan-500 hover:from-teal-700 hover:to-cyan-600 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105 font-semibold"
+                  >
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add First Node
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      const aiToolbar = document.querySelector('.ai-toolbar-topic-input') as HTMLInputElement;
+                      if (aiToolbar) {
+                        aiToolbar.focus();
+                      }
+                    }}
+                    className="border-purple-200 text-purple-700 hover:bg-purple-50 px-6 py-3 rounded-xl shadow-lg transition-all duration-300 hover:scale-105"
+                  >
+                    <Wand2 className="w-4 h-4 mr-2" />
+                    Generate AI Map
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          nodeTypes={nodeTypes}
-          connectionMode={ConnectionMode.Loose}
-          onInit={setReactFlowInstance}
-          proOptions={{ hideAttribution: true }}
-          className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 dark:from-gray-900 dark:via-blue-900/20 dark:to-purple-900/20"
-          fitView
-          fitViewOptions={{ 
-            padding: 0.15,
-            maxZoom: 2.5,
-            minZoom: 0.05
-          }}
-          minZoom={0.05}
-          maxZoom={2.5}
-          zoomOnScroll={true}
-          zoomOnPinch={true}
-        >
-          <Background 
-            variant={BackgroundVariant.Dots}
-            gap={20}
-            size={1}
-            className="opacity-40 dark:opacity-20"
-            color="#e2e8f0"
-          />
-          <Controls 
-            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg"
-            showZoom={true}
-            showFitView={true}
-            showInteractive={false}
-          />
-          <MiniMap 
-            className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50 rounded-xl shadow-lg overflow-hidden"
-            nodeColor="#8b5cf6"
-            maskColor="rgba(139, 92, 246, 0.1)"
-            pannable
-            zoomable
-          />
-        </ReactFlow>
+          )}
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            nodeTypes={nodeTypes}
+            connectionMode={ConnectionMode.Loose}
+            fitView
+            minZoom={0.1}
+            maxZoom={2}
+            defaultViewport={{ x: 0, y: 0, zoom: 1 }}
+            onInit={setReactFlowInstance}
+            className="w-full h-full"
+            style={{ background: 'none' }}
+          >
+            <Background variant={BackgroundVariant.Dots} gap={16} size={1} color={isDarkMode ? '#22223b' : '#e0e7ef'} />
+            <MiniMap nodeColor="#8b5cf6" nodeStrokeWidth={3} zoomable pannable className="rounded-lg shadow-md" />
+            <Controls showInteractive={false} position="bottom-left" />
+          </ReactFlow>
         </div>
       </div>
-      <TooltipProvider>
-        <div style={{ position: 'absolute', top: 16, right: 24, zIndex: 50 }}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button aria-label="Layout Info" className="rounded-full bg-white/80 hover:bg-white shadow p-2 border border-gray-200">
-                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#6366f1" strokeWidth="2"/><text x="12" y="16" textAnchor="middle" fontSize="12" fill="#6366f1" fontWeight="bold">i</text></svg>
-              </button>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-xs">
-              <div className="font-semibold mb-1">{currentLayoutConfig?.name || 'Layout'}</div>
-              <div className="mb-2 text-xs text-gray-600">{currentLayoutConfig?.description || 'No description.'}</div>
-              <div className="text-xs text-blue-700 font-medium">Best Practices:</div>
-              <ul className="text-xs text-gray-700 list-disc pl-4">
-                {/* Example best practices, you can expand per layout */}
-                {currentLayout === 'radial' && <li>Use for classic mind maps with a central topic.</li>}
-                {currentLayout === 'tree-horizontal' && <li>Great for org charts and hierarchies.</li>}
-                {currentLayout === 'tree-vertical' && <li>Best for left-to-right flows.</li>}
-                {currentLayout === 'flowchart' && <li>Ideal for process diagrams and stepwise flows.</li>}
-                {currentLayout === 'hexagonal' && <li>Best for dense, interconnected ideas.</li>}
-                {/* Add more per layout as needed */}
-              </ul>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </TooltipProvider>
     </div>
   );
 };
@@ -2914,28 +2879,63 @@ const handleGenerateBranchesFromNode = (nodeId: string) => {
   console.log('Generate branches for node:', nodeId);
 };
 
-// Place nudgeOverlappingNodes above applyLayout for correct scoping
+// Enhanced nudgeOverlappingNodes with better handling for dense clusters
 const nudgeOverlappingNodes = (nodes: Array<Node<NodeData>>) => {
-  const MIN_DISTANCE = 260;
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const a = nodes[i];
-      const b = nodes[j];
-      if (checkCollision(a.position, b.position)) {
-        // Move b away from a
-        const dx = b.position.x - a.position.x;
-        const dy = b.position.y - a.position.y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const moveDist = (MIN_DISTANCE - dist) / 2 + 1;
-        const moveX = (dx / dist) * moveDist;
-        const moveY = (dy / dist) * moveDist;
-        b.position.x += moveX;
-        b.position.y += moveY;
-        a.position.x -= moveX;
-        a.position.y -= moveY;
+  const nodeCount = nodes.length;
+  const densityFactor = Math.max(0.7, Math.min(1.3, 1 - (nodeCount / 80)));
+  const MIN_DISTANCE = Math.max(220, Math.min(320, 260 * densityFactor));
+  
+  let iterations = 0;
+  const maxIterations = Math.min(15, Math.max(5, Math.floor(nodeCount / 8)));
+  
+  while (iterations < maxIterations) {
+    let hasOverlaps = false;
+    
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i];
+        const b = nodes[j];
+        if (checkCollision(a.position, b.position)) {
+          hasOverlaps = true;
+          
+          // Calculate separation vector
+          const dx = b.position.x - a.position.x;
+          const dy = b.position.y - a.position.y;
+          const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+          const moveDist = (MIN_DISTANCE - dist) / 2 + 10;
+          
+          // Apply separation with damping for stability
+          const damping = 0.7;
+          const moveX = (dx / dist) * moveDist * damping;
+          const moveY = (dy / dist) * moveDist * damping;
+          
+          // Move nodes apart
+          b.position.x += moveX;
+          b.position.y += moveY;
+          a.position.x -= moveX;
+          a.position.y -= moveY;
+          
+          // Keep nodes within bounds
+          const bounds = {
+            minX: 50,
+            maxX: 2500,
+            minY: 50,
+            maxY: 2000
+          };
+          
+          a.position.x = Math.max(bounds.minX, Math.min(bounds.maxX, a.position.x));
+          a.position.y = Math.max(bounds.minY, Math.min(bounds.maxY, a.position.y));
+          b.position.x = Math.max(bounds.minX, Math.min(bounds.maxX, b.position.x));
+          b.position.y = Math.max(bounds.minY, Math.min(bounds.maxY, b.position.y));
+        }
       }
     }
+    
+    if (!hasOverlaps) break;
+    iterations++;
   }
+  
+  console.log(`🔧 Nudged overlapping nodes in ${iterations} iterations`);
 };
 
 export default MindMapCanvas;
