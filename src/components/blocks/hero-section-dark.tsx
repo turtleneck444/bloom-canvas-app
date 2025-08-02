@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 import { ChevronRight } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from "react-router-dom"
-import { Brain, Presentation, Video, Target } from "lucide-react"
+import { Brain, Presentation, Video, Target, Network, Palette } from "lucide-react"
 import { RotatingText } from "@/components/ui/rotating-text"
 import { NOV8GlowCard } from "@/components/ui/spotlight-card"
 import { useState, useEffect } from "react"
@@ -543,126 +543,181 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Individual Service Sections - Full Width */}
-        
-        {/* Mind Maps Section - Compact & Clean */}
-        <section className="py-12 bg-gradient-to-br from-blue-50 via-white to-cyan-50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-blue-500/6 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-500/6 rounded-full blur-2xl"></div>
+        {/* Services Grid Section - Paired Layout */}
+        <section className="py-16 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
+            {/* Services Grid */}
+            <div className="grid lg:grid-cols-2 gap-8">
+              
+              {/* Mind Maps & Presentations Row */}
+              <div className="space-y-6">
+                {/* Mind Maps */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-4 mb-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
                       <Brain className="w-6 h-6 text-white" />
                     </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Mind Maps</h3>
+                      <p className="text-blue-600 text-sm font-medium">AI-Powered Visual Thinking</p>
                     </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">Mind Maps</h2>
-                    <p className="text-blue-600 text-sm font-medium">AI-Powered Visual Thinking</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Transform ideas into visual workflows with AI-powered suggestions and real-time collaboration.
-                </p>
-                <div className="flex items-center space-x-3">
-                  <Link to="/mindmaps">
-                    <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                      Start Mapping
-                    </button>
-                  </Link>
-                  <div className="flex space-x-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">AI Nodes</span>
-                    <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">Real-time</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="relative">
-                {/* Enhanced Mind Map Visualization - Teal & Blue */}
-                <div className="relative w-full h-48 bg-gradient-to-br from-cyan-50/80 via-blue-50/60 to-teal-50/80 rounded-2xl border border-cyan-200/50 overflow-hidden backdrop-blur-sm">
-                  {/* Animated Background Particles */}
-                  <div className="absolute inset-0">
-                    <div className="absolute top-2 left-4 w-2 h-2 bg-cyan-400 rounded-full animate-ping opacity-60"></div>
-                    <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-blue-400 rounded-full animate-ping opacity-60" style={{animationDelay: '0.5s'}}></div>
-                    <div className="absolute bottom-4 left-8 w-1 h-1 bg-teal-400 rounded-full animate-ping opacity-60" style={{animationDelay: '1s'}}></div>
-                    <div className="absolute bottom-8 right-4 w-1.5 h-1.5 bg-cyan-500 rounded-full animate-ping opacity-60" style={{animationDelay: '1.5s'}}></div>
-                  </div>
-                  
-                  {/* Central Neural Hub */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-cyan-500 via-blue-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
-                    <Brain className="w-7 h-7 text-white" />
-                    {/* Pulsing Rings */}
-                    <div className="absolute inset-0 rounded-full border-2 border-cyan-400/30 animate-ping"></div>
-                    <div className="absolute inset-0 rounded-full border-2 border-blue-400/20 animate-ping" style={{animationDelay: '0.3s'}}></div>
-                  </div>
-                  
-                  {/* Floating Neural Nodes */}
-                  <div className="absolute top-3 left-3 w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg animate-float group hover:scale-110 transition-transform duration-300">
-                    <span className="text-white font-semibold text-xs">Ideas</span>
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute top-6 right-6 w-10 h-10 bg-gradient-to-br from-blue-500 to-teal-600 rounded-lg flex items-center justify-center shadow-lg animate-float group hover:scale-110 transition-transform duration-300" style={{animationDelay: '0.5s'}}>
-                    <span className="text-white font-semibold text-xs">Plan</span>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-400 to-teal-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute bottom-6 left-6 w-10 h-10 bg-gradient-to-br from-teal-500 to-cyan-400 rounded-lg flex items-center justify-center shadow-lg animate-float group hover:scale-110 transition-transform duration-300" style={{animationDelay: '1s'}}>
-                    <span className="text-white font-semibold text-xs">Execute</span>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-teal-400 to-cyan-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute bottom-3 right-3 w-12 h-12 bg-gradient-to-br from-cyan-400 to-teal-500 rounded-xl flex items-center justify-center shadow-lg animate-float group hover:scale-110 transition-transform duration-300" style={{animationDelay: '1.5s'}}>
-                    <span className="text-white font-semibold text-xs">Success</span>
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-cyan-300 to-teal-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  
-                  {/* Animated Connection Lines */}
-                  <svg className="absolute inset-0 w-full h-full" style={{zIndex: 1}}>
-                    <path d="M 48 48 Q 80 50 120 56" stroke="url(#mindMapGradient1)" strokeWidth="2" fill="none" opacity="0.8">
-                      <animate attributeName="stroke-dasharray" values="0,100;100,0;0,100" dur="3s" repeatCount="indefinite"/>
-                    </path>
-                    <path d="M 48 48 Q 60 80 80 120" stroke="url(#mindMapGradient2)" strokeWidth="2" fill="none" opacity="0.8">
-                      <animate attributeName="stroke-dasharray" values="0,100;100,0;0,100" dur="3s" repeatCount="indefinite" begin="0.5s"/>
-                    </path>
-                    <path d="M 120 56 Q 140 80 160 120" stroke="url(#mindMapGradient3)" strokeWidth="2" fill="none" opacity="0.8">
-                      <animate attributeName="stroke-dasharray" values="0,100;100,0;0,100" dur="3s" repeatCount="indefinite" begin="1s"/>
-                    </path>
-                    <defs>
-                      <linearGradient id="mindMapGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{stopColor: '#06B6D4', stopOpacity: 1}} />
-                        <stop offset="100%" style={{stopColor: '#3B82F6', stopOpacity: 1}} />
-                      </linearGradient>
-                      <linearGradient id="mindMapGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{stopColor: '#3B82F6', stopOpacity: 1}} />
-                        <stop offset="100%" style={{stopColor: '#14B8A6', stopOpacity: 1}} />
-                      </linearGradient>
-                      <linearGradient id="mindMapGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{stopColor: '#14B8A6', stopOpacity: 1}} />
-                        <stop offset="100%" style={{stopColor: '#06B6D4', stopOpacity: 1}} />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  
-                  {/* Floating Data Points */}
-                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-20 h-6 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center">
-                    <div className="flex space-x-1 text-xs">
-                      <span className="text-cyan-600 font-medium">AI</span>
-                      <span className="text-blue-600 font-medium">•</span>
-                      <span className="text-teal-600 font-medium">Nodes</span>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Transform ideas into visual workflows with AI-powered suggestions and real-time collaboration.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Link to="/mindmaps">
+                      <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Start Mapping
+                      </button>
+                    </Link>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">AI Nodes</span>
+                      <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">Real-time</span>
                     </div>
                   </div>
                 </div>
                 
-                {/* Compact Stats */}
-                <div className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-blue-200/50">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-blue-600">10K+</div>
-                    <div className="text-xs text-gray-600">Maps</div>
+                {/* Presentations */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Presentation className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Presentations</h3>
+                      <p className="text-orange-600 text-sm font-medium">AI-Powered Design Studio</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Create stunning presentations with AI assistance, smart templates, and seamless collaboration.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Link to="/presentations">
+                      <button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Create Presentation
+                      </button>
+                    </Link>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">Templates</span>
+                      <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">AI Design</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Strategy Co-Pilot & Meetings Row */}
+              <div className="space-y-6">
+                {/* Strategy Co-Pilot */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Target className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Strategy Co-Pilot</h3>
+                      <p className="text-green-600 text-sm font-medium">AI-Powered Strategic Intelligence</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    AI-driven strategic planning and analysis tools that help teams make better decisions.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Link to="/strategy">
+                      <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Plan Strategy
+                      </button>
+                    </Link>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">SWOT</span>
+                      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">Analysis</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Meetings */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
+                      <Video className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Meetings</h3>
+                      <p className="text-blue-600 text-sm font-medium">AI-Powered Video Collaboration</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Real-time collaboration and video conferencing with AI-powered features and transcription.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Link to="/meetings">
+                      <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Join Meeting
+                      </button>
+                    </Link>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">HD Video</span>
+                      <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">AI Transcribe</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* AI Simulation & Digital Whiteboard Row */}
+              <div className="space-y-6">
+                {/* AI Simulation */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <Network className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">AI Simulation</h3>
+                      <p className="text-purple-600 text-sm font-medium">Scenario Modeling & Forecasting</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Advanced scenario modeling and decision forecasting with comprehensive analytics.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Link to="/simulation">
+                      <button className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Run Simulation
+                      </button>
+                    </Link>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">What-if</span>
+                      <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">Forecasting</span>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Digital Whiteboard */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
+                  <div className="flex items-center space-x-4 mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-teal-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <Palette className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-gray-900">Digital Whiteboard</h3>
+                      <p className="text-teal-600 text-sm font-medium">Real-time Collaborative Canvas</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-600 leading-relaxed mb-4">
+                    Real-time collaborative canvas with advanced drawing and design tools.
+                  </p>
+                  <div className="flex items-center justify-between">
+                    <Link to="/whiteboard">
+                      <button className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                        Start Drawing
+                      </button>
+                    </Link>
+                    <div className="flex space-x-2">
+                      <span className="px-2 py-1 bg-teal-100 text-teal-700 text-xs rounded-full font-medium">Real-time</span>
+                      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">Collaboration</span>
+                    </div>
                   </div>
                 </div>
               </div>
