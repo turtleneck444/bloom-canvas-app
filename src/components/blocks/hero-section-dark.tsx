@@ -333,46 +333,30 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-gray-900 mb-8 leading-tight">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-6 sm:mb-8 leading-tight">
                 <span className="text-gray-900">
                   NOV8
                 </span>
                 {" "}
-                <div className="inline-flex items-center">
-                  <RotatingText
-                    texts={rotatingTexts}
-                    mainClassName={mainClassName}
-                    staggerFrom="last"
-                    initial={{ y: "100%", opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: "-120%", opacity: 0 }}
-                    staggerDuration={0.08}
-                    splitLevelClassName="overflow-hidden pb-1 sm:pb-2 md:pb-3"
-                    transition={{ type: "spring", damping: 40, stiffness: 800 }}
-                    rotationInterval={4000}
-                    auto={true}
-                    loop={true}
-                    onNext={(index) => {
-                      setCurrentService(rotatingTexts[index]);
-                    }}
-                  />
-                </div>
+                <span className={mainClassName}>
+                  Platform
+                </span>
               </h1>
 
               {/* Subtitle */}
-              <p className="text-xl sm:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-4">
                 Transform your ideas into powerful visual workflows. AI-powered collaboration tools for modern teams.
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-20">
-                <Link to="/book-demo">
-                  <button className="bg-gray-900 text-white px-10 py-4 rounded-xl font-semibold text-lg hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-20 px-4">
+                <Link to="/book-demo" className="w-full sm:w-auto">
+                  <button className="w-full sm:w-auto bg-gray-900 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
                     Get started
                   </button>
                 </Link>
-                <Link to="/book-demo">
-                  <button className="border-2 border-gray-300 text-gray-700 px-10 py-4 rounded-xl font-semibold text-lg hover:bg-gray-50 transition-all duration-300">
+                <Link to="/book-demo" className="w-full sm:w-auto">
+                  <button className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 px-8 sm:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg-gray-50 transition-all duration-300">
                     Book a demo
                   </button>
                 </Link>
@@ -380,13 +364,13 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
             </div>
 
             {/* Enhanced Platform Preview */}
-            <div className="relative max-w-7xl mx-auto">
-              <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 lg:p-12">
+            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-gray-200 p-4 sm:p-6 lg:p-12">
                 <div className="mb-6 sm:mb-8">
-                  <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 text-center mb-3 sm:mb-4">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 text-center mb-3 sm:mb-4">
                     Discover NOV8's Revolutionary Suite
                   </h3>
-                  <p className="text-sm sm:text-base text-gray-600 text-center max-w-3xl mx-auto px-4">
+                  <p className="text-sm sm:text-base text-gray-600 text-center max-w-3xl mx-auto">
                     Experience the future of collaboration with our AI-powered tools that transform how teams create, strategize, and execute
                   </p>
                 </div>
@@ -405,13 +389,13 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     ))}
                   </TabsList>
                   
-                  {/* Mobile Tabs - 2 Columns */}
-                  <TabsList className="sm:hidden mb-8 bg-gray-100 p-2 rounded-2xl grid grid-cols-2 gap-2">
+                  {/* Mobile Tabs - 3 Columns */}
+                  <TabsList className="sm:hidden mb-8 bg-gray-100 p-2 rounded-2xl grid grid-cols-3 gap-2">
                     {platformImages.map((platform) => (
                       <TabsTrigger
                         key={platform.id}
                         value={platform.id}
-                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}
+                        className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-1 py-2 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}
                       >
                         <span className="truncate text-center">{platform.name}</span>
                       </TabsTrigger>
