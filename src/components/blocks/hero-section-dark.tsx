@@ -1344,10 +1344,37 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
           </div>
         </section>
 
-        {/* Animated 1-2-3 Process Section */}
-        <section className="py-16 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.1)_1px,transparent_0)] bg-[length:32px_32px] opacity-50" />
+        {/* Clean Professional 1-2-3 Process Section */}
+        <section className="py-20 bg-white dark:bg-gray-900 overflow-hidden relative">
+          {/* Animated Background Line */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <motion.div
+              className="w-full max-w-6xl h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              transition={{ duration: 1.5, ease: "easeOut" }}
+              viewport={{ once: true }}
+            />
+          </div>
+          
+          {/* Floating Background Elements */}
+          <div className="absolute inset-0 overflow-hidden">
+            <motion.div
+              className="absolute top-1/4 left-1/4 w-2 h-2 bg-blue-400/20 rounded-full"
+              animate={{ y: [0, -20, 0], opacity: [0.2, 0.6, 0.2] }}
+              transition={{ duration: 3, repeat: Infinity }}
+            />
+            <motion.div
+              className="absolute top-3/4 right-1/4 w-1 h-1 bg-teal-400/30 rounded-full"
+              animate={{ y: [0, 15, 0], opacity: [0.3, 0.7, 0.3] }}
+              transition={{ duration: 2.5, repeat: Infinity, delay: 1 }}
+            />
+            <motion.div
+              className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-gray-400/20 rounded-full"
+              animate={{ y: [0, -10, 0], opacity: [0.2, 0.5, 0.2] }}
+              transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
+            />
+          </div>
           
           <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div
@@ -1355,7 +1382,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mb-12"
+              className="text-center mb-16"
             >
               <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
                 Get Started in 3 Simple Steps
@@ -1365,116 +1392,90 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               </p>
             </motion.div>
 
-            <div className="relative">
-              {/* Connection Line */}
-              <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-teal-500 to-emerald-500 transform -translate-y-1/2 z-0" />
-              
-              <div className="grid lg:grid-cols-3 gap-8 lg:gap-12">
-                {/* Step 1 */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                  viewport={{ once: true }}
-                  className="relative group"
-                >
-                  <div className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-200/50 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-500 group-hover:scale-105">
-                    {/* Step Number */}
-                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-white font-bold text-lg">1</span>
-                    </div>
-                    
-                    {/* Icon */}
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                      </svg>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Sign Up</h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
-                      Create your account in under 30 seconds. No credit card required for your free trial.
-                    </p>
-                    
-                    {/* Floating Elements */}
-                    <motion.div
-                      className="absolute -top-2 -right-2 w-4 h-4 bg-blue-400 rounded-full"
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                    />
+            <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
+              {/* Step 1 */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                viewport={{ once: true }}
+                className="relative group"
+              >
+                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
+                  {/* Step Number */}
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
+                    <span className="text-white dark:text-gray-900 font-bold text-lg">1</span>
                   </div>
-                </motion.div>
+                  
+                  {/* Icon */}
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors duration-300">
+                    <svg className="w-8 h-8 text-gray-600 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Sign Up</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                    Create your account in under 30 seconds. No credit card required for your free trial.
+                  </p>
+                </div>
+              </motion.div>
 
-                {/* Step 2 */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                  viewport={{ once: true }}
-                  className="relative group"
-                >
-                  <div className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-200/50 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-500 group-hover:scale-105">
-                    {/* Step Number */}
-                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-white font-bold text-lg">2</span>
-                    </div>
-                    
-                    {/* Icon */}
-                    <div className="w-16 h-16 bg-gradient-to-br from-teal-500 to-teal-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                      </svg>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Choose Your Tools</h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
-                      Explore our suite of AI-powered tools. Start with mind maps, presentations, or strategy planning.
-                    </p>
-                    
-                    {/* Floating Elements */}
-                    <motion.div
-                      className="absolute -bottom-2 -left-2 w-3 h-3 bg-teal-400 rounded-full"
-                      animate={{ y: [0, 8, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
-                    />
+              {/* Step 2 */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                viewport={{ once: true }}
+                className="relative group"
+              >
+                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
+                  {/* Step Number */}
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
+                    <span className="text-white dark:text-gray-900 font-bold text-lg">2</span>
                   </div>
-                </motion.div>
+                  
+                  {/* Icon */}
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:bg-teal-50 dark:group-hover:bg-teal-900/20 transition-colors duration-300">
+                    <svg className="w-8 h-8 text-gray-600 dark:text-gray-300 group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                    </svg>
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Choose Your Tools</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                    Explore our suite of AI-powered tools. Start with mind maps, presentations, or strategy planning.
+                  </p>
+                </div>
+              </motion.div>
 
-                {/* Step 3 */}
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                  viewport={{ once: true }}
-                  className="relative group"
-                >
-                  <div className="relative z-10 bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl border border-gray-200/50 dark:border-gray-700/50 hover:shadow-2xl transition-all duration-500 group-hover:scale-105">
-                    {/* Step Number */}
-                    <div className="absolute -top-4 -left-4 w-12 h-12 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center shadow-lg">
-                      <span className="text-white font-bold text-lg">3</span>
-                    </div>
-                    
-                    {/* Icon */}
-                    <div className="w-16 h-16 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl flex items-center justify-center mb-6 mx-auto">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                      </svg>
-                    </div>
-                    
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Start Creating</h3>
-                    <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
-                      Begin collaborating with your team immediately. Export, share, and scale your ideas effortlessly.
-                    </p>
-                    
-                    {/* Floating Elements */}
-                    <motion.div
-                      className="absolute -top-2 -right-2 w-4 h-4 bg-emerald-400 rounded-full"
-                      animate={{ y: [0, -8, 0] }}
-                      transition={{ duration: 2, repeat: Infinity, delay: 1 }}
-                    />
+              {/* Step 3 */}
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+                viewport={{ once: true }}
+                className="relative group"
+              >
+                <div className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-500 group-hover:-translate-y-2">
+                  {/* Step Number */}
+                  <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-12 h-12 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center shadow-lg border-4 border-white dark:border-gray-800">
+                    <span className="text-white dark:text-gray-900 font-bold text-lg">3</span>
                   </div>
-                </motion.div>
-              </div>
+                  
+                  {/* Icon */}
+                  <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-xl flex items-center justify-center mb-6 mx-auto group-hover:bg-emerald-50 dark:group-hover:bg-emerald-900/20 transition-colors duration-300">
+                    <svg className="w-8 h-8 text-gray-600 dark:text-gray-300 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4 text-center">Start Creating</h3>
+                  <p className="text-gray-600 dark:text-gray-300 text-center leading-relaxed">
+                    Begin collaborating with your team immediately. Export, share, and scale your ideas effortlessly.
+                  </p>
+                </div>
+              </motion.div>
             </div>
 
             {/* CTA Section */}
@@ -1483,9 +1484,9 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mt-12"
+              className="text-center mt-16"
             >
-              <div className="inline-flex items-center space-x-4 bg-gradient-to-r from-blue-600 to-teal-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg transition-all duration-300 hover:scale-105 transform shadow-xl">
+              <div className="inline-flex items-center space-x-4 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 hover:scale-105 transform shadow-lg">
                 <span>Start Your Free Trial</span>
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
