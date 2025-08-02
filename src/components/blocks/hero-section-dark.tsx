@@ -41,6 +41,60 @@ interface PlatformImage {
   tabColor: string
 }
 
+// Mobile Tab Component
+const MobileTab = ({ platform, isActive, onClick }: { platform: PlatformImage; isActive: boolean; onClick: () => void }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  return (
+    <motion.div
+      className={`mb-2 last:mb-0 overflow-hidden rounded-xl transition-all duration-300 ${
+        isActive ? 'bg-white shadow-lg' : 'bg-gray-50'
+      }`}
+      initial={false}
+      animate={{ height: isExpanded ? "auto" : "60px" }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
+    >
+      <button
+        onClick={() => {
+          setIsExpanded(!isExpanded);
+          onClick();
+        }}
+        className={`w-full px-4 py-3 text-left transition-all duration-300 ${
+          isActive ? 'text-gray-900' : 'text-gray-600'
+        }`}
+      >
+        <div className="flex items-center justify-between">
+          <span className="font-semibold text-sm">{platform.name}</span>
+          <motion.svg
+            className="w-5 h-5"
+            animate={{ rotate: isExpanded ? 180 : 0 }}
+            transition={{ duration: 0.3 }}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </motion.svg>
+        </div>
+      </button>
+      
+      {isExpanded && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.3 }}
+          className="px-4 pb-3"
+        >
+          <p className="text-xs text-gray-500 leading-relaxed">
+            {platform.description}
+          </p>
+        </motion.div>
+      )}
+    </motion.div>
+  );
+};
+
 const RetroGrid = ({ 
   angle = 65, 
   cellSize = 60, 
@@ -330,15 +384,16 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 p-4 sm:p-6 lg:p-12">
                 <div className="mb-6 sm:mb-8">
                   <h3 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 text-center mb-3 sm:mb-4">
-                    Experience NOV8 Platform
+                    Discover NOV8's Revolutionary Suite
                   </h3>
                   <p className="text-sm sm:text-base text-gray-600 text-center max-w-3xl mx-auto px-4">
-                    Explore our comprehensive suite of AI-powered collaboration tools designed for modern teams
+                    Experience the future of collaboration with our AI-powered tools that transform how teams create, strategize, and execute
                   </p>
                 </div>
                 
                 <Tabs defaultValue="mindmaps" className="w-full">
-                  <TabsList className="flex flex-wrap w-full mb-8 bg-gray-100 p-2 rounded-2xl gap-2">
+                  {/* Desktop Tabs */}
+                  <TabsList className="hidden sm:flex flex-wrap w-full mb-8 bg-gray-100 p-2 rounded-2xl gap-2">
                     {platformImages.map((platform) => (
                       <TabsTrigger
                         key={platform.id}
@@ -349,6 +404,26 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                       </TabsTrigger>
                     ))}
                   </TabsList>
+                  
+                  {/* Mobile Expandable Tabs */}
+                  <div className="sm:hidden mb-8">
+                    <div className="bg-gray-100 p-2 rounded-2xl">
+                      {platformImages.map((platform, index) => (
+                        <MobileTab
+                          key={platform.id}
+                          platform={platform}
+                          isActive={index === 0} // You can make this dynamic based on selected tab
+                          onClick={() => {
+                            // Handle tab selection
+                            const tabsTrigger = document.querySelector(`[data-state="active"][value="${platform.id}"]`) as HTMLElement;
+                            if (tabsTrigger) {
+                              tabsTrigger.click();
+                            }
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
 
                   {platformImages.map((platform) => (
                     <TabsContent key={platform.id} value={platform.id} className="space-y-6 sm:space-y-8">
@@ -446,8 +521,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     }}
                     className="relative"
                   >
-                    {/* Main Arrow */}
-                    <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+                                         {/* Main Arrow */}
+                     <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
                       <motion.svg
                         className="w-8 h-8 text-white"
                         fill="none"
@@ -480,47 +555,47 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                       }}
                     />
                     
-                    {/* Second Pulsing Ring */}
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-purple-400/20"
-                      animate={{
-                        scale: [1, 1.8, 1],
-                        opacity: [0.4, 0, 0.4]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeOut",
-                        delay: 0.5
-                      }}
-                    />
-                    
-                    {/* Floating Particles */}
-                    <motion.div
-                      className="absolute -top-2 -right-2 w-3 h-3 bg-blue-400 rounded-full"
-                      animate={{
-                        y: [0, -10, 0],
-                        opacity: [0.8, 0, 0.8]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut"
-                      }}
-                    />
-                    <motion.div
-                      className="absolute -bottom-2 -left-2 w-2 h-2 bg-purple-400 rounded-full"
-                      animate={{
-                        y: [0, 10, 0],
-                        opacity: [0.6, 0, 0.6]
-                      }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 0.5
-                      }}
-                    />
+                                         {/* Second Pulsing Ring */}
+                     <motion.div
+                       className="absolute inset-0 rounded-full border-2 border-teal-400/20"
+                       animate={{
+                         scale: [1, 1.8, 1],
+                         opacity: [0.4, 0, 0.4]
+                       }}
+                       transition={{
+                         duration: 2,
+                         repeat: Infinity,
+                         ease: "easeOut",
+                         delay: 0.5
+                       }}
+                     />
+                     
+                     {/* Floating Particles */}
+                     <motion.div
+                       className="absolute -top-2 -right-2 w-3 h-3 bg-blue-400 rounded-full"
+                       animate={{
+                         y: [0, -10, 0],
+                         opacity: [0.8, 0, 0.8]
+                       }}
+                       transition={{
+                         duration: 2,
+                         repeat: Infinity,
+                         ease: "easeInOut"
+                       }}
+                     />
+                     <motion.div
+                       className="absolute -bottom-2 -left-2 w-2 h-2 bg-teal-400 rounded-full"
+                       animate={{
+                         y: [0, 10, 0],
+                         opacity: [0.6, 0, 0.6]
+                       }}
+                       transition={{
+                         duration: 2,
+                         repeat: Infinity,
+                         ease: "easeInOut",
+                         delay: 0.5
+                       }}
+                     />
                   </motion.div>
                 </motion.div>
               </motion.div>
@@ -1270,35 +1345,114 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
         </section>
 
         {/* Workflow Section */}
-        <section className="py-16 bg-gray-50">
+        <section className="py-20 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-8">
-              Create. Collaborate. Execute.
-            </h2>
-            <div className="flex justify-center mb-12">
-              <div className="w-32 h-32 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-2xl">
-                <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-5xl lg:text-6xl font-bold text-gray-900 dark:text-white mb-8">
+                Create. Collaborate. Execute.
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300 max-w-4xl mx-auto mb-12">
+                Experience the power of NOV8's comprehensive suite. Sign up in seconds and unlock unlimited access to all our innovative tools.
+              </p>
+            </motion.div>
+            
+            <motion.div 
+              className="flex justify-center mb-16"
+              initial={{ opacity: 0, scale: 0.8 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              <div className="relative">
+                <div className="w-40 h-40 bg-gradient-to-br from-blue-500 to-teal-600 rounded-full flex items-center justify-center shadow-2xl">
+                  <svg className="w-20 h-20 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+                {/* Floating Elements */}
+                <motion.div
+                  className="absolute -top-4 -right-4 w-8 h-8 bg-blue-400 rounded-full"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                />
+                <motion.div
+                  className="absolute -bottom-4 -left-4 w-6 h-6 bg-teal-400 rounded-full"
+                  animate={{ y: [0, 10, 0] }}
+                  transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                />
               </div>
-            </div>
+            </motion.div>
+            
             <div className="grid md:grid-cols-3 gap-12 mb-16">
-              <div className="text-center">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-4">Create</h3>
-                <p className="text-gray-600 text-lg">Start with mind maps, build presentations, and design strategies with AI assistance</p>
-              </div>
-              <div className="text-center">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-4">Collaborate</h3>
-                <p className="text-gray-600 text-lg">Work together in real-time with team members across all NOV8 tools</p>
-              </div>
-              <div className="text-center">
-                <h3 className="text-2xl font-semibold text-gray-900 mb-4">Execute</h3>
-                <p className="text-gray-600 text-lg">Turn ideas into action with AI-powered insights and strategic planning</p>
-              </div>
+              <motion.div 
+                className="text-center group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Create</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">Start with mind maps, build presentations, and design strategies with AI assistance</p>
+              </motion.div>
+              
+              <motion.div 
+                className="text-center group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                viewport={{ once: true }}
+              >
+                <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Collaborate</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">Work together in real-time with team members across all NOV8 tools</p>
+              </motion.div>
+              
+              <motion.div 
+                className="text-center group"
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                viewport={{ once: true }}
+              >
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Execute</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-lg">Turn ideas into action with AI-powered insights and strategic planning</p>
+              </motion.div>
             </div>
-            <button className="bg-gray-900 text-white px-12 py-4 rounded-xl font-semibold text-xl transition-all duration-300 hover:bg-gray-800 transform hover:scale-105">
-              Start creating today
-            </button>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              viewport={{ once: true }}
+            >
+              <div className="bg-gradient-to-r from-blue-600 to-teal-600 text-white px-12 py-6 rounded-2xl font-semibold text-xl transition-all duration-300 hover:scale-105 transform shadow-xl">
+                <div className="flex items-center justify-center space-x-3">
+                  <span>Start creating today</span>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </div>
+              </div>
+            </motion.div>
           </div>
         </section>
 
