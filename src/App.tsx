@@ -27,79 +27,42 @@ import WhiteboardDocs from "./pages/WhiteboardDocs";
 
 const queryClient = new QueryClient();
 
-// Error Boundary Component
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode },
-  { hasError: boolean; error?: Error }
-> {
-  constructor(props: { children: React.ReactNode }) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("Error caught by boundary:", error, errorInfo);
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: '20px', backgroundColor: 'red', color: 'white' }}>
-          <h1>Something went wrong!</h1>
-          <p>Error: {this.state.error?.message}</p>
-          <button onClick={() => window.location.reload()}>
-            Reload Page
-          </button>
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
-
 const App = () => {
   console.log("App component rendering");
   
   return (
-    <ErrorBoundary>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Homepage />} />
-              <Route path="/mindmaps" element={<Index />} />
-              <Route path="/presentations" element={<Presentations />} />
-              <Route path="/meetings" element={<Meetings />} />
-              <Route path="/strategy" element={<Strategy />} />
-              <Route path="/simulation" element={<Simulation />} />
-              <Route path="/whiteboard" element={<Whiteboard />} />
-              <Route path="/layout-demo" element={<LayoutDemo />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/security" element={<Security />} />
-              <Route path="/book-demo" element={<BookDemo />} />
-              <Route path="/onboarding" element={<Onboarding />} />
-              {/* Documentation Routes */}
-              <Route path="/mindmaps/docs" element={<MindMapsDocs />} />
-              <Route path="/strategy/docs" element={<StrategyDocs />} />
-              <Route path="/simulation/docs" element={<SimulationDocs />} />
-              <Route path="/presentations/docs" element={<PresentationsDocs />} />
-              <Route path="/meetings/docs" element={<MeetingsDocs />} />
-              <Route path="/whiteboard/docs" element={<WhiteboardDocs />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Homepage />} />
+            <Route path="/mindmaps" element={<Index />} />
+            <Route path="/presentations" element={<Presentations />} />
+            <Route path="/meetings" element={<Meetings />} />
+            <Route path="/strategy" element={<Strategy />} />
+            <Route path="/simulation" element={<Simulation />} />
+            <Route path="/whiteboard" element={<Whiteboard />} />
+            <Route path="/layout-demo" element={<LayoutDemo />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/security" element={<Security />} />
+            <Route path="/book-demo" element={<BookDemo />} />
+            <Route path="/onboarding" element={<Onboarding />} />
+            {/* Documentation Routes */}
+            <Route path="/mindmaps/docs" element={<MindMapsDocs />} />
+            <Route path="/strategy/docs" element={<StrategyDocs />} />
+            <Route path="/simulation/docs" element={<SimulationDocs />} />
+            <Route path="/presentations/docs" element={<PresentationsDocs />} />
+            <Route path="/meetings/docs" element={<MeetingsDocs />} />
+            <Route path="/whiteboard/docs" element={<WhiteboardDocs />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 
