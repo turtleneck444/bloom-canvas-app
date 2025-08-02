@@ -17,6 +17,12 @@ import Terms from "./pages/Terms";
 import Security from "./pages/Security";
 import BookDemo from "./pages/BookDemo";
 import Onboarding from "./pages/Onboarding";
+import MindMapsDocs from "./pages/MindMapsDocs";
+import StrategyDocs from "./pages/StrategyDocs";
+import SimulationDocs from "./pages/SimulationDocs";
+import PresentationsDocs from "./pages/PresentationsDocs";
+import MeetingsDocs from "./pages/MeetingsDocs";
+import WhiteboardDocs from "./pages/WhiteboardDocs";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +46,13 @@ const App = () => (
           <Route path="/security" element={<Security />} />
           <Route path="/book-demo" element={<BookDemo />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          {/* Documentation Routes */}
+          <Route path="/mindmaps/docs" element={<MindMapsDocs />} />
+          <Route path="/strategy/docs" element={<StrategyDocs />} />
+          <Route path="/simulation/docs" element={<SimulationDocs />} />
+          <Route path="/presentations/docs" element={<PresentationsDocs />} />
+          <Route path="/meetings/docs" element={<MeetingsDocs />} />
+          <Route path="/whiteboard/docs" element={<WhiteboardDocs />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

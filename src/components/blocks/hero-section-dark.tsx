@@ -565,14 +565,19 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     </div>
                   </div>
                   <p className="text-gray-600 leading-relaxed mb-4">
-                    Transform ideas into visual workflows with AI-powered suggestions and real-time collaboration.
+                    Transform ideas into visual workflows with AI-powered suggestions and real-time collaboration. Organize thoughts, brainstorm concepts, and create structured visual representations of complex information.
                   </p>
                   <div className="flex items-center justify-between">
-                    <Link to="/mindmaps">
-                      <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Start Mapping
-                      </button>
-                    </Link>
+                    <div className="flex items-center space-x-3">
+                      <Link to="/mindmaps">
+                        <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                          Start Mapping
+                        </button>
+                      </Link>
+                      <Link to="/mindmaps/docs" className="text-blue-600 hover:text-blue-700 text-sm font-medium underline transition-colors duration-300">
+                        Documentation
+                      </Link>
+                    </div>
                     <div className="flex space-x-2">
                       <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">AI Nodes</span>
                       <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">Real-time</span>
@@ -592,14 +597,19 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     </div>
                   </div>
                   <p className="text-gray-600 leading-relaxed mb-4">
-                    AI-driven strategic planning and analysis tools that help teams make better decisions.
+                    AI-driven strategic planning and analysis tools that help teams make better decisions. Leverage advanced frameworks, competitive analysis, and data-driven insights to develop comprehensive strategic roadmaps.
                   </p>
                   <div className="flex items-center justify-between">
-                    <Link to="/strategy">
-                      <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Plan Strategy
-                      </button>
-                    </Link>
+                    <div className="flex items-center space-x-3">
+                      <Link to="/strategy">
+                        <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                          Plan Strategy
+                        </button>
+                      </Link>
+                      <Link to="/strategy/docs" className="text-green-600 hover:text-green-700 text-sm font-medium underline transition-colors duration-300">
+                        Documentation
+                      </Link>
+                    </div>
                     <div className="flex space-x-2">
                       <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">SWOT</span>
                       <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">Analysis</span>
@@ -619,14 +629,19 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     </div>
                   </div>
                   <p className="text-gray-600 leading-relaxed mb-4">
-                    Advanced scenario modeling and decision forecasting with comprehensive analytics.
+                    Advanced scenario modeling and decision forecasting with comprehensive analytics. Test different outcomes, assess risks, and optimize strategies through sophisticated AI-powered simulation environments.
                   </p>
                   <div className="flex items-center justify-between">
-                    <Link to="/simulation">
-                      <button className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Run Simulation
-                      </button>
-                    </Link>
+                    <div className="flex items-center space-x-3">
+                      <Link to="/simulation">
+                        <button className="bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                          Run Simulation
+                        </button>
+                      </Link>
+                      <Link to="/simulation/docs" className="text-purple-600 hover:text-purple-700 text-sm font-medium underline transition-colors duration-300">
+                        Documentation
+                      </Link>
+                    </div>
                     <div className="flex space-x-2">
                       <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">What-if</span>
                       <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">Forecasting</span>
@@ -649,14 +664,19 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     </div>
                   </div>
                   <p className="text-gray-600 leading-relaxed mb-4">
-                    Create stunning presentations with AI assistance, smart templates, and seamless collaboration.
+                    Create stunning presentations with AI assistance, smart templates, and seamless collaboration. Design professional slides with intelligent layout suggestions and real-time team editing capabilities.
                   </p>
                   <div className="flex items-center justify-between">
-                    <Link to="/presentations">
-                      <button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Create Presentation
-                      </button>
-                    </Link>
+                    <div className="flex items-center space-x-3">
+                      <Link to="/presentations">
+                        <button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                          Create Presentation
+                        </button>
+                      </Link>
+                      <Link to="/presentations/docs" className="text-orange-600 hover:text-orange-700 text-sm font-medium underline transition-colors duration-300">
+                        Documentation
+                      </Link>
+                    </div>
                     <div className="flex space-x-2">
                       <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">Templates</span>
                       <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">AI Design</span>
@@ -676,14 +696,19 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     </div>
                   </div>
                   <p className="text-gray-600 leading-relaxed mb-4">
-                    Real-time collaboration and video conferencing with AI-powered features and transcription.
+                    Real-time collaboration and video conferencing with AI-powered features and transcription. Host high-quality meetings with intelligent note-taking, action item tracking, and seamless screen sharing capabilities.
                   </p>
                   <div className="flex items-center justify-between">
-                    <Link to="/meetings">
-                      <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Join Meeting
-                      </button>
-                    </Link>
+                    <div className="flex items-center space-x-3">
+                      <Link to="/meetings">
+                        <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                          Join Meeting
+                        </button>
+                      </Link>
+                      <Link to="/meetings/docs" className="text-blue-600 hover:text-blue-700 text-sm font-medium underline transition-colors duration-300">
+                        Documentation
+                      </Link>
+                    </div>
                     <div className="flex space-x-2">
                       <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">HD Video</span>
                       <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">AI Transcribe</span>
@@ -703,14 +728,19 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     </div>
                   </div>
                   <p className="text-gray-600 leading-relaxed mb-4">
-                    Real-time collaborative canvas with advanced drawing and design tools.
+                    Real-time collaborative canvas with advanced drawing and design tools for teams to brainstorm, sketch ideas, and create visual workflows together seamlessly.
                   </p>
                   <div className="flex items-center justify-between">
-                    <Link to="/whiteboard">
-                      <button className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                        Start Drawing
-                      </button>
-                    </Link>
+                    <div className="flex items-center space-x-3">
+                      <Link to="/whiteboard">
+                        <button className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg">
+                          Start Drawing
+                        </button>
+                      </Link>
+                      <Link to="/whiteboard/docs" className="text-teal-600 hover:text-teal-700 text-sm font-medium underline transition-colors duration-300">
+                        Documentation
+                      </Link>
+                    </div>
                     <div className="flex space-x-2">
                       <span className="px-2 py-1 bg-teal-100 text-teal-700 text-xs rounded-full font-medium">Real-time</span>
                       <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">Collaboration</span>
@@ -723,618 +753,17 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
         </section>
 
 
-        <section className="py-12 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(249,115,22,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-orange-500/6 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-amber-500/6 rounded-full blur-2xl"></div>
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div className="lg:order-2 space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Presentation className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">Presentations</h2>
-                    <p className="text-orange-600 text-sm font-medium">AI-Powered Design Studio</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Create stunning presentations with AI assistance, smart templates, and seamless collaboration.
-                </p>
-                <div className="flex items-center space-x-3">
-                  <Link to="/presentations">
-                    <button className="bg-gradient-to-r from-orange-500 to-amber-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                      Create Presentation
-                    </button>
-                  </Link>
-                  <div className="flex space-x-2">
-                    <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">Templates</span>
-                    <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">AI Design</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="lg:order-1 relative">
-                {/* Enhanced Presentation Builder - Orange Accent */}
-                <div className="relative w-full h-48 bg-gradient-to-br from-orange-50/80 via-amber-50/60 to-yellow-50/80 rounded-2xl border border-orange-200/50 overflow-hidden backdrop-blur-sm">
-                  {/* Animated Background Elements */}
-                  <div className="absolute inset-0">
-                    <div className="absolute top-2 left-4 w-2 h-2 bg-orange-400 rounded-full animate-ping opacity-60"></div>
-                    <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-amber-400 rounded-full animate-ping opacity-60" style={{animationDelay: '0.5s'}}></div>
-                    <div className="absolute bottom-4 left-8 w-1 h-1 bg-yellow-400 rounded-full animate-ping opacity-60" style={{animationDelay: '1s'}}></div>
-                    <div className="absolute bottom-8 right-4 w-1.5 h-1.5 bg-orange-500 rounded-full animate-ping opacity-60" style={{animationDelay: '1.5s'}}></div>
-                  </div>
-                  
-                  {/* Interactive Slide Stack */}
-                  <div className="absolute top-2 left-2 w-32 h-20 bg-white rounded-lg shadow-md transform rotate-1 border border-orange-200/30 group hover:scale-105 transition-transform duration-300">
-                    <div className="p-2">
-                      <div className="w-8 h-1.5 bg-orange-200 rounded mb-1.5"></div>
-                      <div className="w-16 h-1 bg-orange-100 rounded mb-1"></div>
-                      <div className="w-12 h-1 bg-orange-100 rounded"></div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-orange-400/20 to-amber-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute top-4 left-4 w-32 h-20 bg-white rounded-lg shadow-md transform -rotate-0.5 border border-amber-200/30 group hover:scale-105 transition-transform duration-300">
-                    <div className="p-2">
-                      <div className="w-8 h-1.5 bg-amber-200 rounded mb-1.5"></div>
-                      <div className="w-16 h-1 bg-amber-100 rounded mb-1"></div>
-                      <div className="w-12 h-1 bg-amber-100 rounded"></div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-amber-400/20 to-yellow-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute top-6 left-6 w-32 h-20 bg-gradient-to-br from-orange-500 to-amber-500 rounded-lg shadow-lg transform rotate-0.5 group hover:scale-110 transition-transform duration-300">
-                    <div className="p-2 text-white">
-                      <div className="w-8 h-1.5 bg-white/30 rounded mb-1.5"></div>
-                      <div className="w-16 h-1 bg-white/20 rounded mb-1"></div>
-                      <div className="w-12 h-1 bg-white/20 rounded"></div>
-                    </div>
-                    {/* AI Assistant Indicator */}
-                    <div className="absolute top-1 right-1 w-4 h-4 bg-white/20 rounded-full flex items-center justify-center">
-                      <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-orange-400/30 to-amber-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  
-                  {/* Floating Design Tools */}
-                  <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-br from-orange-400 to-amber-400 rounded-lg flex items-center justify-center shadow-lg animate-bounce group hover:scale-110 transition-transform duration-300">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                    </svg>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-orange-300/50 to-amber-300/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  
-                  {/* Animated Design Elements */}
-                  <div className="absolute bottom-3 right-8 w-6 h-6 bg-gradient-to-br from-yellow-400 to-orange-400 rounded-lg flex items-center justify-center shadow-md animate-pulse group hover:scale-110 transition-transform duration-300">
-                    <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </div>
-                  
-                  {/* Floating Stats */}
-                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center">
-                    <div className="flex space-x-1 text-xs">
-                      <span className="text-orange-600 font-medium">AI</span>
-                      <span className="text-amber-600 font-medium">•</span>
-                      <span className="text-yellow-600 font-medium">Design</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Enhanced Stats */}
-                <div className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-orange-200/50">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-orange-600">500+</div>
-                    <div className="text-xs text-gray-600">Templates</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
 
-        <section className="py-12 bg-gradient-to-br from-green-50 via-white to-emerald-50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(34,197,94,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-green-500/6 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-emerald-500/6 rounded-full blur-2xl"></div>
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Target className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">Strategy Co-Pilot</h2>
-                    <p className="text-green-600 text-sm font-medium">AI-Powered Strategic Intelligence</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  AI-driven strategic planning and analysis tools that help teams make better decisions.
-                </p>
-                <div className="flex items-center space-x-3">
-                  <Link to="/strategy">
-                    <button className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                      Plan Strategy
-                    </button>
-                  </Link>
-                  <div className="flex space-x-2">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">SWOT</span>
-                    <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">Analysis</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="relative">
-                {/* Enhanced Strategy Dashboard - Green Accent */}
-                <div className="relative w-full h-48 bg-gradient-to-br from-green-50/80 via-emerald-50/60 to-teal-50/80 rounded-2xl border border-green-200/50 overflow-hidden backdrop-blur-sm">
-                  {/* Animated Background Elements */}
-                  <div className="absolute inset-0">
-                    <div className="absolute top-2 left-4 w-2 h-2 bg-green-400 rounded-full animate-ping opacity-60"></div>
-                    <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-emerald-400 rounded-full animate-ping opacity-60" style={{animationDelay: '0.5s'}}></div>
-                    <div className="absolute bottom-4 left-8 w-1 h-1 bg-teal-400 rounded-full animate-ping opacity-60" style={{animationDelay: '1s'}}></div>
-                    <div className="absolute bottom-8 right-4 w-1.5 h-1.5 bg-green-500 rounded-full animate-ping opacity-60" style={{animationDelay: '1.5s'}}></div>
-                  </div>
-                  
-                  {/* Interactive Strategy Framework Grid */}
-                  <div className="absolute top-2 left-2 w-20 h-20 bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-md flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <div className="text-lg font-bold">S</div>
-                      <div className="text-xs">Strengths</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-green-400/30 to-emerald-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute top-2 right-2 w-20 h-20 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-md flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <div className="text-lg font-bold">W</div>
-                      <div className="text-xs">Weaknesses</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-emerald-400/30 to-teal-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute bottom-2 left-2 w-20 h-20 bg-gradient-to-br from-teal-500 to-teal-600 rounded-lg shadow-md flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <div className="text-lg font-bold">O</div>
-                      <div className="text-xs">Opportunities</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-teal-400/30 to-green-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute bottom-2 right-2 w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-400 rounded-lg shadow-md flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <div className="text-lg font-bold">T</div>
-                      <div className="text-xs">Threats</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-green-300/30 to-emerald-300/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  
-                  {/* Central Strategy Hub */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-green-500 via-emerald-500 to-teal-500 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
-                    <Target className="w-7 h-7 text-white" />
-                    {/* Pulsing Rings */}
-                    <div className="absolute inset-0 rounded-full border-2 border-green-400/30 animate-ping"></div>
-                    <div className="absolute inset-0 rounded-full border-2 border-emerald-400/20 animate-ping" style={{animationDelay: '0.3s'}}></div>
-                  </div>
-                  
-                  {/* Animated Connection Lines */}
-                  <svg className="absolute inset-0 w-full h-full" style={{zIndex: 1}}>
-                    <path d="M 48 48 Q 80 50 120 56" stroke="url(#strategyGradient1)" strokeWidth="2" fill="none" opacity="0.8">
-                      <animate attributeName="stroke-dasharray" values="0,100;100,0;0,100" dur="3s" repeatCount="indefinite"/>
-                    </path>
-                    <path d="M 48 48 Q 60 80 80 120" stroke="url(#strategyGradient2)" strokeWidth="2" fill="none" opacity="0.8">
-                      <animate attributeName="stroke-dasharray" values="0,100;100,0;0,100" dur="3s" repeatCount="indefinite" begin="0.5s"/>
-                    </path>
-                    <defs>
-                      <linearGradient id="strategyGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{stopColor: '#22C55E', stopOpacity: 1}} />
-                        <stop offset="100%" style={{stopColor: '#10B981', stopOpacity: 1}} />
-                      </linearGradient>
-                      <linearGradient id="strategyGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{stopColor: '#10B981', stopOpacity: 1}} />
-                        <stop offset="100%" style={{stopColor: '#14B8A6', stopOpacity: 1}} />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  
-                  {/* Enhanced Analytics */}
-                  <div className="absolute top-4 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center">
-                    <div className="flex space-x-2 text-xs">
-                      <span className="text-green-600 font-medium">23%</span>
-                      <span className="text-emerald-600 font-medium">+15%</span>
-                    </div>
-                  </div>
-                  
-                  {/* Animated Data Points */}
-                  <div className="absolute top-8 left-6 w-2 h-2 bg-orange-400 rounded-full animate-ping"></div>
-                  <div className="absolute top-10 right-8 w-1.5 h-1.5 bg-red-400 rounded-full animate-ping" style={{animationDelay: '0.5s'}}></div>
-                  <div className="absolute bottom-8 left-8 w-1.5 h-1.5 bg-orange-400 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
-                  <div className="absolute bottom-10 right-6 w-2 h-2 bg-red-400 rounded-full animate-ping" style={{animationDelay: '1.5s'}}></div>
-                </div>
-                
-                {/* Compact Stats */}
-                <div className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-orange-200/50">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-orange-600">95%</div>
-                    <div className="text-xs text-gray-600">Accuracy</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
 
-        <section className="py-12 bg-gradient-to-br from-blue-50 via-white to-cyan-50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-blue-500/6 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-cyan-500/6 rounded-full blur-2xl"></div>
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div className="lg:order-2 space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Video className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">Meetings</h2>
-                    <p className="text-blue-600 text-sm font-medium">AI-Powered Video Collaboration</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Real-time collaboration and video conferencing with AI-powered features and transcription.
-                </p>
-                <div className="flex items-center space-x-3">
-                  <Link to="/meetings">
-                    <button className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                      Join Meeting
-                    </button>
-                  </Link>
-                  <div className="flex space-x-2">
-                    <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">HD Video</span>
-                    <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">AI Transcribe</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="lg:order-1 relative">
-                {/* Enhanced Meeting Room Visualization - Blue Accent */}
-                <div className="relative w-full h-48 bg-gradient-to-br from-blue-50/80 via-cyan-50/60 to-indigo-50/80 rounded-2xl border border-blue-200/50 overflow-hidden backdrop-blur-sm">
-                  {/* Animated Background Elements */}
-                  <div className="absolute inset-0">
-                    <div className="absolute top-2 left-4 w-2 h-2 bg-blue-400 rounded-full animate-ping opacity-60"></div>
-                    <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-cyan-400 rounded-full animate-ping opacity-60" style={{animationDelay: '0.5s'}}></div>
-                    <div className="absolute bottom-4 left-8 w-1 h-1 bg-indigo-400 rounded-full animate-ping opacity-60" style={{animationDelay: '1s'}}></div>
-                    <div className="absolute bottom-8 right-4 w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping opacity-60" style={{animationDelay: '1.5s'}}></div>
-                  </div>
-                  
-                  {/* Video Conference Interface */}
-                  <div className="absolute top-4 left-4 w-32 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-lg flex items-center justify-center group hover:scale-105 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <Video className="w-6 h-6 mx-auto mb-1" />
-                      <div className="text-xs font-medium">Main Room</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-blue-400/30 to-cyan-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  
-                  {/* Participant Avatars */}
-                  <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full flex items-center justify-center shadow-md animate-pulse group hover:scale-110 transition-transform duration-300">
-                    <div className="w-4 h-4 bg-white rounded-full"></div>
-                  </div>
-                  <div className="absolute top-8 right-8 w-8 h-8 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center shadow-md animate-pulse group hover:scale-110 transition-transform duration-300" style={{animationDelay: '0.5s'}}>
-                    <div className="w-4 h-4 bg-white rounded-full"></div>
-                  </div>
-                  <div className="absolute top-12 right-4 w-8 h-8 bg-gradient-to-br from-indigo-400 to-cyan-500 rounded-full flex items-center justify-center shadow-md animate-pulse group hover:scale-110 transition-transform duration-300" style={{animationDelay: '1s'}}>
-                    <div className="w-4 h-4 bg-white rounded-full"></div>
-                  </div>
-                  
-                  {/* AI Transcription Panel */}
-                  <div className="absolute bottom-4 left-4 w-40 h-12 bg-white/90 backdrop-blur-sm rounded-lg shadow-md flex items-center justify-center group hover:scale-105 transition-transform duration-300">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                      <span className="text-xs text-gray-700 font-medium">AI Transcribing...</span>
-                    </div>
-                  </div>
-                  
-                  {/* Meeting Controls */}
-                  <div className="absolute bottom-4 right-4 w-24 h-8 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-md flex items-center justify-center group hover:scale-105 transition-transform duration-300">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Floating Stats */}
-                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center">
-                    <div className="flex space-x-1 text-xs">
-                      <span className="text-blue-600 font-medium">Live</span>
-                      <span className="text-cyan-600 font-medium">•</span>
-                      <span className="text-indigo-600 font-medium">3 Users</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Enhanced Stats */}
-                <div className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-blue-200/50">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-blue-600">HD</div>
-                    <div className="text-xs text-gray-600">Quality</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* AI Simulation Section - Enhanced with Purple Accent */}
-        <section className="py-12 bg-gradient-to-br from-purple-50 via-white to-violet-50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(147,51,234,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-purple-500/6 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-violet-500/6 rounded-full blur-2xl"></div>
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-violet-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                      </svg>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-violet-400 to-purple-500 rounded-full flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">AI Simulation</h2>
-                    <p className="text-purple-600 text-sm font-medium">Advanced Scenario Modeling</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Scenario modeling and decision forecasting with advanced analytics and risk assessment.
-                </p>
-                <div className="flex items-center space-x-3">
-                  <Link to="/simulation">
-                    <button className="bg-gradient-to-r from-purple-500 to-violet-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-violet-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                      Run Simulation
-                    </button>
-                  </Link>
-                  <div className="flex space-x-2">
-                    <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">What-if</span>
-                    <span className="px-2 py-1 bg-violet-100 text-violet-700 text-xs rounded-full font-medium">Risk Maps</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="relative">
-                {/* Enhanced AI Simulation Visualization - Purple Accent */}
-                <div className="relative w-full h-48 bg-gradient-to-br from-purple-50/80 via-violet-50/60 to-fuchsia-50/80 rounded-2xl border border-purple-200/50 overflow-hidden backdrop-blur-sm">
-                  {/* Animated Background Elements */}
-                  <div className="absolute inset-0">
-                    <div className="absolute top-2 left-4 w-2 h-2 bg-purple-400 rounded-full animate-ping opacity-60"></div>
-                    <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-violet-400 rounded-full animate-ping opacity-60" style={{animationDelay: '0.5s'}}></div>
-                    <div className="absolute bottom-4 left-8 w-1 h-1 bg-fuchsia-400 rounded-full animate-ping opacity-60" style={{animationDelay: '1s'}}></div>
-                    <div className="absolute bottom-8 right-4 w-1.5 h-1.5 bg-purple-500 rounded-full animate-ping opacity-60" style={{animationDelay: '1.5s'}}></div>
-                  </div>
-                  
-                  {/* Simulation Data Points */}
-                  <div className="absolute top-4 left-4 w-16 h-16 bg-gradient-to-br from-purple-500 to-violet-600 rounded-lg shadow-lg flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <div className="text-lg font-bold">A</div>
-                      <div className="text-xs">Scenario</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-purple-400/30 to-violet-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute top-4 right-4 w-16 h-16 bg-gradient-to-br from-violet-500 to-fuchsia-600 rounded-lg shadow-lg flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <div className="text-lg font-bold">B</div>
-                      <div className="text-xs">Outcome</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-violet-400/30 to-fuchsia-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute bottom-4 left-4 w-16 h-16 bg-gradient-to-br from-fuchsia-500 to-purple-600 rounded-lg shadow-lg flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <div className="text-lg font-bold">C</div>
-                      <div className="text-xs">Risk</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-fuchsia-400/30 to-purple-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  <div className="absolute bottom-4 right-4 w-16 h-16 bg-gradient-to-br from-purple-400 to-violet-400 rounded-lg shadow-lg flex items-center justify-center group hover:scale-110 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <div className="text-lg font-bold">D</div>
-                      <div className="text-xs">Forecast</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-purple-300/30 to-violet-300/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  
-                  {/* Central AI Hub */}
-                  <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-gradient-to-br from-purple-500 via-violet-500 to-fuchsia-500 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
-                    <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                    {/* Pulsing Rings */}
-                    <div className="absolute inset-0 rounded-full border-2 border-purple-400/30 animate-ping"></div>
-                    <div className="absolute inset-0 rounded-full border-2 border-violet-400/20 animate-ping" style={{animationDelay: '0.3s'}}></div>
-                  </div>
-                  
-                  {/* Animated Connection Lines */}
-                  <svg className="absolute inset-0 w-full h-full" style={{zIndex: 1}}>
-                    <path d="M 48 48 Q 80 50 120 56" stroke="url(#simulationGradient1)" strokeWidth="2" fill="none" opacity="0.8">
-                      <animate attributeName="stroke-dasharray" values="0,100;100,0;0,100" dur="3s" repeatCount="indefinite"/>
-                    </path>
-                    <path d="M 48 48 Q 60 80 80 120" stroke="url(#simulationGradient2)" strokeWidth="2" fill="none" opacity="0.8">
-                      <animate attributeName="stroke-dasharray" values="0,100;100,0;0,100" dur="3s" repeatCount="indefinite" begin="0.5s"/>
-                    </path>
-                    <defs>
-                      <linearGradient id="simulationGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{stopColor: '#A855F7', stopOpacity: 1}} />
-                        <stop offset="100%" style={{stopColor: '#8B5CF6', stopOpacity: 1}} />
-                      </linearGradient>
-                      <linearGradient id="simulationGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" style={{stopColor: '#8B5CF6', stopOpacity: 1}} />
-                        <stop offset="100%" style={{stopColor: '#D946EF', stopOpacity: 1}} />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  
-                  {/* Floating Analytics */}
-                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center">
-                    <div className="flex space-x-1 text-xs">
-                      <span className="text-purple-600 font-medium">AI</span>
-                      <span className="text-violet-600 font-medium">•</span>
-                      <span className="text-fuchsia-600 font-medium">Modeling</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Enhanced Stats */}
-                <div className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-purple-200/50">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-purple-600">99%</div>
-                    <div className="text-xs text-gray-600">Accuracy</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Digital Whiteboard Section - Enhanced with Teal to Green Gradient */}
-        <section className="py-12 bg-gradient-to-br from-teal-50 via-white to-green-50 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(20,184,166,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-teal-500/6 rounded-full blur-2xl"></div>
-          <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-green-500/6 rounded-full blur-2xl"></div>
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            <div className="grid lg:grid-cols-2 gap-8 items-center">
-              <div className="lg:order-2 space-y-4">
-                <div className="flex items-center space-x-3">
-                  <div className="relative">
-                    <div className="w-12 h-12 bg-gradient-to-br from-teal-500 to-green-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                    </div>
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-gradient-to-br from-green-400 to-teal-500 rounded-full flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">Digital Whiteboard</h2>
-                    <p className="text-teal-600 text-sm font-medium">Infinite Collaborative Canvas</p>
-                  </div>
-                </div>
-                <p className="text-gray-600 leading-relaxed">
-                  Real-time collaborative canvas with advanced drawing and design tools for teams.
-                </p>
-                <div className="flex items-center space-x-3">
-                  <Link to="/whiteboard">
-                    <button className="bg-gradient-to-r from-teal-500 to-green-500 text-white px-6 py-2 rounded-lg font-semibold hover:from-teal-600 hover:to-green-600 transition-all duration-300 transform hover:scale-105 shadow-lg">
-                      Start Drawing
-                    </button>
-                  </Link>
-                  <div className="flex space-x-2">
-                    <span className="px-2 py-1 bg-teal-100 text-teal-700 text-xs rounded-full font-medium">Drawing</span>
-                    <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">Shapes</span>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="lg:order-1 relative">
-                {/* Enhanced Digital Whiteboard Visualization - Teal to Green Gradient */}
-                <div className="relative w-full h-48 bg-gradient-to-br from-teal-50/80 via-green-50/60 to-emerald-50/80 rounded-2xl border border-teal-200/50 overflow-hidden backdrop-blur-sm">
-                  {/* Animated Background Elements */}
-                  <div className="absolute inset-0">
-                    <div className="absolute top-2 left-4 w-2 h-2 bg-teal-400 rounded-full animate-ping opacity-60"></div>
-                    <div className="absolute top-8 right-8 w-1.5 h-1.5 bg-green-400 rounded-full animate-ping opacity-60" style={{animationDelay: '0.5s'}}></div>
-                    <div className="absolute bottom-4 left-8 w-1 h-1 bg-emerald-400 rounded-full animate-ping opacity-60" style={{animationDelay: '1s'}}></div>
-                    <div className="absolute bottom-8 right-4 w-1.5 h-1.5 bg-teal-500 rounded-full animate-ping opacity-60" style={{animationDelay: '1.5s'}}></div>
-                  </div>
-                  
-                  {/* Drawing Canvas Elements */}
-                  <div className="absolute top-4 left-4 w-32 h-20 bg-gradient-to-br from-teal-500 to-green-500 rounded-lg shadow-lg flex items-center justify-center group hover:scale-105 transition-transform duration-300">
-                    <div className="text-center text-white">
-                      <svg className="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                      </svg>
-                      <div className="text-xs font-medium">Canvas</div>
-                    </div>
-                    <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-teal-400/30 to-green-400/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  </div>
-                  
-                  {/* Drawing Tools */}
-                  <div className="absolute top-4 right-4 w-8 h-8 bg-gradient-to-br from-green-400 to-teal-500 rounded-lg flex items-center justify-center shadow-md animate-pulse group hover:scale-110 transition-transform duration-300">
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                  </div>
-                  <div className="absolute top-8 right-8 w-8 h-8 bg-gradient-to-br from-teal-400 to-emerald-500 rounded-lg flex items-center justify-center shadow-md animate-pulse group hover:scale-110 transition-transform duration-300" style={{animationDelay: '0.5s'}}>
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z" />
-                    </svg>
-                  </div>
-                  <div className="absolute top-12 right-4 w-8 h-8 bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg flex items-center justify-center shadow-md animate-pulse group hover:scale-110 transition-transform duration-300" style={{animationDelay: '1s'}}>
-                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                    </svg>
-                  </div>
-                  
-                  {/* Drawing Elements */}
-                  <div className="absolute bottom-4 left-4 w-24 h-12 bg-white/90 backdrop-blur-sm rounded-lg shadow-md flex items-center justify-center group hover:scale-105 transition-transform duration-300">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-2 h-2 bg-teal-500 rounded-full"></div>
-                      <span className="text-xs text-gray-700 font-medium">Drawing...</span>
-                    </div>
-                  </div>
-                  
-                  {/* Collaboration Indicators */}
-                  <div className="absolute bottom-4 right-4 w-24 h-8 bg-gradient-to-br from-teal-500 to-green-500 rounded-lg shadow-md flex items-center justify-center group hover:scale-105 transition-transform duration-300">
-                    <div className="flex space-x-1">
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                      <div className="w-2 h-2 bg-white rounded-full"></div>
-                    </div>
-                  </div>
-                  
-                  {/* Floating Stats */}
-                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-24 h-6 bg-white/90 backdrop-blur-sm rounded-full shadow-md flex items-center justify-center">
-                    <div className="flex space-x-1 text-xs">
-                      <span className="text-teal-600 font-medium">Live</span>
-                      <span className="text-green-600 font-medium">•</span>
-                      <span className="text-emerald-600 font-medium">Canvas</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Enhanced Stats */}
-                <div className="absolute -top-2 -right-2 bg-white/90 backdrop-blur-sm rounded-lg p-2 shadow-lg border border-teal-200/50">
-                  <div className="text-center">
-                    <div className="text-lg font-bold text-teal-600">∞</div>
-                    <div className="text-xs text-gray-600">Canvas</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
+
+
+
+
+
 
         {/* Luxury Fortune 500 Process Section */}
         <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden relative">
