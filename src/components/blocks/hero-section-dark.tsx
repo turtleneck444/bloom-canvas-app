@@ -501,7 +501,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                   Six powerful tools designed to transform how teams work together, from initial ideas to final execution.
                 </p>
                 
-                {/* Beautiful Animated Arrow */}
+                                {/* Clean Animated Arrow */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -511,8 +511,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                 >
                   <motion.div
                     animate={{ 
-                      y: [0, 10, 0],
-                      scale: [1, 1.1, 1]
+                      y: [0, 8, 0]
                     }}
                     transition={{ 
                       duration: 2,
@@ -521,81 +520,22 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
                     }}
                     className="relative"
                   >
-                                         {/* Main Arrow */}
-                     <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-teal-600 rounded-full flex items-center justify-center shadow-lg">
-                      <motion.svg
-                        className="w-8 h-8 text-white"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                        animate={{ 
-                          y: [0, 3, 0]
-                        }}
-                        transition={{ 
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut"
-                        }}
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                      </motion.svg>
-                    </div>
-                    
-                    {/* Pulsing Ring Effect */}
-                    <motion.div
-                      className="absolute inset-0 rounded-full border-2 border-blue-400/30"
-                      animate={{
-                        scale: [1, 1.5, 1],
-                        opacity: [0.6, 0, 0.6]
+                    <motion.svg
+                      className="w-8 h-8 text-slate-600 dark:text-slate-300"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      animate={{ 
+                        y: [0, 2, 0]
                       }}
-                      transition={{
+                      transition={{ 
                         duration: 2,
                         repeat: Infinity,
-                        ease: "easeOut"
+                        ease: "easeInOut"
                       }}
-                    />
-                    
-                                         {/* Second Pulsing Ring */}
-                     <motion.div
-                       className="absolute inset-0 rounded-full border-2 border-teal-400/20"
-                       animate={{
-                         scale: [1, 1.8, 1],
-                         opacity: [0.4, 0, 0.4]
-                       }}
-                       transition={{
-                         duration: 2,
-                         repeat: Infinity,
-                         ease: "easeOut",
-                         delay: 0.5
-                       }}
-                     />
-                     
-                     {/* Floating Particles */}
-                     <motion.div
-                       className="absolute -top-2 -right-2 w-3 h-3 bg-blue-400 rounded-full"
-                       animate={{
-                         y: [0, -10, 0],
-                         opacity: [0.8, 0, 0.8]
-                       }}
-                       transition={{
-                         duration: 2,
-                         repeat: Infinity,
-                         ease: "easeInOut"
-                       }}
-                     />
-                     <motion.div
-                       className="absolute -bottom-2 -left-2 w-2 h-2 bg-teal-400 rounded-full"
-                       animate={{
-                         y: [0, 10, 0],
-                         opacity: [0.6, 0, 0.6]
-                       }}
-                       transition={{
-                         duration: 2,
-                         repeat: Infinity,
-                         ease: "easeInOut",
-                         delay: 0.5
-                       }}
-                     />
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                    </motion.svg>
                   </motion.div>
                 </motion.div>
               </motion.div>
@@ -1474,12 +1414,14 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
               viewport={{ once: true }}
               className="text-center mt-16"
             >
-              <div className="inline-flex items-center space-x-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 py-5 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 transform shadow-lg hover:shadow-xl">
-                <span>Begin Implementation</span>
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </div>
+              <Link to="/onboarding">
+                <div className="inline-flex items-center space-x-4 bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 py-5 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 transform shadow-lg hover:shadow-xl">
+                  <span>Learn More</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </div>
+              </Link>
               <p className="text-sm text-slate-500 dark:text-slate-400 mt-4 tracking-wide">
                 Enterprise Security • 99.9% Uptime • 24/7 Support
               </p>
