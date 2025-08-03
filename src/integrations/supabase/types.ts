@@ -14,13 +14,233 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      collaboration_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          owner_id: string
+          settings: Json | null
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          owner_id: string
+          settings?: Json | null
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          owner_id?: string
+          settings?: Json | null
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      document_operations: {
+        Row: {
+          applied: boolean | null
+          created_at: string | null
+          id: string
+          operation_data: Json
+          operation_type: string
+          session_id: string
+          timestamp_ms: number
+          user_id: string
+          vector_clock: Json
+        }
+        Insert: {
+          applied?: boolean | null
+          created_at?: string | null
+          id?: string
+          operation_data: Json
+          operation_type: string
+          session_id: string
+          timestamp_ms: number
+          user_id: string
+          vector_clock: Json
+        }
+        Update: {
+          applied?: boolean | null
+          created_at?: string | null
+          id?: string
+          operation_data?: Json
+          operation_type?: string
+          session_id?: string
+          timestamp_ms?: number
+          user_id?: string
+          vector_clock?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_operations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      document_snapshots: {
+        Row: {
+          created_at: string | null
+          created_by: string
+          id: string
+          session_id: string
+          snapshot_data: Json
+          version_number: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by: string
+          id?: string
+          session_id: string
+          snapshot_data: Json
+          version_number: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          session_id?: string
+          snapshot_data?: Json
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_snapshots_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          plan_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id?: string
+          plan_type?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          plan_type?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      session_participants: {
+        Row: {
+          id: string
+          joined_at: string | null
+          last_seen: string | null
+          role: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          last_seen?: string | null
+          role?: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          last_seen?: string | null
+          role?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_presence: {
+        Row: {
+          cursor_position: Json | null
+          id: string
+          is_online: boolean | null
+          last_heartbeat: string | null
+          selection: Json | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          cursor_position?: Json | null
+          id?: string
+          is_online?: boolean | null
+          last_heartbeat?: string | null
+          selection?: Json | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          cursor_position?: Json | null
+          id?: string
+          is_online?: boolean | null
+          last_heartbeat?: string | null
+          selection?: Json | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_presence_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_collaborate: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
