@@ -9,6 +9,7 @@ import { NOV8GlowCard } from "@/components/ui/spotlight-card";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
+import { AnimatedBackground } from "@/components/ui/animated-background";
 interface HeroSectionProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   subtitle?: {
@@ -244,6 +245,9 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   };
   const mainClassName = `px-3 sm:px-4 md:px-6 bg-gradient-to-r ${getServiceColorClass(currentService)} text-gray-900 dark:text-white text-4xl sm:text-5xl lg:text-7xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm rotating-text-clean rotating-text-${currentService.toLowerCase().replace(/\s+/g, '-')}`;
   return <div className={cn("relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800", className)} ref={ref} {...props}>
+        {/* Animated Background */}
+        <AnimatedBackground />
+        
         {/* Subtle background pattern */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.08)_1px,transparent_0)] bg-[length:24px_24px]" />
         

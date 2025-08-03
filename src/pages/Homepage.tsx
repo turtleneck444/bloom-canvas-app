@@ -43,7 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { HeroSection } from '@/components/blocks/hero-section-dark';
 import VideoDemo from '@/components/VideoDemo';
-import { NOV8Pricing } from '@/components/ui/pricing-section-with-comparison';
+import { AdvancedPricing } from '@/components/ui/advanced-pricing';
 import { Footer } from '@/components/blocks/footer';
 
 
@@ -147,7 +147,7 @@ const Homepage: React.FC = () => {
       <HeroSection />
 
       {/* Pricing Section */}
-      <NOV8Pricing />
+      <AdvancedPricing />
 
       {/* Final CTA Section */}
       <section className="relative w-full bg-gradient-to-br from-gray-900 via-gray-800 to-black overflow-hidden">
