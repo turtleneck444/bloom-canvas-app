@@ -10,6 +10,14 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedBackground } from "@/components/ui/animated-background";
+
+// Import demo images
+import demoMindmaps from "@/assets/demo-mindmaps.png";
+import demoPresentations from "@/assets/demo-presentations.png";
+import demoMeetings from "@/assets/demo-meetings.png";
+import demoStrategy from "@/assets/demo-strategy.png";
+import demoSimulation from "@/assets/demo-simulation.png";
+import demoWhiteboard from "@/assets/demo-whiteboard.png";
 interface HeroSectionProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   subtitle?: {
@@ -138,8 +146,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   const platformImages: PlatformImage[] = [{
     id: "mindmaps",
     name: "Mind Maps",
-    light: "mindmaps.png",
-    dark: "mindmaps.png",
+    light: demoMindmaps,
+    dark: demoMindmaps,
     route: "/mindmaps",
     description: "AI-powered mind mapping and brainstorming",
     color: "from-blue-500 to-cyan-500",
@@ -151,8 +159,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "presentations",
     name: "Presentations",
-    light: "presentations.png",
-    dark: "presentations.png",
+    light: demoPresentations,
+    dark: demoPresentations,
     route: "/presentations",
     description: "Professional presentation creation and design",
     color: "from-purple-500 to-pink-500",
@@ -164,8 +172,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "meetings",
     name: "Meetings",
-    light: "meetings.png",
-    dark: "meetings.png",
+    light: demoMeetings,
+    dark: demoMeetings,
     route: "/meetings",
     description: "Real-time collaboration and video conferencing",
     color: "from-green-500 to-emerald-500",
@@ -177,8 +185,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "strategy",
     name: "Strategy Co-Pilot",
-    light: "strategy.png",
-    dark: "strategy.png",
+    light: demoStrategy,
+    dark: demoStrategy,
     route: "/strategy",
     description: "AI-driven strategic planning and analysis",
     color: "from-orange-500 to-red-500",
@@ -190,8 +198,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "simulation",
     name: "AI Simulation",
-    light: "aisimulation.png",
-    dark: "aisimulation.png",
+    light: demoSimulation,
+    dark: demoSimulation,
     route: "/simulation",
     description: "Scenario modeling and decision forecasting",
     color: "from-indigo-500 to-purple-500",
@@ -203,8 +211,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "whiteboard",
     name: "Digital Whiteboard",
-    light: "digitalwhiteboard.png",
-    dark: "digitalwhiteboard.png",
+    light: demoWhiteboard,
+    dark: demoWhiteboard,
     route: "/whiteboard",
     description: "Real-time collaborative canvas and drawing",
     color: "from-cyan-500 to-teal-500",
