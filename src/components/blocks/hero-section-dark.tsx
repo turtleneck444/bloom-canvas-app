@@ -11,13 +11,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { AnimatedBackground } from "@/components/ui/animated-background";
 
-// Import demo images
-import demoMindmaps from "@/assets/demo-mindmaps.png";
-import demoPresentations from "@/assets/demo-presentations.png";
-import demoMeetings from "@/assets/demo-meetings.png";
-import demoStrategy from "@/assets/demo-strategy.png";
-import demoSimulation from "@/assets/demo-simulation.png";
-import demoWhiteboard from "@/assets/demo-whiteboard.png";
+// Use direct paths to uploaded images
 interface HeroSectionProps extends React.HTMLAttributes<HTMLDivElement> {
   title?: string;
   subtitle?: {
@@ -146,8 +140,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   const platformImages: PlatformImage[] = [{
     id: "mindmaps",
     name: "Mind Maps",
-    light: demoMindmaps,
-    dark: demoMindmaps,
+    light: "/lovable-uploads/75bf85d0-596f-468f-8091-e10622ee3114.png",
+    dark: "/lovable-uploads/75bf85d0-596f-468f-8091-e10622ee3114.png",
     route: "/mindmaps",
     description: "AI-powered mind mapping and brainstorming",
     color: "from-blue-500 to-cyan-500",
@@ -159,8 +153,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "presentations",
     name: "Presentations",
-    light: demoPresentations,
-    dark: demoPresentations,
+    light: "/lovable-uploads/d84d024c-023c-4ff1-b531-a24099fee90b.png",
+    dark: "/lovable-uploads/d84d024c-023c-4ff1-b531-a24099fee90b.png",
     route: "/presentations",
     description: "Professional presentation creation and design",
     color: "from-purple-500 to-pink-500",
@@ -172,8 +166,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "meetings",
     name: "Meetings",
-    light: demoMeetings,
-    dark: demoMeetings,
+    light: "/lovable-uploads/7c48e7cd-de31-44fa-9d5d-5e807debbc72.png",
+    dark: "/lovable-uploads/7c48e7cd-de31-44fa-9d5d-5e807debbc72.png",
     route: "/meetings",
     description: "Real-time collaboration and video conferencing",
     color: "from-green-500 to-emerald-500",
@@ -185,8 +179,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "strategy",
     name: "Strategy Co-Pilot",
-    light: demoStrategy,
-    dark: demoStrategy,
+    light: "/lovable-uploads/7f36006b-3ffc-408a-bb5f-1cde6ac045a0.png",
+    dark: "/lovable-uploads/7f36006b-3ffc-408a-bb5f-1cde6ac045a0.png",
     route: "/strategy",
     description: "AI-driven strategic planning and analysis",
     color: "from-orange-500 to-red-500",
@@ -198,8 +192,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "simulation",
     name: "AI Simulation",
-    light: demoSimulation,
-    dark: demoSimulation,
+    light: "/lovable-uploads/574dfb20-42a4-420a-8bce-5b5776846087.png",
+    dark: "/lovable-uploads/574dfb20-42a4-420a-8bce-5b5776846087.png",
     route: "/simulation",
     description: "Scenario modeling and decision forecasting",
     color: "from-indigo-500 to-purple-500",
@@ -211,8 +205,8 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
   }, {
     id: "whiteboard",
     name: "Digital Whiteboard",
-    light: demoWhiteboard,
-    dark: demoWhiteboard,
+    light: "/lovable-uploads/91caf522-7af7-4207-8075-af4e91059f84.png",
+    dark: "/lovable-uploads/91caf522-7af7-4207-8075-af4e91059f84.png",
     route: "/whiteboard",
     description: "Real-time collaborative canvas and drawing",
     color: "from-cyan-500 to-teal-500",
