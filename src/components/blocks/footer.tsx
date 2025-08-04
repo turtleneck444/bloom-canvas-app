@@ -70,13 +70,13 @@ export const Footer = React.forwardRef<HTMLDivElement, FooterProps>(
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
             {/* Brand Section */}
             <div className="lg:col-span-4">
-                          <div className="flex items-center space-x-3 mb-4">
-              <img 
-                src="/nov8white.png"
-                alt="NOV8 Logo" 
-                className="h-8 w-auto"
-              />
-            </div>
+              <a href="/" className="flex items-center space-x-3 mb-4 hover:opacity-80 transition-opacity">
+                <img 
+                  src="/nov8white.png"
+                  alt="NOV8 Logo" 
+                  className="h-8 w-auto"
+                />
+              </a>
               
               <p className="text-white/90 text-sm mb-4">
                 {brand.description}

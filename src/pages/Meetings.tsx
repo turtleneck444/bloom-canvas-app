@@ -1,7 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import PresentationToolbar from '@/components/Presentations/PresentationToolbar';
 import { UserPlus, Link2, Info, PlusCircle, Video, Mic, MicOff, VideoOff, XCircle, Settings as SettingsIcon, Users, Calendar, Clock, Share2, MessageSquare, FileText, Download, Upload } from 'lucide-react';
 import { createMeetingRoom } from '@/services/meetingsService';
+import { mediaDeviceService } from '@/services/mediaDeviceService';
 import { ServiceSwitcher } from '../components/ui/logo';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -21,6 +22,40 @@ const Meetings = () => {
   const [showHelp, setShowHelp] = useState(false);
   const [participants, setParticipants] = useState(0);
   const [meetingDuration, setMeetingDuration] = useState(0);
+  const [availableDevices, setAvailableDevices] = useState({ cameras: [], microphones: [], speakers: [] });
+  const [selectedCamera, setSelectedCamera] = useState('');
+  const [selectedMicrophone, setSelectedMicrophone] = useState('');
+
+  // Initialize media devices on component mount
+  useEffect(() => {
+    const initializeDevices = async () => {
+      try {
+        await mediaDeviceService.initialize();
+        const devices = await mediaDeviceService.getAvailableDevices();
+        setAvailableDevices(devices);
+        
+        // Set default devices
+        if (devices.cameras.length > 0) {
+          setSelectedCamera(devices.cameras[0].deviceId);
+        }
+        if (devices.microphones.length > 0) {
+          setSelectedMicrophone(devices.microphones[0].deviceId);
+        }
+      } catch (error) {
+        console.error('Failed to initialize media devices:', error);
+        toast.error('Media access denied', {
+          description: 'Camera and microphone permissions are required for meetings'
+        });
+      }
+    };
+
+    initializeDevices();
+
+    // Cleanup on unmount
+    return () => {
+      mediaDeviceService.cleanup();
+    };
+  }, []);
   
   // Timer effect for meeting duration
   React.useEffect(() => {
@@ -71,7 +106,7 @@ const Meetings = () => {
       description: 'Personalize your meeting experience'
     });
   }, []);
-  // Meeting-specific actions (left)
+  // Simplified meeting-specific actions (left)
   const customActions = [
     {
       icon: <PlusCircle className="w-3 h-3 mr-1" />, 
@@ -131,31 +166,26 @@ const Meetings = () => {
       },
       className: 'h-6 px-2.5 bg-gradient-to-r from-cyan-500 to-blue-400 hover:from-cyan-600 hover:to-blue-500 text-white text-xs font-semibold shadow-md',
       title: 'Copy Meeting Invite Link'
-    },
-    {
-      icon: <Info className="w-3 h-3 mr-1" />, 
-      label: 'Help', 
-      onClick: () => {
-        setShowHelp(true);
-        toast.info('Help & Support', {
-          description: 'For help with NOV8 Meetings, contact support or visit daily.co'
-        });
-      },
-      className: 'h-6 px-2.5 bg-gradient-to-r from-blue-400 to-cyan-400 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-semibold shadow-md',
-      title: 'Help & Info'
     }
   ];
-  // Meeting-specific actions (right)
+  // Essential meeting controls (right)
   const customRightActions = [
     {
       icon: cameraOn ? <Video className="w-3 h-3 mr-1" /> : <VideoOff className="w-3 h-3 mr-1" />, 
       label: cameraOn ? 'Camera On' : 'Camera Off', 
-      onClick: () => {
-        setCameraOn(v => !v);
-        toast.success(cameraOn ? 'Camera turned off' : 'Camera turned on', {
-          description: cameraOn ? 'Your camera is now disabled' : 'Your camera is now active'
-        });
-        // Optionally, send message to iframe to toggle camera
+      onClick: async () => {
+        try {
+          const newCameraState = !cameraOn;
+          await mediaDeviceService.toggleCamera(newCameraState);
+          setCameraOn(newCameraState);
+          toast.success(newCameraState ? 'Camera turned on' : 'Camera turned off', {
+            description: newCameraState ? 'Your camera is now active' : 'Your camera is now disabled'
+          });
+        } catch (error) {
+          toast.error('Failed to toggle camera', {
+            description: 'Please check your camera permissions'
+          });
+        }
       },
       className: cameraOn
         ? 'h-6 px-2.5 bg-gradient-to-r from-blue-500 to-cyan-400 text-white text-xs font-semibold shadow-md'
@@ -165,12 +195,19 @@ const Meetings = () => {
     {
       icon: micOn ? <Mic className="w-3 h-3 mr-1" /> : <MicOff className="w-3 h-3 mr-1" />, 
       label: micOn ? 'Mic On' : 'Mic Off', 
-      onClick: () => {
-        setMicOn(v => !v);
-        toast.success(micOn ? 'Microphone muted' : 'Microphone unmuted', {
-          description: micOn ? 'Your microphone is now muted' : 'Your microphone is now active'
-        });
-        // Optionally, send message to iframe to toggle mic
+      onClick: async () => {
+        try {
+          const newMicState = !micOn;
+          await mediaDeviceService.toggleMicrophone(newMicState);
+          setMicOn(newMicState);
+          toast.success(newMicState ? 'Microphone unmuted' : 'Microphone muted', {
+            description: newMicState ? 'Your microphone is now active' : 'Your microphone is now muted'
+          });
+        } catch (error) {
+          toast.error('Failed to toggle microphone', {
+            description: 'Please check your microphone permissions'
+          });
+        }
       },
       className: micOn
         ? 'h-6 px-2.5 bg-gradient-to-r from-blue-500 to-cyan-400 text-white text-xs font-semibold shadow-md'
@@ -183,7 +220,7 @@ const Meetings = () => {
       onClick: () => {
         setShowSettings(true);
         toast.info('Meeting Settings', {
-          description: 'Configure your meeting preferences and options'
+          description: 'Configure your meeting preferences and devices'
         });
       },
       className: 'h-6 px-2.5 bg-gradient-to-r from-blue-200 to-cyan-200 text-blue-900 text-xs font-semibold shadow-md',
@@ -197,6 +234,7 @@ const Meetings = () => {
         setParticipants(0);
         setMeetingDuration(0);
         setRoomUrl(DEFAULT_ROOM_URL);
+        mediaDeviceService.cleanup();
         toast.success('Meeting ended', {
           description: 'The meeting has been terminated'
         });
@@ -288,7 +326,14 @@ const Meetings = () => {
                     <Button
                       size="sm"
                       variant={cameraOn ? "default" : "outline"}
-                      onClick={() => setCameraOn(!cameraOn)}
+                      onClick={async () => {
+                        try {
+                          await mediaDeviceService.toggleCamera(!cameraOn);
+                          setCameraOn(!cameraOn);
+                        } catch (error) {
+                          toast.error('Failed to toggle camera');
+                        }
+                      }}
                     >
                       {cameraOn ? "On" : "Off"}
                     </Button>
@@ -299,11 +344,70 @@ const Meetings = () => {
                     <Button
                       size="sm"
                       variant={micOn ? "default" : "outline"}
-                      onClick={() => setMicOn(!micOn)}
+                      onClick={async () => {
+                        try {
+                          await mediaDeviceService.toggleMicrophone(!micOn);
+                          setMicOn(!micOn);
+                        } catch (error) {
+                          toast.error('Failed to toggle microphone');
+                        }
+                      }}
                     >
                       {micOn ? "On" : "Off"}
                     </Button>
                   </div>
+
+                  {/* Camera Selection */}
+                  {availableDevices.cameras.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Camera Device</span>
+                      <select 
+                        value={selectedCamera}
+                        onChange={async (e) => {
+                          try {
+                            await mediaDeviceService.switchCamera(e.target.value);
+                            setSelectedCamera(e.target.value);
+                            toast.success('Camera switched successfully');
+                          } catch (error) {
+                            toast.error('Failed to switch camera');
+                          }
+                        }}
+                        className="w-full p-2 border rounded-md text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                      >
+                        {availableDevices.cameras.map((camera: any) => (
+                          <option key={camera.deviceId} value={camera.deviceId}>
+                            {camera.label || `Camera ${camera.deviceId.slice(0, 8)}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {/* Microphone Selection */}
+                  {availableDevices.microphones.length > 0 && (
+                    <div className="space-y-2">
+                      <span className="text-sm text-gray-700 dark:text-gray-300">Microphone Device</span>
+                      <select 
+                        value={selectedMicrophone}
+                        onChange={async (e) => {
+                          try {
+                            await mediaDeviceService.switchMicrophone(e.target.value);
+                            setSelectedMicrophone(e.target.value);
+                            toast.success('Microphone switched successfully');
+                          } catch (error) {
+                            toast.error('Failed to switch microphone');
+                          }
+                        }}
+                        className="w-full p-2 border rounded-md text-sm bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600"
+                      >
+                        {availableDevices.microphones.map((mic: any) => (
+                          <option key={mic.deviceId} value={mic.deviceId}>
+                            {mic.label || `Microphone ${mic.deviceId.slice(0, 8)}`}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-700 dark:text-gray-300">Recording</span>
@@ -355,14 +459,14 @@ const Meetings = () => {
                   <div className="space-y-2">
                     <h4 className="font-semibold text-gray-900 dark:text-gray-100">Getting Started</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Click "Create New Meeting" to start a new session, or "Join Meeting" to enter an existing one.
+                      Click "Create New Meeting" to start a new session, or "Join Meeting" to enter an existing one. Use the camera and mic controls in the toolbar.
                     </p>
                   </div>
                   
                   <div className="space-y-2">
-                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Controls</h4>
+                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">Media Controls</h4>
                     <p className="text-sm text-gray-600 dark:text-gray-400">
-                      Use the camera and microphone buttons to control your audio/video settings during the meeting.
+                      The camera and microphone buttons in the toolbar control your actual device hardware. Use Settings to switch between multiple devices.
                     </p>
                   </div>
                   
