@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import React from "react";
+import Navigation from "./components/Navigation";
 import Homepage from "./pages/Homepage";
 import Index from "./pages/Index";
 import Presentations from "./pages/Presentations";
@@ -18,6 +19,7 @@ import Terms from "./pages/Terms";
 import Security from "./pages/Security";
 import BookDemo from "./pages/BookDemo";
 import Onboarding from "./pages/Onboarding";
+import Settings from "./pages/Settings";
 import MindMapsDocs from "./pages/MindMapsDocs";
 import StrategyDocs from "./pages/StrategyDocs";
 import SimulationDocs from "./pages/SimulationDocs";
@@ -36,6 +38,7 @@ const App = () => {
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <Navigation />
           <Routes>
             <Route path="/" element={<Homepage />} />
             <Route path="/mindmaps" element={<Index />} />
@@ -50,6 +53,7 @@ const App = () => {
             <Route path="/security" element={<Security />} />
             <Route path="/book-demo" element={<BookDemo />} />
             <Route path="/onboarding" element={<Onboarding />} />
+            <Route path="/settings" element={<Settings />} />
             {/* Documentation Routes */}
             <Route path="/mindmaps/docs" element={<MindMapsDocs />} />
             <Route path="/strategy/docs" element={<StrategyDocs />} />

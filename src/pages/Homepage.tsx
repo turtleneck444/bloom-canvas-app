@@ -43,7 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { HeroSection } from '@/components/blocks/hero-section-dark';
 import VideoDemo from '@/components/VideoDemo';
-import { AdvancedPricing } from '@/components/ui/advanced-pricing';
+import AdvancedPricing from '@/components/ui/advanced-pricing';
 import { Footer } from '@/components/blocks/footer';
 
 

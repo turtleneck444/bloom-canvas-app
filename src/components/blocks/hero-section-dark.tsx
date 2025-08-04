@@ -252,36 +252,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.08)_1px,transparent_0)] bg-[length:24px_24px]" />
         
         {/* Hero Section */}
-        <section className="relative z-10 min-h-screen bg-gradient-to-br from-white via-gray-50 to-white">
-          {/* Header */}
-          <header className="relative z-50 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="flex items-center justify-between py-6">
-                {/* Logo */}
-                <div className="flex items-center space-x-2">
-                  <img src="/nov8black.png" alt="NOV8 Logo" className="h-8 w-auto" />
-                </div>
-
-                {/* Navigation */}
-                <nav className="hidden md:flex items-center space-x-8">
-                  <a href="#product" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">Product</a>
-                  <a href="#company" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">Company</a>
-                  <a href="#resources" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">Resources</a>
-                  <a href="#community" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">Community</a>
-                  <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors font-medium">Pricing</a>
-                </nav>
-
-                {/* CTA Buttons */}
-                <div className="flex items-center space-x-4">
-                  <button className="text-gray-600 hover:text-gray-900 transition-colors font-medium">Log in</button>
-                  <Link to="/book-demo">
-                    <button className="bg-gray-900 text-white px-6 py-2 rounded-lg font-semibold transition-all duration-300 hover:bg-gray-800">Get started</button>
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </header>
-
+        <section className="relative z-10 min-h-screen bg-gradient-to-br from-white via-gray-50 to-white pt-24">
           {/* Hero Content */}
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-[50px]">
             <div className="text-center max-w-5xl mx-auto mb-20">
@@ -450,7 +421,7 @@ const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
         </section>
 
         {/* Services Grid Section - Proper 2x3 Layout */}
-        <section className="py-12 sm:py-16 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
+        <section className="pt-6 pb-12 sm:pt-8 sm:pb-16 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
           
           <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
