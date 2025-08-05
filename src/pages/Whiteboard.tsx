@@ -8,7 +8,6 @@ import {
   ZoomOut, Fullscreen, Brush, Droplets, Star, Heart, Zap, Save as SaveIcon,
   FolderOpen, FolderPlus, FileText as FileTextIcon, X, Check, AlertCircle
 } from 'lucide-react';
-import CollaborativeWhiteboard from '@/components/collaboration/CollaborativeWhiteboard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
