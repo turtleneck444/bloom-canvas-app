@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback } from 'react';
-import MindMapCanvas from '@/components/MindMap/MindMapCanvas';
+import CollaborativeMindMap from '@/components/collaboration/CollaborativeMindMap';
 import MindMapToolbar from '@/components/MindMap/MindMapToolbar';
 import { toast } from 'sonner';
 
@@ -230,9 +230,7 @@ const Index = () => {
         onExportAsPDF={handleExportAsPDF}
       />
       <div className="flex-1 overflow-hidden">
-        <MindMapCanvas onRef={(ref) => { 
-          canvasRef.current = ref; 
-        }} />
+        <CollaborativeMindMap className="w-full h-full" />
       </div>
     </div>
   );
