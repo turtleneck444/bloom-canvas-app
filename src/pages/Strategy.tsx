@@ -150,6 +150,7 @@ const Strategy: React.FC = () => {
     };
 
     setCurrentPlan(plan);
+    pushHistory(plan);
     setNewPlan({ title: '', domain: '', budget: '', timeFrame: '', aiStyle: 'professional' });
     toast.success('Strategic plan generated successfully!');
   }, [newPlan]);
