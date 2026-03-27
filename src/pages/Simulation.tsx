@@ -74,6 +74,9 @@ const Simulation: React.FC = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'scenarios' | 'analysis' | 'reports'>('dashboard');
   const [selectedVariable, setSelectedVariable] = useState<string | null>(null);
   const [simulationProgress, setSimulationProgress] = useState(0);
+  const [monteCarloResult, setMonteCarloResult] = useState<MonteCarloResult | null>(null);
+  const [sensitivityResults, setSensitivityResults] = useState<SensitivityResult[]>([]);
+  const [riskHeatmap, setRiskHeatmap] = useState<RiskHeatmapCell[][]>([]);
 
   // Mock data for demonstration
   const mockScenarios: SimulationScenario[] = [
