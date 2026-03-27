@@ -571,41 +571,131 @@ const Simulation: React.FC = () => {
                     Risk Heatmap
                   </CardTitle>
                   <CardDescription>
-                    Visual representation of risk distribution across variables
+                    5×5 likelihood vs. impact matrix from simulation data
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64 bg-gradient-to-br from-green-100 via-yellow-100 to-red-100 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <BarChart3 className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Interactive Risk Heatmap</p>
-                      <p className="text-xs text-gray-400">Click to explore risk patterns</p>
+                  {riskHeatmap.length > 0 ? (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
+                        <span className="w-16">Impact →</span>
+                        {[1,2,3,4,5].map(i => <span key={i} className="flex-1 text-center">{i}</span>)}
+                      </div>
+                      {riskHeatmap.map((row, li) => (
+                        <div key={li} className="flex items-center gap-1">
+                          <span className="w-16 text-xs text-gray-500">L:{li+1}</span>
+                          {row.map((cell, ii) => {
+                            const bg = cell.riskLevel === 'critical' ? 'bg-red-600' 
+                              : cell.riskLevel === 'high' ? 'bg-red-400' 
+                              : cell.riskLevel === 'medium' ? 'bg-yellow-400' 
+                              : cell.riskLevel === 'low' ? 'bg-green-300' 
+                              : 'bg-green-100';
+                            return (
+                              <div key={ii} className={`flex-1 h-10 rounded ${bg} flex items-center justify-center text-xs font-bold text-white`} title={cell.risks.join(', ') || cell.riskLevel}>
+                                {cell.riskScore}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
                     </div>
-                  </div>
+                  ) : (
+                    <div className="h-48 flex items-center justify-center text-sm text-gray-500">
+                      Run simulation to generate risk heatmap
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
-              {/* Sensitivity Analysis */}
+              {/* Sensitivity Analysis - Tornado Chart */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <Gauge className="w-5 h-5 text-blue-500" />
-                    Sensitivity Analysis
+                    Sensitivity Analysis (Tornado)
                   </CardTitle>
                   <CardDescription>
-                    How changes in variables affect outcomes
+                    Variable impact on outcome — ranked by sensitivity
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="h-64 bg-gradient-to-br from-blue-100 to-purple-100 rounded-lg flex items-center justify-center">
-                    <div className="text-center">
-                      <LineChart className="w-12 h-12 text-gray-400 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500">Sensitivity Analysis Chart</p>
-                      <p className="text-xs text-gray-400">Variable impact visualization</p>
+                  {sensitivityResults.length > 0 ? (
+                    <div className="space-y-3">
+                      {sensitivityResults.map((s) => {
+                        const maxAbs = Math.max(...sensitivityResults.map(r => Math.max(Math.abs(r.tornadoLow), Math.abs(r.tornadoHigh))));
+                        const scaleL = maxAbs > 0 ? (Math.abs(s.tornadoLow) / maxAbs) * 100 : 0;
+                        const scaleH = maxAbs > 0 ? (Math.abs(s.tornadoHigh) / maxAbs) * 100 : 0;
+                        return (
+                          <div key={s.variableId} className="space-y-1">
+                            <div className="flex items-center justify-between text-xs">
+                              <span className="font-medium">{s.variableName}</span>
+                              <span className="text-gray-500">Sensitivity: {(s.sensitivity * 100).toFixed(1)}%</span>
+                            </div>
+                            <div className="flex items-center h-6 gap-0.5">
+                              <div className="flex-1 flex justify-end">
+                                <div className="h-full bg-red-400 rounded-l" style={{ width: `${scaleL}%` }} />
+                              </div>
+                              <div className="w-px bg-gray-400 h-full" />
+                              <div className="flex-1">
+                                <div className="h-full bg-blue-400 rounded-r" style={{ width: `${scaleH}%` }} />
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  </div>
+                  ) : (
+                    <div className="h-48 flex items-center justify-center text-sm text-gray-500">
+                      Run simulation to see sensitivity analysis
+                    </div>
+                  )}
                 </CardContent>
               </Card>
+
+              {/* Monte Carlo Distribution */}
+              {monteCarloResult && (
+                <Card className="lg:col-span-2">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <ScatterChart className="w-5 h-5 text-purple-500" />
+                      Monte Carlo Distribution ({monteCarloResult.iterations.toLocaleString()} simulations)
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
+                        <div className="text-xl font-bold text-purple-600">{(monteCarloResult.meanOutcome * 100).toFixed(1)}%</div>
+                        <div className="text-xs text-gray-600">Mean Outcome</div>
+                      </div>
+                      <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                        <div className="text-xl font-bold text-blue-600">{(monteCarloResult.stdDeviation * 100).toFixed(1)}%</div>
+                        <div className="text-xs text-gray-600">Std Deviation</div>
+                      </div>
+                      <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                        <div className="text-xl font-bold text-green-600">{(monteCarloResult.probabilityOfSuccess * 100).toFixed(1)}%</div>
+                        <div className="text-xs text-gray-600">Success Probability</div>
+                      </div>
+                      <div className="text-center p-3 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                        <div className="text-xl font-bold text-red-600">{(monteCarloResult.probabilityOfLoss * 100).toFixed(1)}%</div>
+                        <div className="text-xs text-gray-600">Loss Probability</div>
+                      </div>
+                    </div>
+                    {/* Distribution histogram */}
+                    <div className="flex items-end gap-px h-32">
+                      {monteCarloResult.distribution.map((val, i) => (
+                        <div key={i} className="flex-1 bg-purple-400 dark:bg-purple-600 rounded-t transition-all" style={{ height: `${Math.max(2, val * 100 * 8)}%` }} />
+                      ))}
+                    </div>
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>P5: {(monteCarloResult.percentile5 * 100).toFixed(0)}%</span>
+                      <span>P25: {(monteCarloResult.percentile25 * 100).toFixed(0)}%</span>
+                      <span>Median: {(monteCarloResult.medianOutcome * 100).toFixed(0)}%</span>
+                      <span>P75: {(monteCarloResult.percentile75 * 100).toFixed(0)}%</span>
+                      <span>P95: {(monteCarloResult.percentile95 * 100).toFixed(0)}%</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </TabsContent>
 
@@ -619,23 +709,27 @@ const Simulation: React.FC = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="text-center p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600">3</div>
-                      <div className="text-sm text-gray-600">Scenarios Analyzed</div>
+                      <div className="text-2xl font-bold text-purple-600">{monteCarloResult ? monteCarloResult.iterations.toLocaleString() : '—'}</div>
+                      <div className="text-sm text-gray-600">Simulations Run</div>
                     </div>
                     <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600">82%</div>
-                      <div className="text-sm text-gray-600">Confidence Level</div>
+                      <div className="text-2xl font-bold text-green-600">{monteCarloResult ? `${(monteCarloResult.probabilityOfSuccess * 100).toFixed(0)}%` : '—'}</div>
+                      <div className="text-sm text-gray-600">Success Probability</div>
                     </div>
                     <div className="text-center p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600">25%</div>
-                      <div className="text-sm text-gray-600">Expected ROI</div>
+                      <div className="text-2xl font-bold text-blue-600">{activeScenario?.outcomes.length || 0}</div>
+                      <div className="text-sm text-gray-600">Outcomes Generated</div>
+                    </div>
+                    <div className="text-center p-4 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                      <div className="text-2xl font-bold text-orange-600">{sensitivityResults.length}</div>
+                      <div className="text-sm text-gray-600">Variables Analyzed</div>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <Button>
+                    <Button onClick={handleExportReport}>
                       <Download className="w-4 h-4 mr-2" />
                       Export PDF
                     </Button>
