@@ -57,7 +57,7 @@ interface SimulationOutcome {
   name: string;
   probability: number;
   roi: number;
-  riskLevel: 'low' | 'medium' | 'high';
+  riskLevel: 'low' | 'medium' | 'high' | 'critical';
   timeline: number;
   resources: number;
   description: string;
