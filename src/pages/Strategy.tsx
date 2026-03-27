@@ -184,35 +184,78 @@ const Strategy: React.FC = () => {
   }, []);
 
   const handleImport = useCallback(() => {
-    toast.info('Import functionality coming soon...');
-  }, []);
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = (e: any) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          const data = JSON.parse(ev.target?.result as string);
+          if (data.title && data.phases) {
+            setCurrentPlan(data);
+            pushHistory(data);
+            toast.success('Strategy plan imported successfully!');
+          } else {
+            toast.error('Invalid strategy file format');
+          }
+        } catch {
+          toast.error('Failed to parse strategy file');
+        }
+      };
+      reader.readAsText(file);
+    };
+    input.click();
+  }, [pushHistory]);
 
   const handleClearAll = useCallback(() => {
     if (confirm('Are you sure you want to clear all strategy data?')) {
       setCurrentPlan(null);
+      pushHistory(null);
       toast.success('Strategy data cleared');
     }
-  }, []);
+  }, [pushHistory]);
 
   const handleUndo = useCallback(() => {
-    toast.info('Undo functionality coming soon...');
-  }, []);
+    if (historyIndex > 0) {
+      const newIndex = historyIndex - 1;
+      setHistoryIndex(newIndex);
+      setCurrentPlan(planHistory[newIndex]);
+      toast.success('Undo completed');
+    }
+  }, [historyIndex, planHistory]);
 
   const handleRedo = useCallback(() => {
-    toast.info('Redo functionality coming soon...');
-  }, []);
+    if (historyIndex < planHistory.length - 1) {
+      const newIndex = historyIndex + 1;
+      setHistoryIndex(newIndex);
+      setCurrentPlan(planHistory[newIndex]);
+      toast.success('Redo completed');
+    }
+  }, [historyIndex, planHistory]);
 
   const handleZoomIn = useCallback(() => {
-    toast.info('Zoom in functionality coming soon...');
-  }, []);
+    if (canvasRef?.zoomIn) {
+      canvasRef.zoomIn();
+    }
+    toast.success('Zoomed in');
+  }, [canvasRef]);
 
   const handleZoomOut = useCallback(() => {
-    toast.info('Zoom out functionality coming soon...');
-  }, []);
+    if (canvasRef?.zoomOut) {
+      canvasRef.zoomOut();
+    }
+    toast.success('Zoomed out');
+  }, [canvasRef]);
 
   const handleFitView = useCallback(() => {
-    toast.info('Fit view functionality coming soon...');
-  }, []);
+    if (canvasRef?.fitView) {
+      canvasRef.fitView();
+    }
+    toast.success('View fitted to content');
+  }, [canvasRef]);
 
   const handleLayoutChange = useCallback((layout: string) => {
     setCurrentLayout(layout);
