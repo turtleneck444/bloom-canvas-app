@@ -297,14 +297,9 @@ const Simulation: React.FC = () => {
       case 'low': return 'bg-green-100 text-green-700 border-green-200';
       case 'medium': return 'bg-yellow-100 text-yellow-700 border-yellow-200';
       case 'high': return 'bg-red-100 text-red-700 border-red-200';
+      case 'critical': return 'bg-red-200 text-red-900 border-red-400';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
-  };
-
-  const getConfidenceColor = (confidence: number) => {
-    if (confidence >= 0.8) return 'bg-green-100 text-green-700 border-green-200';
-    if (confidence >= 0.6) return 'bg-yellow-100 text-yellow-700 border-yellow-200';
-    return 'bg-red-100 text-red-700 border-red-200';
   };
 
   const renderStartScreen = () => (
