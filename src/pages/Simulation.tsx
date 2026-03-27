@@ -193,27 +193,55 @@ const Simulation: React.FC = () => {
     setIsProcessing(true);
     setSimulationProgress(0);
     
-    toast.loading('🤖 Running AI simulation...', {
-      description: 'Analyzing variables and generating outcomes'
+    toast.loading('🤖 Running Monte Carlo simulation...', {
+      description: 'Analyzing 10,000 scenarios with statistical modeling'
     });
 
-    // Simulate progress
-    const interval = setInterval(() => {
-      setSimulationProgress(prev => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsProcessing(false);
-          setActiveScenario(mockScenarios[0]);
-          setActiveScenarios(1);
-          setSimulationCount(prev => prev + 1);
-          toast.success('Simulation completed!', {
-            description: 'Results are ready for analysis'
-          });
-          return 100;
-        }
-        return prev + 10;
-      });
-    }, 200);
+    // Convert scenario variables to engine format
+    const engineVars: EngineVariable[] = (scenario?.variables || mockScenarios[0].variables).map((v: any) => ({
+      ...v,
+      distribution: 'normal' as const,
+      volatility: v.impact === 'high' ? 0.8 : v.impact === 'medium' ? 0.5 : 0.3,
+    }));
+
+    // Run Monte Carlo asynchronously with progress
+    await new Promise<void>((resolve) => {
+      setTimeout(() => {
+        const mcResult = simulationEngine.runMonteCarlo(engineVars, 10000, (pct) => {
+          setSimulationProgress(pct);
+        });
+        setMonteCarloResult(mcResult);
+
+        // Run sensitivity analysis
+        const sensitivity = simulationEngine.runSensitivityAnalysis(engineVars);
+        setSensitivityResults(sensitivity);
+
+        // Generate risk heatmap
+        const heatmap = simulationEngine.generateRiskHeatmap(engineVars);
+        setRiskHeatmap(heatmap);
+
+        // Generate outcomes from real data
+        const realOutcomes = simulationEngine.generateOutcomes(engineVars, mcResult);
+        
+        const updatedScenario = {
+          ...mockScenarios[0],
+          outcomes: realOutcomes,
+          riskScore: 1 - mcResult.probabilityOfSuccess,
+          confidence: mcResult.probabilityOfSuccess,
+          status: 'completed' as const,
+        };
+        
+        setActiveScenario(updatedScenario);
+        setActiveScenarios(1);
+        setSimulationCount(prev => prev + 1);
+        setIsProcessing(false);
+        
+        toast.success('Simulation completed!', {
+          description: `${mcResult.iterations.toLocaleString()} scenarios analyzed • ${(mcResult.probabilityOfSuccess * 100).toFixed(1)}% success probability`
+        });
+        resolve();
+      }, 100); // Small delay to let UI render
+    });
   }, []);
 
   const handleAnalyzeRisk = useCallback(async () => {
