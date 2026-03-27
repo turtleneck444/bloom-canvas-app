@@ -10,6 +10,7 @@ import {
   Activity, Timer, AlertTriangle, CheckSquare, Share2, Edit3,
   Minimize2, Maximize2, ChartBar, LineChart, ScatterChart
 } from 'lucide-react';
+import { simulationEngine, MonteCarloResult, SensitivityResult, RiskHeatmapCell, SimulationVariable as EngineVariable } from '@/services/simulationService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
