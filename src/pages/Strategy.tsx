@@ -60,11 +60,25 @@ const Strategy: React.FC = () => {
   const [nodeCount, setNodeCount] = useState(0);
   const [fundamentalNodesCount, setFundamentalNodesCount] = useState(0);
   const [currentLayout, setCurrentLayout] = useState('freeform');
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
   const [canvasRef, setCanvasRef] = useState<any>(null);
   const [showEnhancedOutput, setShowEnhancedOutput] = useState(false);
   const [strategyElements, setStrategyElements] = useState<any[]>([]);
+  
+  // Undo/Redo history
+  const [planHistory, setPlanHistory] = useState<(StrategyPlan | null)[]>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const canUndo = historyIndex > 0;
+  const canRedo = historyIndex < planHistory.length - 1;
+
+  // Push state to history whenever plan changes meaningfully
+  const pushHistory = useCallback((plan: StrategyPlan | null) => {
+    setPlanHistory(prev => {
+      const newHistory = prev.slice(0, historyIndex + 1);
+      newHistory.push(plan);
+      return newHistory;
+    });
+    setHistoryIndex(prev => prev + 1);
+  }, [historyIndex]);
   
   const [newPlan, setNewPlan] = useState({
     title: '',
