@@ -9,7 +9,7 @@ import Homepage from "./pages/Homepage";
 import Index from "./pages/Index";
 import Presentations from "./pages/Presentations";
 import NotFound from "./pages/NotFound";
-import Meetings from "./pages/Meetings";
+
 import LayoutDemo from "./pages/LayoutDemo";
 import Strategy from "./pages/Strategy";
 import Simulation from "./pages/Simulation";
@@ -24,7 +24,7 @@ import MindMapsDocs from "./pages/MindMapsDocs";
 import StrategyDocs from "./pages/StrategyDocs";
 import SimulationDocs from "./pages/SimulationDocs";
 import PresentationsDocs from "./pages/PresentationsDocs";
-import MeetingsDocs from "./pages/MeetingsDocs";
+
 import WhiteboardDocs from "./pages/WhiteboardDocs";
 
 const queryClient = new QueryClient();
@@ -43,7 +43,7 @@ const App = () => {
             <Route path="/" element={<Homepage />} />
             <Route path="/mindmaps" element={<Index />} />
             <Route path="/presentations" element={<Presentations />} />
-            <Route path="/meetings" element={<Meetings />} />
+            
             <Route path="/strategy" element={<Strategy />} />
             <Route path="/simulation" element={<Simulation />} />
             <Route path="/whiteboard" element={<Whiteboard />} />
@@ -59,7 +59,7 @@ const App = () => {
             <Route path="/strategy/docs" element={<StrategyDocs />} />
             <Route path="/simulation/docs" element={<SimulationDocs />} />
             <Route path="/presentations/docs" element={<PresentationsDocs />} />
-            <Route path="/meetings/docs" element={<MeetingsDocs />} />
+            
             <Route path="/whiteboard/docs" element={<WhiteboardDocs />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

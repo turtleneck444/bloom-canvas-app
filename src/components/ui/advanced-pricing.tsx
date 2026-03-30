@@ -1,194 +1,169 @@
 import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, X, ArrowRight, Phone } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const AdvancedPricing: React.FC = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
-  const pricingTiers = [
+  const tiers = [
     {
-      name: 'Starter',
-      description: 'Perfect for individuals and small teams. No data storage.',
-      price: billingCycle === 'monthly' ? 10 : 100,
-      period: billingCycle === 'monthly' ? 'month' : 'year',
+      name: 'Individual',
+      price: billingCycle === 'monthly' ? 10 : 96,
+      description: 'For solo founders exploring ideas.',
       features: [
-        { name: 'AI Model Access', included: false },
-        { name: 'Mind Map Tool', included: false },
-        { name: 'Presentation Builder', included: false },
-        { name: 'Strategy Co-Pilot', included: false },
-        { name: 'Meeting Assistant', included: false },
-        { name: 'Data Storage', included: false },
-        { name: 'Export Documents', included: false },
+        'All 5 AI tools',
+        '10 projects',
+        'Basic export (PDF)',
+        'Email support',
       ],
-      buttonText: 'Get Started →',
-      buttonVariant: 'outline' as const,
-      popular: false
+      cta: 'Start free trial',
+      popular: false,
     },
     {
-      name: 'Pro Creator',
-      description: 'For professionals who need full access and data storage.',
-      price: billingCycle === 'monthly' ? 29 : 290,
-      period: billingCycle === 'monthly' ? 'month' : 'year',
+      name: 'Professional',
+      price: billingCycle === 'monthly' ? 29 : 278,
+      description: 'For teams shipping fast.',
       features: [
-        { name: 'AI Model Access', included: true, text: 'Full Access' },
-        { name: 'Mind Map Tool', included: true },
-        { name: 'Presentation Builder', included: true },
-        { name: 'Strategy Co-Pilot', included: true },
-        { name: 'Meeting Assistant', included: true },
-        { name: 'Data Storage', included: false, text: '—' },
-        { name: 'Export Documents', included: true },
+        'Everything in Individual',
+        'Unlimited projects',
+        'Advanced AI models',
+        'PPTX & JSON export',
+        'Priority support',
+        'Real-time collaboration',
       ],
-      buttonText: 'Start Pro Trial →',
-      buttonVariant: 'default' as const,
-      popular: true
+      cta: 'Start free trial',
+      popular: true,
     },
     {
       name: 'Enterprise',
-      description: 'For teams and consultants who need scale and custom workflows.',
-      price: billingCycle === 'monthly' ? 99 : 990,
-      period: billingCycle === 'monthly' ? 'month' : 'year',
+      price: null,
+      description: 'For organizations at scale.',
       features: [
-        { name: 'AI Model Access', included: true, text: 'Full Access' },
-        { name: 'Mind Map Tool', included: true },
-        { name: 'Presentation Builder', included: true },
-        { name: 'Strategy Co-Pilot', included: true },
-        { name: 'Meeting Assistant', included: true },
-        { name: 'Data Storage', included: true },
-        { name: 'Export Documents', included: true },
+        'Everything in Professional',
+        'SSO & SAML',
+        'Custom AI workflows',
+        'Dedicated account manager',
+        'SLA & uptime guarantee',
+        'Audit logs',
       ],
-      buttonText: 'Contact Sales 📞',
-      buttonVariant: 'outline' as const,
-      popular: false
-    }
+      cta: 'Contact sales',
+      popular: false,
+    },
   ];
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-20 bg-background">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-4 tracking-tight">
             Simple, transparent pricing
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Start with our $10 plan, then choose the plan that fits your needs.
+          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
+            Start free. Upgrade when you're ready.
           </p>
+
+          {/* Billing Toggle */}
+          <div className="flex items-center justify-center gap-3 mt-6">
+            <button
+              onClick={() => setBillingCycle('monthly')}
+              className={cn(
+                'text-sm font-medium px-4 py-1.5 rounded-lg transition-colors',
+                billingCycle === 'monthly'
+                  ? 'bg-muted text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              Monthly
+            </button>
+            <button
+              onClick={() => setBillingCycle('yearly')}
+              className={cn(
+                'text-sm font-medium px-4 py-1.5 rounded-lg transition-colors',
+                billingCycle === 'yearly'
+                  ? 'bg-muted text-foreground'
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              Yearly
+              <Badge variant="secondary" className="ml-2 text-[10px]">Save 20%</Badge>
+            </button>
+          </div>
         </div>
 
-        {/* Pricing Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-          {pricingTiers.map((tier, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          {tiers.map((tier, i) => (
             <motion.div
               key={tier.name}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="relative"
+              transition={{ duration: 0.4, delay: i * 0.1 }}
+              viewport={{ once: true }}
             >
-              {tier.popular && (
-                <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm font-medium">
-                  Most Popular
-                </Badge>
-              )}
-              
-              <Card className={cn(
-                "h-full border-2 transition-all duration-300 hover:shadow-lg",
-                tier.popular ? "border-blue-200 shadow-lg" : "border-gray-200"
-              )}>
-                <CardHeader className="text-center pb-4">
-                  <CardTitle className="text-xl font-bold text-gray-900">
+              <Card
+                className={cn(
+                  'h-full relative transition-all duration-200',
+                  tier.popular
+                    ? 'border-foreground/20 shadow-md'
+                    : 'border-border'
+                )}
+              >
+                {tier.popular && (
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                    <Badge className="bg-foreground text-background text-xs px-3">
+                      Most popular
+                    </Badge>
+                  </div>
+                )}
+
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-lg font-semibold text-foreground">
                     {tier.name}
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
-                    {tier.description}
-                  </CardDescription>
+                  <p className="text-sm text-muted-foreground">{tier.description}</p>
                 </CardHeader>
-                
-                <CardContent className="text-center">
+
+                <CardContent>
                   <div className="mb-6">
-                    <span className="text-4xl font-bold text-gray-900">
-                      ${tier.price}
-                    </span>
-                    <span className="text-gray-600"> / {tier.period}</span>
-                  </div>
-                  
-                  <Button
-                    variant={tier.buttonVariant}
-                    size="lg"
-                    className={cn(
-                      "w-full",
-                      tier.popular 
-                        ? "bg-blue-600 hover:bg-blue-700 text-white" 
-                        : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                    )}
-                  >
-                    {tier.buttonText}
-                    {tier.buttonText.includes('Contact Sales') ? (
-                      <Phone className="ml-2 h-4 w-4" />
+                    {tier.price !== null ? (
+                      <>
+                        <span className="text-4xl font-bold text-foreground">${tier.price}</span>
+                        <span className="text-muted-foreground text-sm">
+                          /{billingCycle === 'monthly' ? 'mo' : 'yr'}
+                        </span>
+                      </>
                     ) : (
-                      <ArrowRight className="ml-2 h-4 w-4" />
+                      <span className="text-2xl font-bold text-foreground">Custom</span>
                     )}
+                  </div>
+
+                  <Button
+                    className={cn(
+                      'w-full mb-6',
+                      tier.popular ? '' : ''
+                    )}
+                    variant={tier.popular ? 'default' : 'outline'}
+                    size="sm"
+                  >
+                    {tier.cta}
+                    <ArrowRight className="w-3.5 h-3.5 ml-1" />
                   </Button>
+
+                  <ul className="space-y-2.5">
+                    {tier.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                        <Check className="w-4 h-4 text-foreground mt-0.5 flex-shrink-0" />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
                 </CardContent>
               </Card>
             </motion.div>
           ))}
-        </div>
-
-        {/* Features Comparison */}
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-            Features
-          </h3>
-          
-          <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-            <div className="grid grid-cols-4 gap-0">
-              {/* Feature names */}
-              <div className="p-4 bg-gray-50 border-r border-gray-200">
-                <div className="font-medium text-gray-900">Features</div>
-              </div>
-              
-              {/* Plan headers */}
-              {pricingTiers.map((tier) => (
-                <div key={tier.name} className="p-4 bg-gray-50 border-r border-gray-200 text-center">
-                  <div className="font-medium text-gray-900">{tier.name}</div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Feature rows */}
-            {pricingTiers[0].features.map((feature, featureIndex) => (
-              <div key={featureIndex} className="grid grid-cols-4 gap-0 border-t border-gray-200">
-                <div className="p-4 bg-white border-r border-gray-200">
-                  <div className="text-gray-700">{feature.name}</div>
-                </div>
-                
-                {pricingTiers.map((tier) => (
-                  <div key={tier.name} className="p-4 bg-white border-r border-gray-200 text-center">
-                    {tier.features[featureIndex].included ? (
-                      tier.features[featureIndex].text ? (
-                        <span className="text-blue-600 font-medium">
-                          {tier.features[featureIndex].text}
-                        </span>
-                      ) : (
-                        <Check className="h-5 w-5 text-blue-600 mx-auto" />
-                      )
-                    ) : tier.features[featureIndex].text ? (
-                      <span className="text-gray-400">
-                        {tier.features[featureIndex].text}
-                      </span>
-                    ) : (
-                      <div className="w-5 h-5 mx-auto"></div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </section>
