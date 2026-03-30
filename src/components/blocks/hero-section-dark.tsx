@@ -1,825 +1,197 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Link } from "react-router-dom";
-import { Brain, Presentation, Video, Target, Network, Palette } from "lucide-react";
-import { RotatingText } from "@/components/ui/rotating-text";
-import { NOV8GlowCard } from "@/components/ui/spotlight-card";
-import { useState, useEffect } from "react";
+import { Brain, Presentation, Target, Network, PenTool, ArrowRight } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
-import { AnimatedBackground } from "@/components/ui/animated-background";
+import { Button } from "@/components/ui/button";
 
-// Use direct paths to uploaded images
-interface HeroSectionProps extends React.HTMLAttributes<HTMLDivElement> {
-  title?: string;
-  subtitle?: {
-    regular: string;
-    gradient: string;
-  };
-  description?: string;
-  ctaText?: string;
-  ctaHref?: string;
-  bottomImage?: {
-    light: string;
-    dark: string;
-  };
-  gridOptions?: {
-    angle?: number;
-    cellSize?: number;
-    opacity?: number;
-    lightLineColor?: string;
-    darkLineColor?: string;
-  };
-}
 interface PlatformImage {
   id: string;
   name: string;
-  light: string;
-  dark: string;
+  image: string;
   route: string;
   description: string;
-  color: string;
-  textColor: string;
-  activeTextColor: string;
-  hoverTextColor: string;
-  borderColor: string;
-  tabColor: string;
+  icon: React.ElementType;
 }
 
-// Mobile Tab Component
-const MobileTab = ({
-  platform,
-  isActive,
-  onClick
-}: {
-  platform: PlatformImage;
-  isActive: boolean;
-  onClick: () => void;
-}) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  return <motion.div className={`mb-2 last:mb-0 overflow-hidden rounded-xl transition-all duration-300 ${isActive ? 'bg-white shadow-lg' : 'bg-gray-50'}`} initial={false} animate={{
-    height: isExpanded ? "auto" : "60px"
-  }} transition={{
-    duration: 0.3,
-    ease: "easeInOut"
-  }}>
-      <button onClick={() => {
-      setIsExpanded(!isExpanded);
-      onClick();
-    }} className={`w-full px-4 py-3 text-left transition-all duration-300 ${isActive ? 'text-gray-900' : 'text-gray-600'}`}>
-        <div className="flex items-center justify-between">
-          <span className="font-semibold text-sm">{platform.name}</span>
-          <motion.svg className="w-5 h-5" animate={{
-          rotate: isExpanded ? 180 : 0
-        }} transition={{
-          duration: 0.3
-        }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </motion.svg>
-        </div>
-      </button>
-      
-      {isExpanded && <motion.div initial={{
-      opacity: 0,
-      height: 0
-    }} animate={{
-      opacity: 1,
-      height: "auto"
-    }} exit={{
-      opacity: 0,
-      height: 0
-    }} transition={{
-      duration: 0.3
-    }} className="px-4 pb-3">
-          <p className="text-xs text-gray-500 leading-relaxed">
-            {platform.description}
-          </p>
-        </motion.div>}
-    </motion.div>;
-};
-const RetroGrid = ({
-  angle = 65,
-  cellSize = 60,
-  opacity = 0.5,
-  lightLineColor = "gray",
-  darkLineColor = "gray"
-}) => {
-  const gridStyles = {
-    "--grid-angle": `${angle}deg`,
-    "--cell-size": `${cellSize}px`,
-    "--opacity": opacity,
-    "--light-line": lightLineColor,
-    "--dark-line": darkLineColor
-  } as React.CSSProperties;
-  return <div className={cn("pointer-events-none absolute size-full overflow-hidden [perspective:200px]", `opacity-[var(--opacity)]`)} style={gridStyles}>
-      <div className="absolute inset-0 [transform:rotateX(var(--grid-angle))]">
-        <div className="animate-grid [background-image:linear-gradient(to_right,var(--light-line)_1px,transparent_0),linear-gradient(to_bottom,var(--light-line)_1px,transparent_0)] [background-repeat:repeat] [background-size:var(--cell-size)_var(--cell-size)] [height:300vh] [inset:0%_0px] [margin-left:-200%] [transform-origin:100%_0_0] [width:600vw] dark:[background-image:linear-gradient(to_right,var(--dark-line)_1px,transparent_0),linear-gradient(to_bottom,var(--dark-line)_1px,transparent_0)]" />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-white to-transparent to-90% dark:from-black" />
-    </div>;
-};
-const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(({
-  className,
-  title = "Build products for everyone",
-  subtitle = {
-    regular: "Designing your projects faster with ",
-    gradient: "the largest figma UI kit."
-  },
-  description = "Sed ut perspiciatis unde omnis iste natus voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae.",
-  ctaText = "Browse courses",
-  ctaHref = "#",
-  bottomImage = {
-    light: "https://farmui.vercel.app/dashboard-light.png",
-    dark: "https://farmui.vercel.app/dashboard.png"
-  },
-  gridOptions,
-  ...props
-}, ref) => {
-  const platformImages: PlatformImage[] = [{
+const platformImages: PlatformImage[] = [
+  {
     id: "mindmaps",
     name: "Mind Maps",
-    light: "/lovable-uploads/75bf85d0-596f-468f-8091-e10622ee3114.png",
-    dark: "/lovable-uploads/75bf85d0-596f-468f-8091-e10622ee3114.png",
+    image: "/lovable-uploads/75bf85d0-596f-468f-8091-e10622ee3114.png",
     route: "/mindmaps",
-    description: "AI-powered mind mapping and brainstorming",
-    color: "from-blue-500 to-cyan-500",
-    textColor: "text-blue-600",
-    activeTextColor: "text-blue-700",
-    hoverTextColor: "hover:text-blue-700",
-    borderColor: "border-blue-500",
-    tabColor: "tab-blue"
-  }, {
+    description: "AI-powered mind mapping and visual brainstorming",
+    icon: Brain,
+  },
+  {
     id: "presentations",
     name: "Presentations",
-    light: "/lovable-uploads/d84d024c-023c-4ff1-b531-a24099fee90b.png",
-    dark: "/lovable-uploads/d84d024c-023c-4ff1-b531-a24099fee90b.png",
+    image: "/lovable-uploads/d84d024c-023c-4ff1-b531-a24099fee90b.png",
     route: "/presentations",
-    description: "Professional presentation creation and design",
-    color: "from-purple-500 to-pink-500",
-    textColor: "text-purple-600",
-    activeTextColor: "text-purple-700",
-    hoverTextColor: "hover:text-purple-700",
-    borderColor: "border-purple-500",
-    tabColor: "tab-purple"
-  }, {
-    id: "meetings",
-    name: "Meetings",
-    light: "/lovable-uploads/7c48e7cd-de31-44fa-9d5d-5e807debbc72.png",
-    dark: "/lovable-uploads/7c48e7cd-de31-44fa-9d5d-5e807debbc72.png",
-    route: "/meetings",
-    description: "Real-time collaboration and video conferencing",
-    color: "from-green-500 to-emerald-500",
-    textColor: "text-green-600",
-    activeTextColor: "text-green-700",
-    hoverTextColor: "hover:text-green-700",
-    borderColor: "border-green-500",
-    tabColor: "tab-green"
-  }, {
+    description: "Professional presentation creation with AI design",
+    icon: Presentation,
+  },
+  {
     id: "strategy",
-    name: "Strategy Co-Pilot",
-    light: "/lovable-uploads/7f36006b-3ffc-408a-bb5f-1cde6ac045a0.png",
-    dark: "/lovable-uploads/7f36006b-3ffc-408a-bb5f-1cde6ac045a0.png",
+    name: "Strategy",
+    image: "/lovable-uploads/7f36006b-3ffc-408a-bb5f-1cde6ac045a0.png",
     route: "/strategy",
     description: "AI-driven strategic planning and analysis",
-    color: "from-orange-500 to-red-500",
-    textColor: "text-orange-600",
-    activeTextColor: "text-orange-700",
-    hoverTextColor: "hover:text-orange-700",
-    borderColor: "border-orange-500",
-    tabColor: "tab-orange"
-  }, {
+    icon: Target,
+  },
+  {
     id: "simulation",
-    name: "AI Simulation",
-    light: "/lovable-uploads/574dfb20-42a4-420a-8bce-5b5776846087.png",
-    dark: "/lovable-uploads/574dfb20-42a4-420a-8bce-5b5776846087.png",
+    name: "Simulation",
+    image: "/lovable-uploads/574dfb20-42a4-420a-8bce-5b5776846087.png",
     route: "/simulation",
-    description: "Scenario modeling and decision forecasting",
-    color: "from-indigo-500 to-purple-500",
-    textColor: "text-indigo-600",
-    activeTextColor: "text-indigo-700",
-    hoverTextColor: "hover:text-indigo-700",
-    borderColor: "border-indigo-500",
-    tabColor: "tab-indigo"
-  }, {
+    description: "Monte Carlo modeling and decision forecasting",
+    icon: Network,
+  },
+  {
     id: "whiteboard",
-    name: "Digital Whiteboard",
-    light: "/lovable-uploads/91caf522-7af7-4207-8075-af4e91059f84.png",
-    dark: "/lovable-uploads/91caf522-7af7-4207-8075-af4e91059f84.png",
+    name: "Whiteboard",
+    image: "/lovable-uploads/91caf522-7af7-4207-8075-af4e91059f84.png",
     route: "/whiteboard",
-    description: "Real-time collaborative canvas and drawing",
-    color: "from-cyan-500 to-teal-500",
-    textColor: "text-cyan-600",
-    activeTextColor: "text-cyan-700",
-    hoverTextColor: "hover:text-cyan-700",
-    borderColor: "border-cyan-500",
-    tabColor: "tab-cyan"
-  }];
-  const [currentService, setCurrentService] = useState("Mind Maps");
-  useEffect(() => {
-    const serviceName = window.location.pathname.split('/').pop();
-    if (serviceName) {
-      setCurrentService(serviceName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()));
-    }
-  }, []);
-  const currentServiceData = platformImages.find(service => service.name.toLowerCase().replace(/\s/g, '-') === currentService.toLowerCase().replace(/\s/g, '-'));
-  const rotatingTexts = ["Mind Maps", "Presentations", "Meetings", "Strategy Co-Pilot", "AI Simulation", "Digital Whiteboard"];
-  const getServiceColorClass = (serviceName: string) => {
-    const service = platformImages.find(s => s.name.toLowerCase() === serviceName.toLowerCase());
-    if (!service) return "from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200/50 dark:border-purple-700/50";
-    switch (service.name) {
-      case "Mind Maps":
-        return "from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-blue-200/50 dark:border-cyan-700/50";
-      case "Presentations":
-        return "from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-purple-200/50 dark:border-pink-700/50";
-      case "Meetings":
-        return "from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border-green-200/50 dark:border-emerald-700/50";
-      case "Strategy Co-Pilot":
-        return "from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20 border-orange-200/50 dark:border-red-700/50";
-      case "AI Simulation":
-        return "from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border-indigo-200/50 dark:border-purple-700/50";
-      case "Digital Whiteboard":
-        return "from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20 border-cyan-200/50 dark:border-teal-700/50";
-      default:
-        return "from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 border-blue-200/50 dark:border-purple-700/50";
-    }
-  };
-  const mainClassName = `px-3 sm:px-4 md:px-6 bg-gradient-to-r ${getServiceColorClass(currentService)} text-gray-900 dark:text-white text-4xl sm:text-5xl lg:text-7xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm rotating-text-clean rotating-text-${currentService.toLowerCase().replace(/\s+/g, '-')}`;
-  return <div className={cn("relative min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 dark:from-slate-950 dark:via-slate-900 dark:to-slate-800", className)} ref={ref} {...props}>
-        {/* Animated Background */}
-        <AnimatedBackground />
-        
-        {/* Subtle background pattern */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.08)_1px,transparent_0)] bg-[length:24px_24px]" />
-        
-        {/* Hero Section */}
-        <section className="relative z-10 min-h-screen bg-gradient-to-br from-white via-gray-50 to-white pt-24">
-          {/* Hero Content */}
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-[50px]">
-            <div className="text-center max-w-5xl mx-auto mb-20">
-              {/* Announcement Badge */}
-              <div className="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 border border-blue-200 text-sm font-medium text-blue-700 mb-8">
-                <span className="w-2 h-2 bg-blue-500 rounded-full mr-2 animate-pulse"></span>
-                New: AI-Powered Collaboration Suite
-              </div>
+    description: "Collaborative canvas for visual work",
+    icon: PenTool,
+  },
+];
 
-              {/* Main Headline */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 mb-6 sm:mb-8 leading-tight">
-                <span className="text-gray-900">
-                  NOV8
-                </span>
-                {" "}
-                <span className={mainClassName}>
-                  Platform
-                </span>
-              </h1>
+interface HeroSectionProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-              {/* Subtitle */}
-              <p className="text-lg sm:text-xl lg:text-2xl text-gray-600 mb-8 sm:mb-12 max-w-4xl mx-auto leading-relaxed px-4">
-                Transform your ideas into powerful visual workflows. AI-powered collaboration tools for modern teams.
-              </p>
+export const HeroSection = React.forwardRef<HTMLDivElement, HeroSectionProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "relative min-h-screen bg-background overflow-hidden",
+          className
+        )}
+        {...props}
+      >
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,hsl(var(--border))_1px,transparent_0)] bg-[length:32px_32px] opacity-40" />
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center items-center mb-12 sm:mb-20 px-4">
-                <Link to="/book-demo" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto bg-gray-900 text-white px-8 sm:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg-gray-800 transition-all duration-300 transform hover:scale-105">
-                    Get started
-                  </button>
+        {/* Gradient orbs */}
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[radial-gradient(circle,hsl(var(--nov8-primary)/0.06),transparent_70%)]" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[radial-gradient(circle,hsl(var(--nov8-secondary)/0.04),transparent_70%)]" />
+
+        <section className="relative z-10 pt-28 pb-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Hero Copy */}
+            <div className="text-center max-w-4xl mx-auto mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <Badge
+                  variant="outline"
+                  className="mb-6 px-3 py-1 text-xs font-medium border-border text-muted-foreground"
+                >
+                  <span className="w-1.5 h-1.5 bg-[hsl(var(--nov8-accent))] rounded-full mr-2 inline-block" />
+                  Now in Beta — 5 AI-powered tools
+                </Badge>
+              </motion.div>
+
+              <motion.h1
+                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 tracking-tight leading-[1.1]"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                Think faster.{" "}
+                <span className="nov8-gradient-text">Build smarter.</span>
+              </motion.h1>
+
+              <motion.p
+                className="text-lg sm:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              >
+                NOV8 is the AI workspace for startup teams. Mind maps, presentations, 
+                strategy analysis, simulations, and whiteboarding — all in one place.
+              </motion.p>
+
+              <motion.div
+                className="flex flex-col sm:flex-row gap-3 justify-center"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <Link to="/book-demo">
+                  <Button size="lg" className="px-8 text-base">
+                    Start free trial
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
                 </Link>
-                <Link to="/book-demo" className="w-full sm:w-auto">
-                  <button className="w-full sm:w-auto border-2 border-gray-300 text-gray-700 px-8 sm:px-10 py-3 sm:py-4 rounded-xl font-semibold text-base sm:text-lg hover:bg-gray-50 transition-all duration-300">
+                <Link to="/book-demo">
+                  <Button variant="outline" size="lg" className="px-8 text-base">
                     Book a demo
-                  </button>
+                  </Button>
                 </Link>
-              </div>
+              </motion.div>
             </div>
 
-            {/* Enhanced Platform Preview */}
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl border border-gray-200 p-4 sm:p-6 lg:p-12">
-                <div className="mb-6 sm:mb-8">
-                  <h3 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 text-center mb-3 sm:mb-4">
-                    Discover NOV8's Revolutionary Suite
-                  </h3>
-                  <p className="text-sm sm:text-base text-gray-600 text-center max-w-3xl mx-auto">
-                    Experience the future of collaboration with our AI-powered tools that transform how teams create, strategize, and execute
-                  </p>
-                </div>
-                
+            {/* Product Preview */}
+            <motion.div
+              className="relative max-w-6xl mx-auto"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+            >
+              <div className="bg-card rounded-2xl border border-border shadow-lg p-4 sm:p-6">
                 <Tabs defaultValue="mindmaps" className="w-full">
-                  {/* Desktop Tabs */}
-                  <TabsList className="hidden sm:grid sm:grid-cols-3 lg:flex lg:flex-wrap w-full mb-8 bg-gray-100 p-3 rounded-2xl gap-3">
-                    {platformImages.map(platform => <TabsTrigger key={platform.id} value={platform.id} className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-3 py-3 text-xs lg:px-4 lg:py-3 lg:text-sm font-semibold flex-1 min-w-0 border-2 border-transparent data-[state=active]:border-current`}>
-                        <span className="truncate">{platform.name}</span>
-                      </TabsTrigger>)}
-                  </TabsList>
-                  
-                  {/* Mobile Tabs - 3 Columns */}
-                  <TabsList className="sm:hidden mb-8 bg-gray-100 p-3 rounded-2xl grid grid-cols-3 gap-3">
-                    {platformImages.map(platform => <TabsTrigger key={platform.id} value={platform.id} className={`tab-glassmorphism ${platform.tabColor} ${platform.textColor} ${platform.hoverTextColor} transition-all duration-300 rounded-xl px-2 py-3 text-xs font-semibold border-2 border-transparent data-[state=active]:border-current`}>
-                        <span className="truncate text-center">{platform.name}</span>
-                      </TabsTrigger>)}
+                  <TabsList className="w-full flex flex-wrap gap-1.5 bg-muted/50 p-1.5 rounded-xl mb-6">
+                    {platformImages.map((p) => (
+                      <TabsTrigger
+                        key={p.id}
+                        value={p.id}
+                        className="flex-1 min-w-0 text-xs sm:text-sm font-medium rounded-lg px-3 py-2 data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:text-foreground text-muted-foreground transition-all"
+                      >
+                        <p.icon className="w-3.5 h-3.5 mr-1.5 hidden sm:inline-block" />
+                        <span className="truncate">{p.name}</span>
+                      </TabsTrigger>
+                    ))}
                   </TabsList>
 
-                  {platformImages.map(platform => <TabsContent key={platform.id} value={platform.id} className="space-y-6 sm:space-y-8">
-                      <div className="relative group">
-                        <img src={platform.light} alt={platform.name} className="w-full h-auto rounded-xl sm:rounded-2xl shadow-xl sm:shadow-2xl transition-all duration-500 group-hover:scale-105" />
-                        <div className="absolute top-3 right-3 sm:top-6 sm:right-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <button className="bg-white/95 backdrop-blur-sm text-gray-900 px-3 py-2 sm:px-6 sm:py-3 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium shadow-lg sm:shadow-xl border border-gray-200 hover:bg-white transition-all duration-300">
-                            Try {platform.name}
-                          </button>
+                  {platformImages.map((p) => (
+                    <TabsContent key={p.id} value={p.id}>
+                      <div className="relative group rounded-xl overflow-hidden">
+                        <img
+                          src={p.image}
+                          alt={p.name}
+                          className="w-full h-auto rounded-xl transition-transform duration-500 group-hover:scale-[1.02]"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                          <div className="flex items-center justify-between w-full">
+                            <div>
+                              <h3 className="text-lg font-semibold text-foreground">{p.name}</h3>
+                              <p className="text-sm text-muted-foreground">{p.description}</p>
+                            </div>
+                            <Link to={p.route}>
+                              <Button size="sm" variant="secondary">
+                                Open
+                                <ArrowRight className="w-3.5 h-3.5 ml-1" />
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
                       </div>
-                      <div className="text-center px-4">
-                        <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-3 sm:mb-4">{platform.name}</h3>
-                        <p className="text-sm sm:text-lg text-gray-600 max-w-3xl mx-auto">{platform.description}</p>
-                      </div>
-                    </TabsContent>)}
+                    </TabsContent>
+                  ))}
                 </Tabs>
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Animated Services Title Section */}
-        <section className="relative py-16 bg-gradient-to-br from-gray-50 via-white to-blue-50/30 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(59,130,246,0.1)_1px,transparent_0)] bg-[length:32px_32px] opacity-50" />
-          
-          <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center">
-              <motion.div initial={{
-            opacity: 0,
-            y: 20
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 0.8
-          }} viewport={{
-            once: true
-          }}>
-                <Badge variant="outline" className="mb-4 px-4 py-1 text-sm bg-blue-50/80 border-blue-200/50 text-blue-700 dark:bg-blue-900/20 dark:border-blue-700/50 dark:text-blue-300">
-                  Our Services
-                </Badge>
-                <h2 className="text-4xl lg:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-                  Services designed to help you{' '}
-                  <div className="inline-flex items-center">
-                    <RotatingText texts={["grow", "strategize", "collaborate", "innovate", "succeed", "transform", "create", "execute", "scale", "thrive"]} mainClassName="px-3 sm:px-4 md:px-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 text-gray-900 dark:text-white text-4xl lg:text-5xl overflow-hidden py-1 sm:py-2 md:py-3 justify-center rounded-xl shadow-sm border border-blue-200/50 dark:border-purple-700/50" staggerFrom="last" initial={{
-                  y: "100%",
-                  opacity: 0
-                }} animate={{
-                  y: 0,
-                  opacity: 1
-                }} exit={{
-                  y: "-120%",
-                  opacity: 0
-                }} staggerDuration={0.08} splitLevelClassName="overflow-hidden pb-1 sm:pb-2 md:pb-3" transition={{
-                  type: "spring",
-                  damping: 40,
-                  stiffness: 800
-                }} rotationInterval={3000} auto={true} loop={true} />
-                  </div>
-                </h2>
-                <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
-                  Six powerful tools designed to transform how teams work together, from initial ideas to final execution.
-                </p>
-                
-                                {/* Clean Animated Arrow */}
-                <motion.div initial={{
-              opacity: 0,
-              y: 20
-            }} whileInView={{
-              opacity: 1,
-              y: 0
-            }} transition={{
-              duration: 0.8,
-              delay: 0.5
-            }} viewport={{
-              once: true
-            }} className="flex justify-center">
-                  <motion.div animate={{
-                y: [0, 8, 0]
-              }} transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }} className="relative">
-                    <motion.svg className="w-8 h-8 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" animate={{
-                  y: [0, 2, 0]
-                }} transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}>
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
-                    </motion.svg>
-                  </motion.div>
-                </motion.div>
-              </motion.div>
-            </div>
-          </div>
-        </section>
-
-        {/* Services Grid Section - Proper 2x3 Layout */}
-        <section className="pt-6 pb-12 sm:pt-8 sm:pb-16 bg-gradient-to-br from-gray-50 via-white to-gray-100 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(0,0,0,0.02)_1px,transparent_0)] bg-[length:20px_20px]" />
-          
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-            {/* Services Grid - 2 columns, 3 rows */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-              
-              {/* Column 1: Mind Maps, Strategy Co-Pilot, AI Simulation */}
-              <div className="space-y-6">
-                {/* Mind Maps */}
-                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Brain className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Mind Maps</h3>
-                      <p className="text-blue-600 text-xs sm:text-sm font-medium">AI-Powered Visual Thinking</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
-                    Transform ideas into visual workflows with AI-powered suggestions and real-time collaboration. Organize thoughts, brainstorm concepts, and create structured visual representations of complex information.
-                  </p>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <Link to="/mindmaps" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
-                          Start Mapping
-                        </button>
-                      </Link>
-                      <Link to="/mindmaps/docs" className="text-blue-600 hover:text-blue-700 text-sm font-medium underline transition-colors duration-300">
-                        Documentation
-                      </Link>
-                    </div>
-                    <div className="flex space-x-2">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">AI Nodes</span>
-                      <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">Real-time</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Strategy Co-Pilot */}
-                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Target className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Strategy Co-Pilot</h3>
-                      <p className="text-green-600 text-xs sm:text-sm font-medium">AI-Powered Strategic Intelligence</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
-                    AI-driven strategic planning and analysis tools that help teams make better decisions. Leverage advanced frameworks, competitive analysis, and data-driven insights to develop comprehensive strategic roadmaps.
-                  </p>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <Link to="/strategy" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
-                          Plan Strategy
-                        </button>
-                      </Link>
-                      <Link to="/strategy/docs" className="text-green-600 hover:text-green-700 text-sm font-medium underline transition-colors duration-300">
-                        Documentation
-                      </Link>
-                    </div>
-                    <div className="flex space-x-2">
-                      <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">SWOT</span>
-                      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">Analysis</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* AI Simulation */}
-                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <Network className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">AI Simulation</h3>
-                      <p className="text-purple-600 text-xs sm:text-sm font-medium">Scenario Modeling & Forecasting</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
-                    Advanced scenario modeling and decision forecasting with comprehensive analytics. Test different outcomes, assess risks, and optimize strategies through sophisticated AI-powered simulation environments.
-                  </p>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <Link to="/simulation" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
-                          Run Simulation
-                        </button>
-                      </Link>
-                      <Link to="/simulation/docs" className="text-purple-600 hover:text-purple-700 text-sm font-medium underline transition-colors duration-300">
-                        Documentation
-                      </Link>
-                    </div>
-                    <div className="flex space-x-2">
-                      <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full font-medium">What-if</span>
-                      <span className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs rounded-full font-medium">Forecasting</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Column 2: Presentations, Meetings, Digital Whiteboard */}
-              <div className="space-y-6">
-                {/* Presentations */}
-                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Presentation className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Presentations</h3>
-                      <p className="text-orange-600 text-xs sm:text-sm font-medium">AI-Powered Design Studio</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
-                    Create stunning presentations with AI assistance, smart templates, and seamless collaboration. Design professional slides with intelligent layout suggestions and real-time team editing capabilities.
-                  </p>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <Link to="/presentations" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-amber-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
-                          Create Presentation
-                        </button>
-                      </Link>
-                      <Link to="/presentations/docs" className="text-orange-600 hover:text-orange-700 text-sm font-medium underline transition-colors duration-300">
-                        Documentation
-                      </Link>
-                    </div>
-                    <div className="flex space-x-2">
-                      <span className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded-full font-medium">Templates</span>
-                      <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">AI Design</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Meetings */}
-                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg">
-                      <Video className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Meetings</h3>
-                      <p className="text-blue-600 text-xs sm:text-sm font-medium">AI-Powered Video Collaboration</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
-                    Real-time collaboration and video conferencing with AI-powered features and transcription. Host high-quality meetings with intelligent note-taking, action item tracking, and seamless screen sharing capabilities.
-                  </p>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <Link to="/meetings" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-cyan-500 text-white px-4 py-2 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
-                          Join Meeting
-                        </button>
-                      </Link>
-                      <Link to="/meetings/docs" className="text-blue-600 hover:text-blue-700 text-sm font-medium underline transition-colors duration-300">
-                        Documentation
-                      </Link>
-                    </div>
-                    <div className="flex space-x-2">
-                      <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">HD Video</span>
-                      <span className="px-2 py-1 bg-cyan-100 text-cyan-700 text-xs rounded-full font-medium">AI Transcribe</span>
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Digital Whiteboard */}
-                <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300">
-                  <div className="flex items-center space-x-3 sm:space-x-4 mb-4">
-                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-teal-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                      <Palette className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold text-gray-900">Digital Whiteboard</h3>
-                      <p className="text-teal-600 text-xs sm:text-sm font-medium">Real-time Collaborative Canvas</p>
-                    </div>
-                  </div>
-                  <p className="text-gray-600 leading-relaxed mb-4 text-sm sm:text-base">
-                    Real-time collaborative canvas with advanced drawing and design tools for teams to brainstorm, sketch ideas, and create visual workflows together seamlessly.
-                  </p>
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-                      <Link to="/whiteboard" className="w-full sm:w-auto">
-                        <button className="w-full sm:w-auto bg-gradient-to-r from-teal-600 to-emerald-600 text-white px-4 py-2 rounded-lg font-semibold hover:from-teal-700 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg text-sm">
-                          Start Drawing
-                        </button>
-                      </Link>
-                      <Link to="/whiteboard/docs" className="text-teal-600 hover:text-teal-700 text-sm font-medium underline transition-colors duration-300">
-                        Documentation
-                      </Link>
-                    </div>
-                    <div className="flex space-x-2">
-                      <span className="px-2 py-1 bg-teal-100 text-teal-700 text-xs rounded-full font-medium">Real-time</span>
-                      <span className="px-2 py-1 bg-emerald-100 text-emerald-700 text-xs rounded-full font-medium">Collaboration</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        {/* Luxury Fortune 500 Process Section */}
-        <section className="py-20 bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 overflow-hidden relative">
-          {/* Sophisticated Background Pattern */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.08)_1px,transparent_0)] bg-[length:24px_24px]" />
-          
-          {/* Elegant Divider Line */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <motion.div className="w-full max-w-5xl h-px bg-gradient-to-r from-transparent via-slate-300 dark:via-slate-600 to-transparent" initial={{
-          scaleX: 0
-        }} whileInView={{
-          scaleX: 1
-        }} transition={{
-          duration: 2,
-          ease: "easeOut"
-        }} viewport={{
-          once: true
-        }} />
-          </div>
-          
-          <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8">
-            <motion.div initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 1
-        }} viewport={{
-          once: true
-        }} className="text-center mb-16">
-              <div className="inline-flex items-center space-x-2 bg-slate-100 dark:bg-slate-800 px-4 py-2 rounded-full mb-6">
-                <div className="w-2 h-2 bg-slate-400 rounded-full"></div>
-                <span className="text-sm font-medium text-slate-600 dark:text-slate-300 uppercase tracking-wider">Enterprise Process</span>
-              </div>
-              <h2 className="text-4xl lg:text-5xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
-                Three-Step Implementation
-              </h2>
-              <p className="text-lg text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
-                Streamlined onboarding process designed for enterprise teams and Fortune 500 organizations
-              </p>
-            </motion.div>
-
-            <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
-              {/* Step 1 */}
-              <motion.div initial={{
-            opacity: 0,
-            y: 40
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 1,
-            delay: 0.2
-          }} viewport={{
-            once: true
-          }} className="relative group">
-                <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
-                  {/* Step Number */}
-                  <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
-                    <span className="text-white dark:text-slate-900 font-bold text-xs">01</span>
-                  </div>
-                  
-                  {/* Icon */}
-                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center mb-6 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors duration-300">
-                    <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Account Setup</h3>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
-                    Enterprise-grade account creation with SSO integration and advanced security protocols
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Step 2 */}
-              <motion.div initial={{
-            opacity: 0,
-            y: 40
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 1,
-            delay: 0.4
-          }} viewport={{
-            once: true
-          }} className="relative group">
-                <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
-                  {/* Step Number */}
-                  <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
-                    <span className="text-white dark:text-slate-900 font-bold text-xs">02</span>
-                  </div>
-                  
-                  {/* Icon */}
-                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center mb-6 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors duration-300">
-                    <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                    </svg>
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Platform Configuration</h3>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
-                    Customize your workspace with enterprise tools and team collaboration features
-                  </p>
-                </div>
-              </motion.div>
-
-              {/* Step 3 */}
-              <motion.div initial={{
-            opacity: 0,
-            y: 40
-          }} whileInView={{
-            opacity: 1,
-            y: 0
-          }} transition={{
-            duration: 1,
-            delay: 0.6
-          }} viewport={{
-            once: true
-          }} className="relative group">
-                <div className="relative bg-white dark:bg-slate-800 rounded-xl p-8 shadow-sm border border-slate-200 dark:border-slate-700 hover:shadow-lg transition-all duration-700 group-hover:-translate-y-1">
-                  {/* Step Number */}
-                  <div className="absolute -top-4 left-8 w-8 h-8 bg-slate-900 dark:bg-white rounded-full flex items-center justify-center shadow-md border-2 border-white dark:border-slate-800">
-                    <span className="text-white dark:text-slate-900 font-bold text-xs">03</span>
-                  </div>
-                  
-                  {/* Icon */}
-                  <div className="w-12 h-12 bg-slate-100 dark:bg-slate-700 rounded-lg flex items-center justify-center mb-6 group-hover:bg-slate-200 dark:group-hover:bg-slate-600 transition-colors duration-300">
-                    <svg className="w-6 h-6 text-slate-600 dark:text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  
-                  <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-3">Deployment</h3>
-                  <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
-                    Launch your team's productivity with enterprise-grade collaboration and analytics
-                  </p>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Luxury CTA Section */}
-            <motion.div initial={{
-          opacity: 0,
-          y: 30
-        }} whileInView={{
-          opacity: 1,
-          y: 0
-        }} transition={{
-          duration: 1,
-          delay: 0.8
-        }} viewport={{
-          once: true
-        }} className="text-center mt-16">
-              <Link to="/onboarding" className="inline-block">
-                <div className="inline-flex items-center space-x-4 bg-black text-white px-8 py-4 rounded-lg font-semibold text-base transition-all duration-300 hover:scale-105 transform shadow-lg hover:shadow-xl">
-                  <span>Get Started</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </div>
-              </Link>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-4 tracking-wide">
-                Enterprise Security • 99.9% Uptime • 24/7 Support
-              </p>
             </motion.div>
           </div>
         </section>
+      </div>
+    );
+  }
+);
 
-
-
-
-      </div>;
-});
 HeroSection.displayName = "HeroSection";
-export { HeroSection };
