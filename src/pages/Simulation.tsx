@@ -748,15 +748,15 @@ const Simulation: React.FC = () => {
   );
 
   return (
-    <div className="w-full h-screen overflow-hidden flex flex-col bg-gradient-to-br from-purple-50 via-white to-indigo-50/30 dark:from-gray-900 dark:via-gray-950 dark:to-indigo-900/20">
+    <div className="w-full h-screen overflow-hidden flex flex-col bg-background">
       {/* Header */}
-      <div className="h-16 flex-shrink-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between px-6">
-        <div className="flex items-center gap-4">
+      <div className="tool-header">
+        <div className="flex items-center gap-3">
           <ServiceSwitcher current="simulation" />
-          <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-          <div className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-purple-600" />
-            <span className="font-semibold text-gray-900 dark:text-gray-100">AI Simulation & Decision Modeling</span>
+          <div className="h-5 w-px bg-border" />
+          <div className="tool-header-title">
+            <Network className="w-4 h-4" style={{ color: 'hsl(260 60% 58%)' }} />
+            <span className="hidden sm:inline">AI Simulation</span>
           </div>
         </div>
 

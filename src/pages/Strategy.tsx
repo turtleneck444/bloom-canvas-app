@@ -973,9 +973,9 @@ const Strategy: React.FC = () => {
   ];
 
   return (
-    <div className="w-full h-screen flex flex-col bg-gradient-to-br from-emerald-50 via-green-50/30 to-emerald-50/30 dark:from-emerald-900 dark:via-green-900/30 dark:to-emerald-900/30">
+    <div className="w-full h-screen flex flex-col bg-background">
       {/* Top Toolbar */}
-      <div className="w-full h-16 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl border-b border-emerald-200/40 dark:border-emerald-800/40 shadow-2xl z-30 sticky top-0 left-0 overflow-x-auto flex-shrink-0">
+      <div className="w-full h-14 bg-background/80 backdrop-blur-xl border-b border-border z-30 sticky top-0 left-0 overflow-x-auto flex-shrink-0">
         <div className="flex flex-row items-center justify-between px-2 sm:px-4 py-2 h-full gap-y-2 min-w-[320px] w-full">
           
           {/* Left Section - Logo and Core Actions */}

@@ -376,15 +376,15 @@ const Whiteboard: React.FC = () => {
   );
 
   return (
-    <div className="w-full h-screen overflow-hidden flex flex-col bg-gradient-to-br from-cyan-50 via-white to-teal-50/30 dark:from-gray-900 dark:via-gray-950 dark:to-teal-900/20">
+    <div className="w-full h-screen overflow-hidden flex flex-col bg-background">
       {/* Header */}
-      <div className="h-16 flex-shrink-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-b border-gray-200/50 dark:border-gray-700/50 flex items-center justify-between px-6">
-        <div className="flex items-center gap-4">
+      <div className="tool-header">
+        <div className="flex items-center gap-3">
           <ServiceSwitcher current="whiteboard" />
-          <div className="h-6 w-px bg-gray-300 dark:bg-gray-600" />
-          <div className="flex items-center gap-2">
-            <PenTool className="w-5 h-5 text-cyan-600" />
-            <span className="font-semibold text-gray-900 dark:text-gray-100">Professional Digital Whiteboard</span>
+          <div className="h-5 w-px bg-border" />
+          <div className="tool-header-title">
+            <PenTool className="w-4 h-4" style={{ color: 'hsl(190 70% 45%)' }} />
+            <span className="hidden sm:inline">Digital Whiteboard</span>
           </div>
         </div>
 
