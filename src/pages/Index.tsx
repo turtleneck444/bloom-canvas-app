@@ -204,7 +204,7 @@ const Index = () => {
   }, [updateStateFromCanvas]);
 
   return (
-    <div className="w-full h-screen overflow-hidden flex flex-col bg-gradient-to-br from-teal-50 via-white to-cyan-50/30 dark:from-gray-900 dark:via-gray-950 dark:to-cyan-900/20">
+    <div className="w-full h-screen overflow-hidden flex flex-col bg-background">
       <MindMapToolbar
         onAddNode={handleAddNode}
         onSave={handleSave}

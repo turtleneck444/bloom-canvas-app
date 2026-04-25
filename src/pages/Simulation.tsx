@@ -309,7 +309,7 @@ const Simulation: React.FC = () => {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center"
+          className="w-20 h-20 mx-auto rounded-full bg-foreground flex items-center justify-center"
         >
           <Brain className="w-10 h-10 text-white" />
         </motion.div>
@@ -379,7 +379,7 @@ const Simulation: React.FC = () => {
         >
           <Button
             onClick={() => setActiveScenario(mockScenarios[0])}
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+            className="bg-foreground text-background hover:bg-foreground/90"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Start Simulation
@@ -410,7 +410,7 @@ const Simulation: React.FC = () => {
             <Button
               onClick={() => handleRunSimulation(activeScenario)}
               disabled={isProcessing}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+              className="bg-foreground text-background hover:bg-foreground/90"
             >
               {isProcessing ? (
                 <>
@@ -482,7 +482,7 @@ const Simulation: React.FC = () => {
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div 
-                          className="bg-gradient-to-r from-purple-500 to-indigo-500 h-2 rounded-full transition-all duration-300"
+                          className="bg-[hsl(var(--nov8-primary))] h-2 rounded-full transition-all duration-300"
                           style={{ 
                             width: `${((variable.currentValue - variable.minValue) / (variable.maxValue - variable.minValue)) * 100}%` 
                           }}

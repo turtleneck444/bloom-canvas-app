@@ -720,10 +720,10 @@ const Strategy: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center space-y-3"
       >
-        <div className="w-16 h-16 mx-auto rounded-full bg-gradient-to-br from-emerald-600 to-green-500 flex items-center justify-center mb-4">
+        <div className="w-16 h-16 mx-auto rounded-full bg-foreground flex items-center justify-center mb-4">
           <Compass className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-500 bg-clip-text text-transparent">
+        <h1 className="text-3xl font-bold nov8-gradient-text-vivid">
           Strategy Co-Pilot
         </h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 max-w-xl">
@@ -830,7 +830,7 @@ const Strategy: React.FC = () => {
 
           <Button 
             onClick={handleCreatePlan}
-            className="w-full bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white"
+            className="w-full bg-foreground text-background hover:bg-foreground/90"
             disabled={!newPlan.title || !newPlan.domain || !newPlan.timeFrame}
           >
             <Lightbulb className="w-4 h-4 mr-2" />
@@ -986,7 +986,7 @@ const Strategy: React.FC = () => {
               <Button
                 onClick={() => handleGenerateStrategy('New Strategy', { domain: 'business', purpose: 'Strategic planning' })}
                 size="sm"
-                className="h-6 px-2.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white text-xs font-semibold shadow-md"
+                className="h-6 px-2.5 bg-foreground text-background hover:bg-foreground/90 text-xs font-semibold shadow-md"
               >
                 <Brain className="w-3 h-3 mr-1" />
                 Generate
@@ -1119,7 +1119,7 @@ const Strategy: React.FC = () => {
                 <DropdownMenuTrigger asChild>
                   <Button
                     size="sm"
-                    className="h-6 px-2.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white text-xs font-semibold shadow-md"
+                    className="h-6 px-2.5 bg-foreground text-background hover:bg-foreground/90 text-xs font-semibold shadow-md"
                   >
                     <Download className="w-3 h-3 mr-1" />
                     Export
@@ -1262,7 +1262,7 @@ const Strategy: React.FC = () => {
         <div className="md:hidden fixed bottom-4 right-4 z-50">
           <Button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="w-14 h-14 rounded-full bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white shadow-lg"
+            className="w-14 h-14 rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-lg"
             size="lg"
           >
             <Brain className="w-6 h-6" />

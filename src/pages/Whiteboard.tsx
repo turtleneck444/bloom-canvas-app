@@ -232,7 +232,7 @@ const Whiteboard: React.FC = () => {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="w-20 h-20 mx-auto rounded-full bg-gradient-to-br from-cyan-600 to-teal-600 flex items-center justify-center"
+          className="w-20 h-20 mx-auto rounded-full bg-foreground flex items-center justify-center"
         >
           <PenTool className="w-10 h-10 text-white" />
         </motion.div>
@@ -302,7 +302,7 @@ const Whiteboard: React.FC = () => {
         >
           <Button
             onClick={() => setIsCollaborating(true)}
-            className="bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-700 hover:to-teal-700 text-white"
+            className="bg-foreground text-background hover:bg-foreground/90"
           >
             <Sparkles className="w-4 h-4 mr-2" />
             Start Drawing
