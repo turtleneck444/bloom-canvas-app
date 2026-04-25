@@ -55,11 +55,18 @@ const AdvancedPricing: React.FC = () => {
   ];
 
   return (
-    <section className="py-24 bg-background">
+    <section className="py-24 bg-background relative">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
+          <motion.div
+            className="label-mono mb-4"
+            initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+          >
+            ─ Pricing
+          </motion.div>
           <motion.h2
-            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-[-0.02em]"
+            className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-[-0.03em]"
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
@@ -116,15 +123,15 @@ const AdvancedPricing: React.FC = () => {
               transition={{ duration: 0.4, delay: i * 0.1 }}
               viewport={{ once: true }}
               className={cn(
-                'relative rounded-2xl border bg-card p-8 flex flex-col',
+                'relative rounded-2xl border bg-card p-8 flex flex-col transition-all duration-300 hover:-translate-y-1',
                 tier.popular
-                  ? 'border-foreground/20 shadow-lg'
-                  : 'border-border'
+                  ? 'border-[hsl(var(--nov8-primary)/0.4)] shadow-[0_0_0_1px_hsl(var(--nov8-primary)/0.3),0_20px_60px_-20px_hsl(var(--nov8-primary)/0.4)]'
+                  : 'border-border hover:border-[hsl(var(--nov8-primary)/0.2)]'
               )}
             >
               {tier.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-foreground text-background text-xs px-4 py-0.5 font-medium">
+                  <Badge className="bg-foreground text-background text-[10px] px-3 py-0.5 font-semibold tracking-wider uppercase">
                     Most popular
                   </Badge>
                 </div>
