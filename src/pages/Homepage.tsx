@@ -30,35 +30,35 @@ const services = [
     description: 'AI-powered brainstorming with intelligent node generation, multiple layouts, and real-time idea exploration.',
     icon: Brain,
     route: '/mindmaps',
-    accent: '170 70% 45%',
+    accent: '195 100% 60%',
   },
   {
     name: 'Presentations',
     description: 'Professional slide creation with AI design assistance, smart layouts, and one-click export.',
     icon: Presentation,
     route: '/presentations',
-    accent: '30 90% 55%',
+    accent: '215 95% 65%',
   },
   {
     name: 'Strategy Co-Pilot',
     description: 'SWOT analysis, Porter\'s Five Forces, risk assessment, and AI-generated strategic plans.',
     icon: Target,
     route: '/strategy',
-    accent: '142 70% 42%',
+    accent: '175 80% 50%',
   },
   {
     name: 'AI Simulation',
     description: 'Monte Carlo modeling, sensitivity analysis, risk heatmaps, and decision forecasting.',
     icon: Network,
     route: '/simulation',
-    accent: '260 60% 58%',
+    accent: '250 90% 70%',
   },
   {
     name: 'Whiteboard',
     description: 'Collaborative canvas with drawing tools, shape libraries, and freeform visual thinking.',
     icon: PenTool,
     route: '/whiteboard',
-    accent: '190 70% 45%',
+    accent: '230 90% 70%',
   },
 ];
 
@@ -93,31 +93,38 @@ const Homepage: React.FC = () => {
       <HeroSection />
 
       {/* Logo Cloud */}
-      <section className="py-16 border-t border-border">
+      <section className="py-16 border-t border-border relative">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--nov8-primary)/0.4)] to-transparent" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-xs uppercase tracking-[0.2em] text-muted-foreground mb-8 font-medium">
-            Built for teams at
+          <p className="text-center label-mono mb-8">
+            ─ Trusted by teams at ─
           </p>
-          <div className="flex items-center justify-center gap-12 flex-wrap opacity-40">
+          <div className="flex items-center justify-center gap-x-12 gap-y-6 flex-wrap opacity-50">
             {logos.map((name) => (
-              <span key={name} className="text-lg font-bold text-foreground tracking-tight">{name}</span>
+              <span key={name} className="text-lg font-bold text-foreground tracking-tight grayscale hover:grayscale-0 transition-all">{name}</span>
             ))}
           </div>
         </div>
       </section>
 
       {/* Bento Services Grid */}
-      <section className="py-24 bg-background">
+      <section className="py-24 bg-background relative">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
+            <motion.div
+              className="label-mono mb-4"
+              initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }}
+            >
+              ─ The Suite
+            </motion.div>
             <motion.h2
-              className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-[-0.02em]"
+              className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 tracking-[-0.03em]"
               initial={{ opacity: 0, y: 16 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
               viewport={{ once: true }}
             >
-              Five tools. One workspace.
+              Five tools. <span className="text-muted-foreground">One workspace.</span>
             </motion.h2>
             <motion.p
               className="text-muted-foreground text-lg max-w-xl mx-auto"

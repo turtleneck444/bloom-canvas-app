@@ -26,35 +26,35 @@ const services = [
     description: 'AI-powered brainstorming & visual thinking',
     icon: Brain,
     path: '/mindmaps',
-    accent: '170 70% 45%',
+    accent: '195 100% 60%',
   },
   {
     name: 'Presentations',
     description: 'Professional slides with AI design',
     icon: Presentation,
     path: '/presentations',
-    accent: '30 90% 55%',
+    accent: '215 95% 65%',
   },
   {
     name: 'Strategy Co-Pilot',
     description: 'AI-driven strategic planning & analysis',
     icon: Compass,
     path: '/strategy',
-    accent: '142 70% 42%',
+    accent: '175 80% 50%',
   },
   {
     name: 'AI Simulation',
     description: 'Monte Carlo modeling & forecasting',
     icon: Network,
     path: '/simulation',
-    accent: '260 60% 58%',
+    accent: '250 90% 70%',
   },
   {
     name: 'Whiteboard',
     description: 'Collaborative canvas for visual work',
     icon: PenTool,
     path: '/whiteboard',
-    accent: '190 70% 45%',
+    accent: '230 90% 70%',
   },
 ];
 
@@ -79,10 +79,8 @@ const Navigation: React.FC = () => {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-[9999] transition-all duration-300",
-        scrolled
-          ? "glass-nav shadow-sm"
-          : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-[9999] transition-all duration-500",
+        scrolled ? "glass-nav" : "bg-transparent"
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -110,7 +108,7 @@ const Navigation: React.FC = () => {
                   <ChevronDown className="w-3.5 h-3.5 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-80 p-3 bg-popover/95 backdrop-blur-xl border-border">
+              <DropdownMenuContent align="start" className="w-80 p-2 glass-dark border-border/80 rounded-xl shadow-2xl">
                 {services.map((s) => (
                   <DropdownMenuItem key={s.path} asChild>
                     <Link to={s.path} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">

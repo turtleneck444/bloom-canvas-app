@@ -46,9 +46,10 @@ export const Footer = React.forwardRef<HTMLDivElement, FooterProps>(
     return (
       <footer
         ref={ref}
-        className={cn("bg-card border-t border-border", className)}
+        className={cn("relative bg-card border-t border-border", className)}
         {...props}
       >
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--nov8-primary)/0.4)] to-transparent" />
         <div className="max-w-6xl mx-auto px-4 lg:px-8 py-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
             {/* Brand */}
