@@ -79,10 +79,8 @@ const Navigation: React.FC = () => {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-[9999] transition-all duration-300",
-        scrolled
-          ? "glass-nav shadow-sm"
-          : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-[9999] transition-all duration-500",
+        scrolled ? "glass-nav" : "bg-transparent"
       )}
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -110,7 +108,7 @@ const Navigation: React.FC = () => {
                   <ChevronDown className="w-3.5 h-3.5 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-80 p-3 bg-popover/95 backdrop-blur-xl border-border">
+              <DropdownMenuContent align="start" className="w-80 p-2 glass-dark border-border/80 rounded-xl shadow-2xl">
                 {services.map((s) => (
                   <DropdownMenuItem key={s.path} asChild>
                     <Link to={s.path} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer">
